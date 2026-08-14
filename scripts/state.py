@@ -285,6 +285,9 @@ def cmd_reset(args):
 
     if os.path.exists(logs_dir) and os.listdir(logs_dir):
         shutil.copytree(logs_dir, os.path.join(archive_dir, "logs"))
+    workspace_dir = os.path.join(framework_dir, "workspace")
+    if os.path.exists(workspace_dir) and os.listdir(workspace_dir):
+        shutil.copytree(workspace_dir, os.path.join(archive_dir, "workspace"))
     for f in ["hosts.json", "creds.json", "findings.json", "log.jsonl"]:
         src = os.path.join(STATE_DIR, f)
         if os.path.exists(src):
@@ -306,11 +309,20 @@ def cmd_reset(args):
         json.dump({"findings": []}, f)
     with open(os.path.join(STATE_DIR, "log.jsonl"), 'w') as f:
         pass
+    alerts_path = os.path.join(STATE_DIR, "alerts.json")
+    with open(alerts_path, 'w') as f:
+        json.dump([], f)
 
     # logs をクリア
     if os.path.exists(logs_dir):
         shutil.rmtree(logs_dir)
     os.makedirs(logs_dir, exist_ok=True)
+
+    # workspace をクリア
+    workspace_dir = os.path.join(framework_dir, "workspace")
+    if os.path.exists(workspace_dir):
+        shutil.rmtree(workspace_dir)
+    os.makedirs(workspace_dir, exist_ok=True)
 
     print("Reset complete. scope.json は維持されています (手動で更新してください)")
 

@@ -21,7 +21,7 @@
 
 ## ルール
 - 仮説を立てて 1 変数ずつ検証。レシピを盲目的にたどるな
-- **攻撃手法に迷ったら `python3 kb/query.py "キーワード"` で検索せよ**
+- **攻撃手法に迷ったら `python3 kb/kb.py query "キーワード" --json` で検索せよ**
 - 試行 → state.py tried / cred 発見 → state.py cred / 成果 → state.py finding
 - **重大な発見時は即 alert**:
   - root/flag 取得 → `state.py alert --host IP --type root --detail "..."`
