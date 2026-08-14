@@ -1,0 +1,42 @@
+{
+  "claude-opus-4-6":   {"runtime": "claude-code"},
+  "claude-sonnet-4-6": {"runtime": "claude-code"},
+  "claude-haiku-4-5":  {"runtime": "claude-code"},
+  "fugu-ultra": {
+    "runtime": "codex",
+    "codex": {
+      "provider_name": "sakana",
+      "base_url": "https://api.sakana.ai/v1",
+      "api_key_env": "SAKANA_API_KEY",
+      "wire_api": "responses",
+      "catalog": [
+        {
+          "id": "fugu-ultra",
+          "name": "Fugu Ultra",
+          "provider": "sakana",
+          "can_reason": true,
+          "supports_streaming": true,
+          "supports_function_calls": true
+        }
+      ]
+    }
+  },
+  "glm-5.2": {
+    "runtime": "claude-code",
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "$GLM_API_KEY",
+      "ANTHROPIC_BASE_URL": "$GLM_BASE_URL",
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    }
+  },
+  "glm-4.5-air": {
+    "runtime": "claude-code",
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "$GLM_API_KEY",
+      "ANTHROPIC_BASE_URL": "$GLM_BASE_URL",
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    }
+  }
+}

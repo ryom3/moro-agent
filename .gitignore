@@ -1,0 +1,12 @@
+.env
+results/
+logs/
+__pycache__/
+.codex-profiles/
+archive/
+kb/db/
+kb/kb_data/
+kb/notion-export/
+kb/pdf/
+state/tmpl_logs/
+token-report.html

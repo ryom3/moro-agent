@@ -1,0 +1,32 @@
+# Evaluation set — your ground truth for measuring retrieval quality.
+#
+# Aim for 20-30 real queries you'd actually ask, each paired with the chunk(s)
+# you KNOW should surface. A retrieved chunk counts as a hit if it matches ANY
+# predicate under `gold`. Within one predicate, ALL keys must match (AND).
+#
+# Predicate keys:
+#   source_contains, page_title_contains, breadcrumb_contains,
+#   text_contains, id (exact chunk id)
+#
+# Start small and honest: it's fine to eyeball your chunks.jsonl and pick a
+# distinctive substring the right chunk must contain.
+
+- query: "SUID privilege escalation"
+  gold:
+    - breadcrumb_contains: "SUID"
+    - text_contains: "-perm -4000"
+
+- query: "pwnkit CVE"
+  gold:
+    - text_contains: "CVE-2021-4034"
+    - text_contains: "pwnkit"
+
+- query: "SQLインジェクションのやり方"
+  gold:
+    - breadcrumb_contains: "SQLi"
+    - text_contains: "sql injection"
+
+- query: "OSCP 列挙 nmap"
+  gold:
+    - text_contains: "nmap"
+    - breadcrumb_contains: "Enumeration"

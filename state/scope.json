@@ -1,0 +1,9 @@
+{
+    "project": "HackTheBox - Ghostlink",
+    "start": "",
+    "end": "",
+    "networks": [""],
+    "targets": ["10.129.27.15"],
+    "out_of_scope": [],
+    "rules_of_engagement": "HTB lab machine"
+}

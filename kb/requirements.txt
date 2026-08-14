@@ -1,0 +1,33 @@
+# --- core pipeline (needed for both mock and real backends) ---
+chromadb>=1.5
+rank_bm25>=0.2.2
+numpy>=1.24
+pyyaml>=6.0
+requests>=2.31
+
+# --- Japanese segmentation for BM25 (bundled dictionary, offline) ---
+fugashi>=1.3
+unidic-lite>=1.0.8      # swap for `unidic` (full dict) if you want better coverage
+
+# --- PDF ingestion (Phase 2): layout-aware extraction (columns + code fences) ---
+pymupdf>=1.24
+pymupdf4llm>=0.0.17        # optional alternate engine: --pdf-engine pymupdf4llm
+
+# --- OCR for screenshots inside PDFs (optional; enable with `kb ingest --ocr`) ---
+# Also requires the tesseract binary: `apt install tesseract-ocr tesseract-ocr-jpn`
+pytesseract>=0.3.10
+pillow>=10.0
+
+# --- daemon ---
+fastapi>=0.110
+uvicorn>=0.29
+
+# --- Notion API sync (notion_sync.py) ---
+# Only needs `requests` (already listed above). Set NOTION_API_KEY in a .env file
+# placed in the PARENT directory of kb/ (i.e. alongside kb/), or as an env var.
+
+# --- real models (KB_BACKEND=bge). Pulls torch + transformers. ---
+# Downloads BAAI/bge-m3 and BAAI/bge-reranker-v2-m3 from HuggingFace on first use.
+# Comment these out if you only run the mock backend.
+FlagEmbedding>=1.3.0
+

@@ -1,0 +1,24 @@
+# Pentest Framework — 設定ファイル
+#
+# run.sh が読み込む。
+
+# ─── 表示モード ──────────────────────────────────────
+# split: 同一 tmux ウィンドウ内でペイン分割 (デフォルト)
+# tab:   同一 tmux セッション内の別ウィンドウ (タブ切替)
+LAYOUT=split
+
+# tmux セッション名
+TMUX_SESSION=pentest
+
+# ─── モニタリング ────────────────────────────────────
+# 更新間隔 (秒)
+MONITOR_INTERVAL=5
+
+# ─── サブエージェント ────────────────────────────────
+# 同時に起動するサブエージェントの最大数
+MAX_AGENTS=3
+
+# ─── 推論エフォート ──────────────────────────────────
+# Claude Code の effortLevel (low/medium/high)
+# Codex の model_reasoning_effort (low/medium/high)
+EFFORT=high
