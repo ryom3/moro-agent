@@ -9,19 +9,10 @@
       "base_url": "https://api.sakana.ai/v1",
       "api_key_env": "SAKANA_API_KEY",
       "wire_api": "responses",
-      "catalog": [
-        {
-          "id": "fugu-ultra",
-          "name": "Fugu Ultra",
-          "provider": "sakana",
-          "can_reason": true,
-          "supports_streaming": true,
-          "supports_function_calls": true
-        }
-      ]
+      "model_slug": "fugu-ultra-v1.1"
     }
   },
-  "glm-5.2": {
+  "glm-5.3": {
     "runtime": "claude-code",
     "env": {
       "ANTHROPIC_AUTH_TOKEN": "$GLM_API_KEY",

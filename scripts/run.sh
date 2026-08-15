@@ -38,6 +38,7 @@ if tmux list-windows -t "$TMUX_SESSION" -F '#{window_name}' 2>/dev/null | grep -
 fi
 
 # --- models.json → 起動コマンド生成 ---
+export FRAMEWORK_DIR="$DIR"
 LAUNCH_CMD=$(python3 -c "
 import json, os, sys
 
@@ -65,39 +66,38 @@ elif runtime == 'codex':
     base_url = codex_cfg.get('base_url', '')
     env_key = codex_cfg.get('api_key_env', '')
     wire_api = codex_cfg.get('wire_api', 'responses')
-    catalog = codex_cfg.get('catalog', [])
+    model_slug = codex_cfg.get('model_slug', '$MODEL')
 
-    config_dir = os.path.join('$DIR', '.codex-profiles')
-    os.makedirs(config_dir, exist_ok=True)
+    fw_dir = os.environ.get('FRAMEWORK_DIR', os.getcwd())
+    config_dir = os.path.join(fw_dir, '.codex-profiles')
     config_path = os.path.join(config_dir, f'{provider}.config.toml')
     catalog_path = os.path.join(config_dir, f'{provider}.json')
 
+    # config.toml 生成 (カタログは .codex-profiles/ に既にある)
+    os.makedirs(config_dir, exist_ok=True)
+    lines = [
+        f'model = {chr(34)}{model_slug}{chr(34)}',
+        f'model_provider = {chr(34)}{provider}{chr(34)}',
+        f'model_catalog_json = {chr(34)}{catalog_path}{chr(34)}',
+        f'model_reasoning_effort = {chr(34)}high{chr(34)}',
+        f'sandbox_permissions = [{chr(34)}network{chr(34)}]',
+        f'[model_providers.{provider}]',
+        f'name = {chr(34)}{provider}{chr(34)}',
+        f'base_url = {chr(34)}{base_url}{chr(34)}',
+        f'env_key = {chr(34)}{env_key}{chr(34)}',
+        f'wire_api = {chr(34)}{wire_api}{chr(34)}',
+        'stream_idle_timeout_ms = 7200000',
+        'stream_max_retries = 5',
+        'request_max_retries = 4',
+    ]
     with open(config_path, 'w') as f:
-        f.write(f'model = \"$MODEL\"\n')
-        f.write(f'model_provider = \"{provider}\"\n')
-        f.write(f'model_catalog_json = \"{catalog_path}\"\n')
-        f.write(f'model_reasoning_effort = \"high\"\n')
-        f.write(f'[model_providers.{provider}]\n')
-        f.write(f'name = \"{provider}\"\n')
-        f.write(f'base_url = \"{base_url}\"\n')
-        f.write(f'env_key = \"{env_key}\"\n')
-        f.write(f'wire_api = \"{wire_api}\"\n')
-        f.write(f'stream_idle_timeout_ms = 7200000\n')
-        f.write(f'stream_max_retries = 5\n')
-        f.write(f'request_max_retries = 4\n')
-        abs_dir = os.path.abspath('$DIR')
-        f.write(f'[projects.\"{abs_dir}\"]\n')
-        f.write(f'trust_level = \"trusted\"\n')
+        f.write(chr(10).join(lines) + chr(10))
 
-    with open(catalog_path, 'w') as f:
-        json.dump(catalog, f, indent=2)
-
-    # API キーを環境変数として渡す
-    api_key_env = codex_cfg.get('api_key_env', '')
-    if api_key_env:
-        api_key_val = os.environ.get(api_key_env, '')
-        parts.append(f'{api_key_env}={api_key_val}')
-    parts.append(f'CODEX_HOME={config_dir} codex -p {provider} -a never')
+    # API キー
+    api_key_val = os.environ.get(env_key, '')
+    if api_key_val:
+        parts.append(f'{env_key}={api_key_val}')
+    parts.append(f'CODEX_HOME={config_dir} codex -p {provider} -a never -s danger-full-access')
 
 elif runtime == 'aider':
     for k, v in cfg.get('env', {}).items():
@@ -118,7 +118,7 @@ fi
 # --- ログ ---
 mkdir -p "$DIR/logs"
 LOGFILE="$DIR/logs/${AGENT_ID}_$(date +%Y%m%d_%H%M%S).log"
-LOGGED_CMD="script -q -f $LOGFILE -c '$LAUNCH_CMD'"
+LOGGED_CMD="script -q -f $LOGFILE -c '$LAUNCH_CMD; echo \"[AGENT EXITED] Press enter to close\"; read'"
 
 # --- ウィンドウ作成 (常に tab — フルスクリーンで UI が崩れない) ---
 tmux new-window -n "$WIN_NAME" "$LOGGED_CMD"
