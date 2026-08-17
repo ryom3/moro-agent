@@ -244,6 +244,68 @@ def fig_tobe():
 
 
 # ---------------------------------------------------------------------------
+# 図 4: 設計の根拠 (研究・論文 → 知見 → 反映)
+# ---------------------------------------------------------------------------
+def fig_rationale():
+    s = SVG(960, 720)
+    define_gradients(s)
+    section_title(s, "設計の根拠 — 研究・論文による裏付け", "#8fd0ff")
+    s.text(32, 66, "なぜこの設計になったか: 先行研究・技術の知見をどう設計判断に反映したか",
+           11.5, "#8fa0c0", weight=500)
+
+    def card(x, y, w, h, paper, insight, applied, accent):
+        s.rect(x, y, w, h, fill="url(#g)", stroke=accent, sw=1.3, r=12, shadow=True)
+        s.text(x + 16, y + 24, paper, 13.5, "#ffffff", weight=700, maxw=34)
+        s.text(x + 16, y + 46, insight, 10.5, "#9fb0cc", weight=500, maxw=34)
+        s.text(x + 16, y + h - 16, applied, 10.5, "#7fd1a8", weight=600, maxw=34)
+
+    # --- 左: マルチエージェント設計 ---
+    s.rect(30, 78, 430, 32, fill="url(#gBlue)", stroke="#3f8fd0", sw=1.2, r=8)
+    s.text(245, 100, "マルチエージェント設計", 14, "#8fd0ff", anchor="middle", weight=700)
+    L = [
+        ("Sultan 2026",
+         "scaffold > model。同一モデルで scaffold 変更のみで 0→49 タスク解決",
+         "→ CLAUDE.md の指示品質を重視 (モデル変更より指示改善を優先)"),
+        ("CHAP (NDSS 2026)",
+         "Context Relay: 30k トークン超過時の構造化ハンドオフ",
+         "→ state.py relay / handoff_templates.md"),
+        ("NeurIPS 2026",
+         "同一モデル5並列で 7/9 がバイト同一出力 → 役割分化で解消",
+         "→ 攻撃エージェントは異なるモデルを混ぜるルール"),
+        ("XBOW Mid-Year 2026",
+         "\"route the right model to the right task\"",
+         "→ 偵察は安く / 攻撃は強く (models.json で選定)"),
+    ]
+    for i, (p, ins, app) in enumerate(L):
+        card(30, 118 + i * 141, 430, 132, p, ins, app, "#3f5a8f")
+
+    # --- 右: RAG ---
+    s.rect(500, 78, 430, 32, fill="url(#gBlue)", stroke="#3f8fd0", sw=1.2, r=8)
+    s.text(715, 100, "RAG (ナレッジベース)", 14, "#8fd0ff", anchor="middle", weight=700)
+    R = [
+        ("BGE-M3 (arXiv:2402.03216)",
+         "多言語 dense embedding (日英混在対応)",
+         "→ kb/ の embedding モデル"),
+        ("HNSW (arXiv:1603.09320)",
+         "近似最近傍探索で大規模ベクトル検索を高速化",
+         "→ ChromaDB 内部で使用"),
+        ("BM25",
+         "スパース検索。\"SUID\" 等の具体トークンに強い",
+         "→ ハイブリッド検索 (dense + sparse)"),
+        ("RRF (SIGIR 2009)",
+         "Reciprocal Rank Fusion で dense/sparse を統合",
+         "→ kb/ の検索パイプライン"),
+        ("bge-reranker-v2-m3",
+         "クロスエンコーダーで再順位付け (nDCG +10〜20pt)",
+         "→ kb/ のリランキング層"),
+    ]
+    for i, (p, ins, app) in enumerate(R):
+        card(500, 118 + i * 108, 430, 100, p, ins, app, "#2f7fa8")
+
+    return s
+
+
+# ---------------------------------------------------------------------------
 # HTML
 # ---------------------------------------------------------------------------
 def page(figs, title, subtitle):
@@ -336,11 +398,12 @@ def main():
         (fig_current(), "現在のアーキテクチャ — 全体フロー"),
         (fig_philosophy(), "設計思想 — ランタイム差し替え / 実行と観察の分離 / 共通契約"),
         (fig_tobe(), "コンポーネント構成 — ランタイム層 + ツール層をレジストリとMCPで接続"),
+        (fig_rationale(), "設計の根拠 — 研究・論文から設計判断への反映"),
     ]
     if args.svg_dir:
         import os
         os.makedirs(args.svg_dir, exist_ok=True)
-        names = ["arch-flow", "principles", "components"]
+        names = ["arch-flow", "principles", "components", "rationale"]
         for (fig, _), name in zip(figs, names):
             path = os.path.join(args.svg_dir, f"{name}.svg")
             with open(path, "w") as f:
@@ -352,7 +415,7 @@ def main():
         chrom = shutil.which("chromium") or shutil.which("chromium-browser")
         if chrom:
             sizes = {"arch-flow": (960, 720), "principles": (960, 420),
-                     "components": (960, 680)}
+                     "components": (960, 680), "rationale": (960, 720)}
             for name in names:
                 w, h = sizes[name]
                 svg = os.path.join(args.svg_dir, f"{name}.svg")

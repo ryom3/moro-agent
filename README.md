@@ -145,3 +145,29 @@ CLAUDE.md, handoff_templates.md, models.json, config, state/scope.json を読ん
 ```bash
 python3 -m pytest          # tools/ (CORS 分析 16 テスト)
 ```
+
+## 設計の根拠（研究・論文）
+
+「なぜこの設計か」は、先行研究・技術の知見を土台にしている。以下は主要な裏付けと、
+それぞれをどう設計判断に反映したかの対応表。
+
+<img src="docs/rationale.png" alt="設計の根拠 — 研究・論文から設計判断への反映" width="100%">
+
+### マルチエージェント設計
+
+| 論文 / プロジェクト | 知見 | フレームワークへの反映 |
+|---|---|---|
+| **Sultan 2026** | scaffold > model。同一モデルで scaffold を変えただけで 0 → 49 タスク解決 | `CLAUDE.md` の指示品質を重視。モデル変更より指示改善を優先 |
+| **CHAP (NDSS 2026)** | Context Relay — 30k トークン超過時の構造化ハンドオフ | `state.py relay` / `handoff_templates.md` の設計 |
+| **NeurIPS 2026** | 同一モデル 5 並列 → 7/9 クエリがバイト同一出力 → 役割分化で解消 | モデル多様性ルール（攻撃エージェントは異なるモデルを混ぜる） |
+| **XBOW Mid-Year 2026** | "route the right model to the right task" が結論 | 偵察は安く / 攻撃は強く。`models.json` でモデル選定を構造化 |
+
+### RAG（ナレッジベース）
+
+| 論文 / 技術 | 内容 | フレームワークへの反映 |
+|---|---|---|
+| **BGE-M3** (arXiv:2402.03216) | 多言語 dense embedding。日英混在対応 | `kb/` の embedding モデル |
+| **HNSW** (arXiv:1603.09320) | 近似最近傍探索。大規模ベクトル検索を高速化 | ChromaDB 内部で使用 |
+| **BM25** | スパースキーワード検索。"SUID" 等の具体的トークンに強い | `kb/` のハイブリッド検索（dense + sparse） |
+| **RRF** (SIGIR 2009) | Reciprocal Rank Fusion。dense と sparse の検索結果を統合 | `kb/` の検索パイプライン |
+| **bge-reranker-v2-m3** | クロスエンコーダーによるリランキング。nDCG を 10–20pt 改善 | `kb/` のリランキング層 |
