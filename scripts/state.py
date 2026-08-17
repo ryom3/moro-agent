@@ -165,6 +165,7 @@ def cmd_finding(args):
             "added_at": datetime.now(timezone.utc).isoformat()
         }
         findings["findings"].append(entry)
+    append_log({"action": "finding-add", "host": args.host, "heading": args.heading})
     print(f"FINDING #{entry['id']}: {args.heading}")
 
 def cmd_log(args):
