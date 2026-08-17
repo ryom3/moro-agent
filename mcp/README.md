@@ -46,6 +46,16 @@ args = ["/home/kali/Desktop/pentest-framework/mcp/server.py"]
 全ツールが `state/` (イベントストリーム含む) と KB を共通で読み書きするため、
 ランタイムが何であっても状態・知識の一貫性が保たれる。
 
+## Codex への登録
+
+`mcp_setup.sh` は Codex にも同じサーバを登録する。Codex は `CODEX_HOME=.codex-profiles`
+で起動するため、登録先は `.codex-profiles/config.toml` の `[mcp_servers.pentest]` になる。
+`codex -p sakana` プロファイル起動でも MCP サーバは読み込まれる (検証済み)。
+
+```
+CODEX_HOME=.codex-profiles codex mcp add pentest --env PENTEST_PYTHON=python3 -- \
+    mcp/.venv/bin/python mcp/server.py
+```
 ## 自動セットアップ
 
 `scripts/start.sh` が起動時に `scripts/mcp_setup.sh` を呼び、以下を冪等に実行する。
