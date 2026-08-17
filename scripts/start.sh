@@ -12,6 +12,10 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 [ -f "$DIR/.env" ] && { set -a; source "$DIR/.env"; set +a; }
 TMUX_SESSION="${TMUX_SESSION:-pentest}"
 
+# MCP セットアップ (冪等): venv 作成 + Claude Code へ kb_query/state_* ツールを登録。
+# 一度登録すれば監督AI も run.sh 経由のサブエージェントも自動でツール利用可能。
+[ -x "$DIR/scripts/mcp_setup.sh" ] && bash "$DIR/scripts/mcp_setup.sh"
+
 # バグバウンティモード: CLAUDE.md → CLAUDE-bb.md に切替
 if echo "$*" | grep -q -- '--bb'; then
     if [ -f "$DIR/CLAUDE-bb.md" ]; then

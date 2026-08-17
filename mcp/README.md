@@ -45,3 +45,12 @@ args = ["/home/kali/Desktop/pentest-framework/mcp/server.py"]
 
 全ツールが `state/` (イベントストリーム含む) と KB を共通で読み書きするため、
 ランタイムが何であっても状態・知識の一貫性が保たれる。
+
+## 自動セットアップ
+
+`scripts/start.sh` が起動時に `scripts/mcp_setup.sh` を呼び、以下を冪等に実行する。
+- `mcp/.venv` が無ければ作成 + `mcp` SDK を install
+- `claude mcp add pentest -- ...` で Claude Code に登録 (未登録時のみ)
+
+登録は Claude Code のグローバル/プロジェクト設定に書かれるため、一度登録すれば
+監督AI も `run.sh` 経由のサブエージェントも自動で `kb_query` / `state_*` を利用できる。
