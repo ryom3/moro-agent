@@ -34,3 +34,6 @@ mcp/.venv/
 # --bb のスワップ残骸 (自己復旧用・一時ファイル)
 .bb-active
 CLAUDE.md.pentest
+
+# MCP サーバ定義 (mcp_setup.sh が都度生成。絶対パスのためgit管理しない)
+.mcp.json
