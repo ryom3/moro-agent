@@ -20,6 +20,30 @@ if [ "${1:-}" = "--monitor" ]; then
     exit 0
 fi
 
+# --- 観察モード (実行と観察の分離) ---
+# エージェントを実行する tmux ペインに入らず、ログ/イベントを tail -f するだけの「窓」。
+# TUI エージェントの実行コンテナとは独立に観察できる (巻き戻し・複数人での同時閲覧も可)。
+if [ "${1:-}" = "--tail" ]; then
+    if [ -z "${TMUX:-}" ]; then echo "tmux の中で実行してください"; exit 1; fi
+    if [ -n "${2:-}" ]; then
+        LOG=$(ls -t "$DIR/logs/${2}_"*.log 2>/dev/null | head -1)
+    else
+        LOG=$(ls -t "$DIR/logs/"*.log 2>/dev/null | head -1)
+    fi
+    AGENT="${2:-$(basename "${LOG:-none}" | cut -d_ -f1)}"
+    if [ -z "$LOG" ]; then echo "ログが見つかりません"; exit 1; fi
+    tmux new-window -n "view-${AGENT}" "cd $DIR && tail -n +1 -f '$LOG'"
+    echo "[view] ${AGENT} → tab:view-${AGENT} (log: $LOG)"
+    exit 0
+fi
+
+if [ "${1:-}" = "--events" ]; then
+    if [ -z "${TMUX:-}" ]; then echo "tmux の中で実行してください"; exit 1; fi
+    tmux new-window -n "events" "cd $DIR && tail -n +1 -f state/events.jsonl 2>/dev/null"
+    echo "[view] structured events stream (state/events.jsonl)"
+    exit 0
+fi
+
 # --- 引数パース ---
 KNOWN_MODELS=$(python3 "$DIR/scripts/runner.py" models)
 
