@@ -16,16 +16,27 @@ TMUX_SESSION="${TMUX_SESSION:-pentest}"
 # 一度登録すれば監督AI も run.sh 経由のサブエージェントも自動でツール利用可能。
 [ -x "$DIR/scripts/mcp_setup.sh" ] && bash "$DIR/scripts/mcp_setup.sh"
 
-# バグバウンティモード: CLAUDE.md → CLAUDE-bb.md に切替
+# バグバウンティモード: 監督AIの指示を CLAUDE-bb.md に切り替える。
+# CLAUDE.md は常にペンテスト版 (正) を保ち、--bb では「安全なスワップ + 終了時復元」
+# を行う。tmux kill-session / クラッシュ等で復元できなかった場合も、次回起動時に
+# 自己復旧 (CLAUDE.md.pentest が残っていれば復元) する。
+BB_MARKER="$DIR/.bb-active"
 if echo "$*" | grep -q -- '--bb'; then
-    if [ -f "$DIR/CLAUDE-bb.md" ]; then
-        # 一時的に CLAUDE.md を退避して CLAUDE-bb.md を使用
-        cp "$DIR/CLAUDE.md" "$DIR/CLAUDE.md.bak"
-        cp "$DIR/CLAUDE-bb.md" "$DIR/CLAUDE.md"
-        trap "mv $DIR/CLAUDE.md.bak $DIR/CLAUDE.md 2>/dev/null" EXIT
+    if [ -f "$DIR/CLAUDE-bb.md" ] && ! cmp -s "$DIR/CLAUDE.md" "$DIR/CLAUDE-bb.md"; then
+        cp "$DIR/CLAUDE.md" "$DIR/CLAUDE.md.pentest"   # 退避: 正のペンテスト版
+        cp "$DIR/CLAUDE-bb.md" "$DIR/CLAUDE.md"        # bb版を有効化
+        touch "$BB_MARKER"
+        restore_bb() { mv "$DIR/CLAUDE.md.pentest" "$DIR/CLAUDE.md" 2>/dev/null; rm -f "$BB_MARKER"; }
+        trap restore_bb EXIT INT TERM
     fi
     # --bb を引数から除去
     set -- $(echo "$*" | sed 's/--bb//')
+fi
+
+# 自己復旧: 非 --bb 起動時に前回の --bb の残骸 (ペンテスト退避) が残っていれば復元
+if [ ! -f "$BB_MARKER" ] && [ -f "$DIR/CLAUDE.md.pentest" ]; then
+    mv "$DIR/CLAUDE.md.pentest" "$DIR/CLAUDE.md"
+    echo "[start] 前回の --bb スワップ残骸を自己復旧しました (CLAUDE.md を復元)"
 fi
 
 # モデル名を引数から取得

@@ -30,3 +30,7 @@ docs/DESIGN.pdf
 
 # --- MCP サーバ専用 venv (mcp SDK の隔離環境) ---
 mcp/.venv/
+
+# --bb のスワップ残骸 (自己復旧用・一時ファイル)
+.bb-active
+CLAUDE.md.pentest
