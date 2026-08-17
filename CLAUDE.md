@@ -79,18 +79,51 @@ python3 scripts/state.py cred --user U --secret S --source SRC
 python3 scripts/state.py finding --host IP --step N --heading "..." --narrative "..."
 python3 scripts/state.py log --host IP --action "..." --result success|fail
 python3 scripts/state.py spray --cred-id N        # cred を全ホストに spray
+python3 scripts/state.py event --type T --detail "..."  # 任意イベントを events.jsonl に記録
 ```
+※ state コマンドは MCP ツール (`state_*`) としても自然言語で呼べる。二重管理に注意し、
+どちらか一方に統一せよ (基本は MCP ツールを推奨)。
 
 ### run.sh — サブエージェントの起動
 ```bash
 ./scripts/run.sh claude-sonnet-4-6 "172.16.50.55 を偵察して"
 ./scripts/run.sh fugu-ultra ".52 を別の視点で再検証して"
-./scripts/run.sh recon-1 claude-haiku-4-5 "偵察して"   # 名前付き
-./scripts/run.sh attack-1 claude-sonnet-4-6 "攻撃して"  # 名前付き
-./scripts/run.sh claude-opus-4-6                        # 対話モード
-./scripts/run.sh --monitor                              # 状態ダッシュボード
-# 利用可能なモデル → models.json / 追加 = models.json + .env
+./scripts/run.sh recon-1 claude-haiku-4-5 "偵察して"     # 名前付き (AGENT_ID)
+./scripts/run.sh attack-1 claude-sonnet-4-6 "攻撃して"   # 名前付き
+./scripts/run.sh dsh-default "172.16.50.60 を再検証して" # DSHランタイム
+./scripts/run.sh claude-opus-4-6                         # 対話モード
+# 利用可能なモデル → models.json / ランタイム解決 → scripts/runner.py
 ```
+
+### 観察 (実行とは分離された「窓」)
+サブエージェントの進捗は、実行中の tmux ペインに直接入るのではなく、
+ログ/イベントを tail -f する窓で観察せよ (実行コンテナと観察は分離されている)。
+```bash
+./scripts/run.sh --tail [AGENT_ID]   # そのエージェントのログを tail -f (窓を開く)
+./scripts/run.sh --events            # 構造化イベントストリーム (events.jsonl) を follow
+./scripts/run.sh --monitor           # state 概要を watch
+tail -f state/events.jsonl           # あるいは直接イベントストリームを読む
+```
+
+### MCP ツール (自然言語で呼べる)
+`start.sh` が `kb_query` / `state_*` を MCP ツールとして登録済み。これは
+**あなた (監督者) もサブエージェントも、bash を経由せず自然言語で呼べる**。
+使える場面では MCP ツールを優先せよ (bash 文字列の構築ミスを避けられる)。
+- `kb_query` — KB 検索
+- `state_show` / `state_finding` / `state_alert` / `state_cred` / `state_host` /
+  `state_tried` / `state_log` / `state_spray` / `state_relay` / `state_resume` / `state_event`
+
+### kb/kb.py — ナレッジベース検索 (CLI 直接)
+MCP の `kb_query` ツールが使えない場合は CLI で呼べ。
+攻撃手法に迷ったら検索せよ。OSCP/OSAI の writeup、チートシート、攻撃手順が含まれている。
+サブエージェントにタスクを渡す前に関連知識を検索し、指示に含めろ。
+```bash
+python3 kb/kb.py query "Kerberoasting lateral movement"          # 人間向け
+python3 kb/kb.py query "SUID privesc" --json --top 5             # エージェント用 (JSON)
+python3 kb/kb.py query "SQLi bypass WAF" --tag cheatsheet        # タグでフィルタ
+python3 kb/kb.py status                                           # KB の状態確認
+```
+デーモンが起動していれば高速。起動していなければ `python3 kb/kb.py serve &` で起動せよ。
 
 ### kb/kb.py — ナレッジベース検索
 攻撃手法に迷ったら検索せよ。OSCP/OSAI の writeup、チートシート、攻撃手順が含まれている。
@@ -116,8 +149,9 @@ python3 kb/kb.py status                                           # KB の状態
 **3. 攻撃エージェントは異なるモデルを混ぜろ**
 攻撃エージェントを複数起動する場合、同じモデルだけ使うな。同じモデルは同じ解法に収束する。
 **models.json の全モデルを活用せよ。特定の runtime に偏るな。**
-Claude Code 系 (opus, sonnet, haiku, glm) だけでなく、Codex 系 (fugu-ultra) も積極的に使え。
-行き詰まったら必ず異なる runtime のモデルに切り替えろ。
+Claude Code 系 (opus, sonnet, haiku, glm)、Codex 系 (fugu-ultra)、
+**DSH 系 (dsh-default)** をまんべんなく使え。DSH はループ自体が異なる (DSH 製) ため、
+行き詰まった時の「別の頭脳」として特に有効。行き詰まったら必ず異なる runtime に切り替えろ。
 
 ## Context Relay — セッション引き継ぎ
 
@@ -193,15 +227,16 @@ relay を受け取ったらテンプレート 3 で判断する。
 まず以下を確認しろ:
 1. `workspace/strategy.md` を読む (前の自分が起動した理由が書いてある)
 2. `state.py show` で状態を確認
-3. `logs/` のログを読む (そのエージェントが何をしているか分かる)
+3. `logs/` のログ または `./scripts/run.sh --tail <ID>` でそのエージェントの活動を確認
+4. `state/events.jsonl` でイベント履歴を確認
 理解してから判断しろ。分からなければ人間に聞け。
 
 ### サブエージェント起動後の行動
 サブエージェントを起動したら、定期的に進捗を確認せよ。
 
 ```bash
-# 5分待ってから確認
-sleep 300 && python3 scripts/state.py show && cat state/alerts.json
+# 5分待ってから確認 (状態サマリ + アラート + イベントストリーム末尾)
+sleep 300 && python3 scripts/state.py show && cat state/alerts.json && tail -5 state/events.jsonl
 ```
 
 確認後の判断:
@@ -260,6 +295,9 @@ sleep 300 && python3 scripts/state.py show && cat state/alerts.json
 
 サブエージェントを止めて再割当:
 ```bash
+# 観察窓を開いて対象エージェントを確認 (実行ペインに直接入らない)
+./scripts/run.sh --tail <AGENT_ID>
+# 停止は実行中の tmux ウィンドウにシグナルを送る
 tmux send-keys -t <ウィンドウ名> C-c
 tmux send-keys -t <ウィンドウ名> "/exit" Enter
 # 新しいタスクで再起動
