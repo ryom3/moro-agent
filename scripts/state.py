@@ -23,15 +23,6 @@ def load_json(name):
     with open(path, 'r') as f:
         return json.load(f)
 
-def save_json(name, data):
-    path = os.path.join(STATE_DIR, name)
-    with open(path, 'r+') as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        f.seek(0)
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.truncate()
-        fcntl.flock(f, fcntl.LOCK_UN)
-
 
 @contextlib.contextmanager
 def locked_json(name, default):
@@ -88,15 +79,14 @@ def emit_event(event_type, **fields):
     """構造化イベントを state/events.jsonl に追記。
 
     全エージェント・全ランタイムが共通で参照するイベントストリーム。
-    {ts, agent, event, ...fields} の形。リファクタ後の観察レイヤー /
-    ハンドオフの契約になる。
+    {ts, agent, event, ...fields} の形 (None なフィールドは記録しない)。
     """
     rec = {
         "ts": datetime.now(timezone.utc).isoformat(),
         "agent": os.environ.get("AGENT_ID", "unknown"),
         "event": event_type,
     }
-    rec.update(fields)
+    rec.update({k: v for k, v in fields.items() if v is not None})
     _append_jsonl("events.jsonl", rec)
     return rec
 
@@ -151,6 +141,14 @@ def cmd_cred(args):
 def cmd_finding(args):
     """レポート用の finding を追加"""
     with locked_json("findings.json", {"findings": []}) as findings:
+        # リトライによる完全重複 (同 host/heading/narrative) を弾く
+        # (Codex 等がツール呼び出しを retry して同一 finding を複数記録するのを防止)
+        for existing in findings["findings"]:
+            if (existing.get("host") == args.host
+                    and existing.get("heading") == args.heading
+                    and existing.get("narrative") == args.narrative):
+                print(f"DUPLICATE — {args.heading} on {args.host} already recorded (id={existing['id']})")
+                return
         new_id = max([f.get("id", 0) for f in findings["findings"]] + [0]) + 1
         entry = {
             "id": new_id,
