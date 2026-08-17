@@ -72,6 +72,9 @@ CLAUDE.md, handoff_templates.md, models.json, config, state/scope.json を読ん
 - **state/ が唯一の接点** — エージェント間通信は JSON 経由。tried 配列で重複排除
 - **ランタイム差し替え** — `scripts/runner.py` のレジストリでモデル→ランタイムを解決。
   Claude Code / Codex / aider を差し替え、新ランタイム (dsh 等) は 1 エントリ追加で拡張
+- **dsh ランタイム** — `dsh --profile headless "タスク"` で DeepSeek Harness 自身を
+  ワンショットのサブエージェントとして起動 (プロンプトは argv で渡す)。モデル・認証は
+  DSH 設定 ($DSH_HOME) に従う。models.json の `dsh-default` が対応。
 - **共通契約** — `events.jsonl`(構造化イベント) + MCP(`mcp/server.py`) で
   どのランタイムからも同じツール・状態を同じ形で呼べる
 - **実行と観察の分離** — tmux は観察窓 (`--tail`/`--events`)。ログ・イベントが真実の源

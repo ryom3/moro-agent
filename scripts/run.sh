@@ -69,7 +69,8 @@ fi
 
 # --- models.json → 起動コマンド生成 (ランタイムレジストリへ委譲) ---
 export FRAMEWORK_DIR="$DIR"
-LAUNCH_CMD=$(python3 "$DIR/scripts/runner.py" command "$MODEL" "$AGENT_ID")
+PROMPT_MODE=$(python3 "$DIR/scripts/runner.py" prompt-mode "$MODEL")
+LAUNCH_CMD=$(python3 "$DIR/scripts/runner.py" command "$MODEL" "$AGENT_ID" "$PROMPT")
 
 # --- tmux 内チェック ---
 if [ -z "${TMUX:-}" ]; then
@@ -80,7 +81,8 @@ fi
 # --- ログ ---
 mkdir -p "$DIR/logs"
 LOGFILE="$DIR/logs/${AGENT_ID}_$(date +%Y%m%d_%H%M%S).log"
-LOGGED_CMD="script -q -f $LOGFILE -c '$LAUNCH_CMD; echo \"[AGENT EXITED] Press enter to close\"; python3 \"$DIR/scripts/state.py\" event --type agent_done --field runtime_done=1 2>/dev/null; read'"
+# -c は二重引用で括る (argvランタイムのプロンプトが shlex.quote によるシングルクォートを含むため)
+LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; read\""
 
 # ライフサイクルイベントを events.jsonl に記録 (共通契約)
 python3 "$DIR/scripts/state.py" event --type agent_start --host "" --detail "$MODEL" \
@@ -89,8 +91,8 @@ python3 "$DIR/scripts/state.py" event --type agent_start --host "" --detail "$MO
 # --- ウィンドウ作成 (常に tab — フルスクリーンで UI が崩れない) ---
 tmux new-window -n "$WIN_NAME" "$LOGGED_CMD"
 
-# --- プロンプト送信 ---
-if [ -n "$PROMPT" ]; then
+# --- プロンプト送信 (tui のみ。argv/stdin は既に起動コマンド/標準入力に含む) ---
+if [ -n "$PROMPT" ] && [ "$PROMPT_MODE" = "tui" ]; then
     # Claude Code の起動を待つ
     for i in $(seq 1 20); do
         sleep 1

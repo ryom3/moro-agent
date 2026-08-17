@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import sys
 
 FRAMEWORK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -81,10 +82,21 @@ def build_aider(model: str, cfg: dict) -> list[str]:
     return [f"aider --yes-always --model {model}"]
 
 
+def build_dsh(model: str, cfg: dict) -> list[str]:
+    """DSH (DeepSeek Harness) をヘッドレス・ワンショットのサブエージェントとして起動。
+
+    `dsh --profile headless "<task>"` はタスクを 1 つ解いて結果を出力して終了する。
+    プロンプトは argv で渡す (prompt_mode="argv")。モデル・認証は DSH 自身の
+    設定 ($DSH_HOME/settings.yaml) に従う (models.json の env ブロックは使わない)。
+    """
+    return ["dsh", "--profile", "headless"]
+
+
 RUNTIMES = {
     "claude-code": {"build": build_claude_code, "prompt_mode": "tui"},
     "codex":       {"build": build_codex,       "prompt_mode": "tui"},
     "aider":       {"build": build_aider,       "prompt_mode": "tui"},
+    "dsh":         {"build": build_dsh,         "prompt_mode": "argv"},
 }
 
 
@@ -108,12 +120,19 @@ def resolve(model: str):
     return runtime, cfg
 
 
-def launch_command(model: str, agent_id: str) -> str:
-    """起動コマンド (cd プレフィクス + AGENT_ID 付き) を返す。シークレットは含まない。"""
+def launch_command(model: str, agent_id: str, prompt: str = "") -> str:
+    """起動コマンド (cd プレフィクス + AGENT_ID 付き) を返す。シークレットは含まない。
+
+    prompt_mode が "argv" のランタイム (dsh) では prompt を argv に埋め込む。
+    "tui" / "stdin" では prompt は外側 (run.sh) がペースト/標準入力で渡す。
+    """
     runtime, cfg = resolve(model)
     parts = RUNTIMES[runtime]["build"](model, cfg)
     head = [f"cd {FRAMEWORK_DIR} &&", f"AGENT_ID={agent_id}"]
-    return " ".join(head + parts)
+    tokens = head + parts
+    if RUNTIMES[runtime]["prompt_mode"] == "argv" and prompt:
+        tokens = tokens + [shlex.quote(prompt)]
+    return " ".join(tokens)
 
 
 def prompt_mode(model: str) -> str:
@@ -142,7 +161,9 @@ def main():
         runtime, _ = resolve(argv[1])
         print(runtime)
     elif cmd == "command":
-        print(launch_command(argv[1], argv[2]))
+        model, agent_id = argv[1], argv[2]
+        prompt = argv[3] if len(argv) > 3 else ""
+        print(launch_command(model, agent_id, prompt))
     elif cmd == "prompt-mode":
         print(prompt_mode(argv[1]))
     elif cmd == "models":
