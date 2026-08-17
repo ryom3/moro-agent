@@ -4,6 +4,7 @@
 # ./start.sh --resume <session-id>
 # ./start.sh --bb                          # バグバウンティモード (CLAUDE-bb.md を使用)
 # ./start.sh --bb --model glm-5.2
+# ./start.sh --no-update-check             # 起動時の更新確認をスキップ
 
 set -eo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -12,9 +13,27 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 [ -f "$DIR/.env" ] && { set -a; source "$DIR/.env"; set +a; }
 TMUX_SESSION="${TMUX_SESSION:-pentest}"
 
+# --no-update-check を引数から除去 (フラグとして保持)
+SKIP_UPDATE_CHECK=0
+ARGS=()
+for a in "$@"; do
+    if [ "$a" = "--no-update-check" ]; then
+        SKIP_UPDATE_CHECK=1
+    else
+        ARGS+=("$a")
+    fi
+done
+set -- "${ARGS[@]}"
+
 # MCP セットアップ (冪等): venv 作成 + Claude Code へ kb_query/state_* ツールを登録。
 # 一度登録すれば監督AI も run.sh 経由のサブエージェントも自動でツール利用可能。
 [ -x "$DIR/scripts/mcp_setup.sh" ] && bash "$DIR/scripts/mcp_setup.sh"
+
+# 起動時更新チェック: skills submodule 等の更新を確認 (対話)。
+# ネットワーク不可・更新なしの場合は無言で続行し、起動を妨げない。
+if [ "$SKIP_UPDATE_CHECK" -eq 0 ] && [ -x "$DIR/scripts/check_updates.sh" ]; then
+    SKIP_UPDATE_CONFIRM="$SKIP_UPDATE_CHECK" bash "$DIR/scripts/check_updates.sh"
+fi
 
 # バグバウンティモード: 監督AIの指示を CLAUDE-bb.md に切り替える。
 # CLAUDE.md は常にペンテスト版 (正) を保ち、--bb では「安全なスワップ + 終了時復元」

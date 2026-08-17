@@ -72,7 +72,12 @@ moro-agent/
 cp .env.example .env && vim .env        # API キー (サブスクなら不要)
 vim state/scope.json                     # ターゲット・RoE
 ./scripts/start.sh                       # 監督AI 起動 (tmux 自動)
+./scripts/start.sh --no-update-check     # 起動時の更新確認をスキップ
 ```
+
+起動時に skills submodule（`third_party/Anthropic-Cybersecurity-Skills`）と
+フレームワーク本体（`origin/main`）の更新を確認し、更新があれば適用するか
+対話確認する（ネットワーク不可・更新なしの場合は無言で続行）。
 
 監督AIへの最初のプロンプト:
 ```
