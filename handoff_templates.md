@@ -23,6 +23,11 @@
 - 仮説を立てて 1 変数ずつ検証。レシピを盲目的にたどるな
 - **攻撃手法に迷ったら `python3 kb/kb.py query "キーワード" --json` で検索せよ**
 - 試行 → state.py tried / cred 発見 → state.py cred / 成果 → state.py finding
+- **ターゲット状態の改変は「可逆なら許可」** — 元データを保存済みで復元手順がある場合、
+  1 メッセージ/1 レコード単位の上書き（例: retained MQTT メッセージの url フィールド書き換え）は
+  宣言すれば許可される。**安全側に倒しすぎて「新規のテスト用監視点のみ」に自粛するな** —
+  対象が実際に読む既存の監視点こそが唯一の勝ち筋であり得る。改変前に必ず元データを控え、
+  検証後に復元できる状態にせよ。
 - **重大な発見時は即 alert**:
   - root/flag 取得 → `state.py alert --host IP --type root --detail "..."`
   - 新 cred 発見 → `state.py alert --host IP --type cred --detail "user:pass"`
