@@ -31,6 +31,12 @@ else
 fi
 PROMPT="${*:-}"
 
+# --- models.json の env ブロックを環境へ export (argv に載せない = 漏洩対策) ---
+# 子プロセス (codex/claude/aider) は環境経由でシークレットを継承する。
+# `set -a; source .env` により .env の値は既に export 済みなので、
+# ここでは $VAR 形式のリマップ (例: ANTHROPIC_AUTH_TOKEN=$GLM_API_KEY) のみ解決する。
+[ -f "$DIR/scripts/env_export.py" ] && eval "$(python3 "$DIR/scripts/env_export.py" "$MODEL" 2>/dev/null)"
+
 # ウィンドウ名を一意にする (重複回避)
 WIN_NAME="${AGENT_ID}"
 if tmux list-windows -t "$TMUX_SESSION" -F '#{window_name}' 2>/dev/null | grep -q "^${WIN_NAME}$"; then
@@ -52,10 +58,6 @@ runtime = cfg['runtime']
 parts = ['cd $DIR &&', 'AGENT_ID=$AGENT_ID']
 
 if runtime == 'claude-code':
-    for k, v in cfg.get('env', {}).items():
-        if v.startswith(chr(36)):
-            v = os.environ.get(v[1:], '')
-        parts.append(f'{k}={v}')
     model_name = cfg.get('model_override', '$MODEL')
     effort = os.environ.get('EFFORT', 'high')
     # OOM 対策 (2026-08-16): バンドル解析で node heap が 5-6GB に肥大化し oom-killer が
@@ -96,17 +98,11 @@ elif runtime == 'codex':
     with open(config_path, 'w') as f:
         f.write(chr(10).join(lines) + chr(10))
 
-    # API キー
-    api_key_val = os.environ.get(env_key, '')
-    if api_key_val:
-        parts.append(f'{env_key}={api_key_val}')
+    # API キーは environment から継承 (config.toml の env_key 参照)。
+    # argv へのインライン展開はしない (ps への漏洩対策: 2026-08-17)。
     parts.append(f'CODEX_HOME={config_dir} codex -p {provider} -a never -s danger-full-access')
 
 elif runtime == 'aider':
-    for k, v in cfg.get('env', {}).items():
-        if v.startswith('\$'):
-            v = os.environ.get(v[1:], '')
-        parts.append(f'{k}={v}')
     parts.append(f'aider --yes-always --model $MODEL')
 
 print(' '.join(parts))

@@ -35,35 +35,21 @@ for i in $(seq 1 $#); do
     fi
 done
 
-# モデルに応じた環境変数を設定
-ENV_PREFIX=""
+# モデルに応じた環境変数を設定 (現在シェルへ export。argv に載せない = 漏洩対策)
 if [ -n "$MODEL_NAME" ] && [ -f "$DIR/models.json" ]; then
-    # models.json から env ブロックを取得して bash で展開
-    ENV_PAIRS=$(python3 << PYEOF
-import json, os
-with open("$DIR/models.json") as f:
-    cfg = json.load(f).get("$MODEL_NAME", {})
-for k, v in cfg.get("env", {}).items():
-    if v.startswith("\$"):
-        v = os.environ.get(v[1:], "")
-    print(f"{k}={v}")
-PYEOF
-    )
-    while IFS= read -r line; do
-        [ -n "$line" ] && ENV_PREFIX="$ENV_PREFIX $line"
-    done <<< "$ENV_PAIRS"
+    [ -f "$DIR/scripts/env_export.py" ] && eval "$(python3 "$DIR/scripts/env_export.py" "$MODEL_NAME" 2>/dev/null)"
 fi
 
-CLAUDE_CMD="${ENV_PREFIX} claude --dangerously-skip-permissions $*"
+CLAUDE_CMD="claude --dangerously-skip-permissions $*"
 
 if [ -n "${TMUX:-}" ]; then
-    cd "$DIR" && eval exec $CLAUDE_CMD
+    cd "$DIR" && exec $CLAUDE_CMD
 else
     if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
         echo "既存セッション '$TMUX_SESSION' に接続します"
         tmux attach -t "$TMUX_SESSION"
     else
-        tmux new-session -d -s "$TMUX_SESSION" -c "$DIR" "source $DIR/.env 2>/dev/null; eval $CLAUDE_CMD"
+        tmux new-session -d -s "$TMUX_SESSION" -c "$DIR" "source $DIR/.env 2>/dev/null; eval \"\$(python3 $DIR/scripts/env_export.py $MODEL_NAME 2>/dev/null)\"; $CLAUDE_CMD"
         tmux set-option -t "$TMUX_SESSION" mouse on
         tmux set-option -t "$TMUX_SESSION" history-limit 50000
         tmux attach -t "$TMUX_SESSION"
