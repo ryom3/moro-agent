@@ -7,6 +7,13 @@ kb/db/
 kb/notion-export/
 kb/pdf/
 kb/kb_data/
+kb_data/
 workspace/
+# 生成物・取得物 (ベースラインから除外)
+lib.js
+DESIGN.html
+DESIGN.pdf
+program.csv
+program.html
 .codex-profiles/*.config.toml
 .codex-profiles/

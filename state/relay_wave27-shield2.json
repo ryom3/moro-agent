@@ -1,0 +1,33 @@
+{
+  "relay": "wave27-shield2",
+  "host": "zoeken.zorgaanbiedersportaal.nl",
+  "date": "2026-08-16",
+  "verdict": "inconclusive-close-candidate",
+  "task": "isafgeschermd served-but-hidden 仮説の gedwongen-zorg 経由強制検証 (wave25 続編)",
+  "current_state": {
+    "scope": "program.csv 302 行 VWS/CIBG Rijksoverheid 資産・brief 承認内で完結",
+    "budget": "POST 3/3 (自然語のみ・marker/列挙なし)・GET 6/8 (2 は温存し未使用)・sleep 1 保持・429/5xx/404 なし",
+    "pii_contact": "なし (住所の表示・保存 0 件・生レスポンス未保存)"
+  },
+  "findings": {
+    "vulnerability": 0,
+    "sensitive_alert": 0,
+    "key_negative_1": "gedwongen-zorg 検索応答は {aantal, locaties[{id,naam,organisatieNaam,organisatieKvkNummer,plaats,isWzd,isWvggz}]} のみ — adres も isafgeschermd も応答構造に存在しない (検索経由漏洩なし)",
+    "key_negative_2": "5 組織・約 570 件の isafgeschermd チェック (org adres + vestigingen + locaties 全部) が全件 false。シェルター組織 NEO の Vrouwen- en Gezinsopvang (locatie 513133) も含む",
+    "key_negative_3": "wave25 (12 組織) との統合で観測 17 組織・600+ チェック・shielded レコード 0。UI の Adres niet openbaar 差替は防御的/レガシー実装の公算大"
+  },
+  "sampled": [
+    {"kvk": "17124397", "org": "Nieuwe Eindhovense Opvang", "checks": 16, "result": "all false (incl locaties 513133 Vrouwen- en Gezinsopvang, 333691 Beschermd Wonen)"},
+    {"kvk": "32099806", "org": "Stichting Eemhart", "checks": "18+ (tail truncated)", "result": "all false in shown range"},
+    {"kvk": "24264945", "org": "Stichting Pameijer", "checks": 364, "result": "all false (227 locaties)"},
+    {"kvk": "91582644", "org": "De Vrouwen Werkplaats", "checks": 3, "result": "all false"},
+    {"kvk": "41177807", "org": "Prinsenstichting", "checks": 169, "result": "all false (79 locaties)"}
+  ],
+  "untried": [
+    "KVK 側で geschermd adres 組織を特定して Organisatie GET で引く (KVK API は別ホスト・brief 外 → 監督者判断)。唯一の残る検証経路",
+    "Eemhart 32099806 応答末尾 (vestigingen 17+ 以降・locaties) — 打ち切り未確認だが結論変化の公算極小"
+  ],
+  "policy_observation": "Wvggz 登録の婦人保護施設所在地が isafgeschermd=false (非保護) で公開 — レジスタの法定公開目的由来でポータルの技術的欠陥ではない。policy 備考として記録のみ",
+  "recommendation": "lead close 推奨: 固有 KVK 直 GET が UI フィルタをバイパスしうる構造 (wave23) は残るが、shielded レコードがレジスタ内に観測されないため実害実証不能。NCSC 基準 (実害の実証) 未達",
+  "workspace": "workspace/wave27-shield2/ (notes.md, extract.py, req.sh, http/kvk_summary.jsonl)"
+}

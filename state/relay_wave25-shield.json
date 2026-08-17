@@ -1,0 +1,36 @@
+{
+  "relay": "wave25-shield",
+  "date": "2026-08-16",
+  "task": "zorgaanbiedersportaal 住所保護 (isafgeschermd) サーバ側強制検証 — 自然語 POST 4 + GET 12 上限",
+  "verdict": "検証不能 (inconclusive) — isafgeschermd=true の記録を特定できず。finding なし・sensitive 接触なし",
+  "confirmed_negatives": [
+    "POST /api/v1/Zoeken 応答は {kvknummer, naam} のみ — 検索経由のフラグ・住所漏洩なし",
+    "MO/シェルター系組織 (Vrouwenopvang Rosa Manus・Nitzana・Safegroup・Maya Angelou・HOPM・MO Breda・Shiva) は全て locaties:[] — ポータルがシェルター所在地住所を保持していない (構造的緩和)",
+    "12 組織サンプル (個人保育 eenmanszaak 4 件含む) 全レベルで isafgeschermd=false + 公開 KVK 登記住所のみ",
+    "zorgsector 単体 POST はサーバ側 400 検証 (naam/postcode/kvknummer 必須) — 入力検証は作動"
+  ],
+  "unresolved": {
+    "core_question": "isafgeschermd=true レコードの直接 GET で adresRegels が返るか (served-but-hidden vs server-side stripping)",
+    "evidence": "zap_main.js の Adres.clone() は isafgeschermd と adresRegels を両方受信し UI で文字列差替 — shielded でもサーバが送る設計の可能性が構造的に残存",
+    "why_unverified": "12 GET 抽査で shielded レコード 0 件。KVK 公開 API や gedwongen-zorg POST (共に本 brief 承認外) による shielded KVK の事前特定が必要"
+  },
+  "recommendations_for_supervisor": [
+    "shielded KVK の特定手段の承認判断: (a) KVK 公開 API (別ホスト・brief 外) で geschermd 組織を検索, (b) gedwongen-zorg 検索 POST の限定的承認 (locaties を直接返す経路), (c) 本件クローズ",
+    "Locatie id 列挙・KVK 総当たりは継続禁止 (wave23 指示維持)"
+  ],
+  "privacy_protocol": "全 GET は curl→python パイプで真偽値/件数のみ抽出。住所文字列の保存・表示・ファイル出力 0 件 (NCSC データコピー禁止準拠)",
+  "budget": {
+    "gets_used": 12,
+    "gets_limit": 12,
+    "posts_used": 4,
+    "posts_limit": "3-4",
+    "rate": "sleep 1 保持",
+    "errors": "429/5xx なし・400 は 1 回 (意図的 zorgsector 単体・検証メッセージ確認)"
+  },
+  "files": [
+    "workspace/wave25-shield/notes.md",
+    "workspace/wave25-shield/http/zoek_opvang.json",
+    "workspace/wave25-shield/http/zoek_opvang_mo.json",
+    "workspace/wave25-shield/http/zoek_jeugd.json"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "agent_id": "wave16-rivmapi",
+  "created_at": "2026-08-17T02:31:06.146203+00:00",
+  "session_summary": "Completed 20 GET-only requests across 7 exact authorized hosts with minimum 1.050091s spacing. No anonymous Drupal user entity/PII: www.rivm.nl, lci.rivm.nl, and www.atlasleefomgeving.nl user collection paths returned 404; www.rvig.nl /jsonapi returned 404. The representative RIVM blog_post was status=true/moderation_state=published; only a generic public organization contact appeared in schema metadata. Both assigned search services are POST-only (official-publications GET action check 404; care-provider API GET 405), so result reflection remains constraint-inconclusive. For official publications, robots path hints and likely stb/stcrt/trb/gmb/prb/wsb/bgr ID prefixes were recorded as inference; no concrete document URL was observed. Supplemental monument and RIVM markers were escaped; no raw dangerous-character reflection. No reportable finding confirmed.",
+  "dead_ends": [
+    "Drupal JSON:API index exposure alone is ineligible; user collection returned 404 on all three index-200 hosts.",
+    "zoek.officielebekendmakingen.nl search action requires POST + anti-CSRF; GET-only cannot invoke results or confirm exact document URLs.",
+    "zoeken.zorgaanbiedersportaal.nl generated API client declares POST search endpoints; GET returned 405.",
+    "Brief typo cultureelerfgeving.nl was not contacted; program.csv-listed cultureelerfgoed.nl was used."
+  ],
+  "next_steps": [
+    "Only if a supervisor explicitly authorizes POST in a future wave: submit one benign marker search to each POST-only service, without retrieving extra records.",
+    "No further user-resource probing, direct UUID user access, or /user/1 access; explicitly prohibited by the brief."
+  ],
+  "hosts": {
+    "www.rivm.nl": {
+      "status": "complete",
+      "gets": 4,
+      "result": "/jsonapi 200; user collection 404; one blog_post sample published; /zoeken marker escaped."
+    },
+    "lci.rivm.nl": {
+      "status": "complete",
+      "gets": 2,
+      "result": "/jsonapi 200; user collection 404."
+    },
+    "www.atlasleefomgeving.nl": {
+      "status": "complete",
+      "gets": 2,
+      "result": "/jsonapi 200; user collection 404."
+    },
+    "www.rvig.nl": {
+      "status": "complete",
+      "gets": 1,
+      "result": "/jsonapi 404; user collection not requested."
+    },
+    "zoek.officielebekendmakingen.nl": {
+      "status": "complete-with-constraint",
+      "gets": 7,
+      "result": "POST-only search; GET marker check 404; robots path hints recorded; likely publication-ID prefixes inferred, concrete URL unconfirmed."
+    },
+    "zoeken.zorgaanbiedersportaal.nl": {
+      "status": "complete-with-constraint",
+      "gets": 3,
+      "result": "POST-only search API from local JS grep; GET marker check 405."
+    },
+    "monumentenregister.cultureelerfgoed.nl": {
+      "status": "complete",
+      "gets": 1,
+      "result": "GET marker returned 200 and was escaped; no raw dangerous-character reflection."
+    }
+  },
+  "cred_count": 0,
+  "finding_count": 0,
+  "status": "complete",
+  "requests_made": 20,
+  "request_budget": 50,
+  "outputs": [
+    "workspace/wave16-rivmapi/notes.md",
+    "workspace/wave16-rivmapi/fingerprint.tsv",
+    "workspace/wave16-rivmapi/requests.jsonl",
+    "workspace/wave16-rivmapi/run_summary.json"
+  ],
+  "result": "No reportable vulnerability confirmed; no anonymous user entity or personal PII returned.",
+  "compliance": {
+    "methods": "GET only (20/20)",
+    "rate": "minimum 1.050091 seconds between request starts",
+    "scope": "all 7 contacted hosts are program.csv Rijksoverheid assets; same-host redirect only; misspelled hostname not contacted",
+    "pii": "user-probe response bodies were not saved; all user checks returned 404/no entity; no sensitive alert was required",
+    "prohibited_actions": "no POST/PUT/PATCH/DELETE, authentication, registration, enumeration, brute force, scanner, DoS, document retrieval, direct user UUID access, or /user/1 access"
+  },
+  "resolved_followups": [
+    "Official-publication robots path hints and likely publication-ID prefixes were recorded using GET-only/local evidence; exact URL remains explicitly unconfirmed."
+  ]
+}

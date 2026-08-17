@@ -1,0 +1,61 @@
+{
+  "relay_protocol": 1,
+  "agent_id": "wave19-core2",
+  "created_at": "2026-08-17T02:52:00Z",
+  "status": "complete",
+  "current_state": {
+    "target": "7 uncovered high-traffic Rijksoverheid assets (non-DEF): globio.info, vananaarbeter.nl, rijksvaccinatieprogramma.nl, netherlandsandyou.nl, nlplatform.com, nederlandveilig.nl, oprijk.nl",
+    "workspace": "workspace/wave19-core2 (notes.md, fingerprint.tsv, requests.jsonl, probe.py, http/)",
+    "request_count": 25,
+    "per_host": {
+      "www.globio.info": 7,
+      "www.netherlandsandyou.nl": 5,
+      "www.vananaarbeter.nl": 4,
+      "rijksvaccinatieprogramma.nl": 3,
+      "www.oprijk.nl": 3,
+      "www.nederlandveilig.nl": 2,
+      "www.nlplatform.com": 1
+    },
+    "reportable_findings": 0,
+    "emergency_stop": null
+  },
+  "recon_enumeration": [
+    "www.globio.info is WordPress + Divi 4.27.7 (Apache/PHP) with Wordfence and Wordfence Login Security active. GET /?s= reflected the marker only HTML-entity-encoded in <title> and result headings (no raw < or double-quote), so no reflected XSS. wp-json index is 200 but /wp/v2/users returns 401 rest_user_cannot_view (no user enumeration). xmlrpc.php present but pingback-only (NCSC-ineligible). The voldoet=nee CSV value alone does not demonstrate a vulnerability.",
+    "www.vananaarbeter.nl is a SEOmatic (Craft-style) React/Redux SPA on a Heroku edge. Saved JS exposes only public geo APIs /api/{autocomplete,geocode_free,reverse_geocode,roads}. HERE map ApiKey is read from an empty data-here-app-key attribute (not exposed). No secret in JS. /api/autocomplete returned 302 downgrading to http:// (proxy quirk; recorded, not followed).",
+    "rijksvaccinatieprogramma.nl is Drupal (sdv_theme/bootstrap_rijkshuisstijl). GET /zoeken?search= reflected the marker only inside input value (HTML-encoded) and JSON-escaped in drupal-settings-json = no raw reflection. /jsonapi index is 200; per brief only the index was checked, no resource collection queried.",
+    "www.netherlandsandyou.nl: the http:// root probe timed out (curl 28), which does not distinguish a missing listener from filtering or temporary reachability; the https:// root is 200, so the CSV https=nee value does not mean HTTPS is absent. Liferay DXP behind Microsoft-Azure-Application-Gateway/v2. GET /search?q=<marker> blocked 403 by the Azure WAF; benign q=residence returned 200 with the value HTML-encoded in the input (no raw reflection). Liferay JSON WS /api/jsonws returned 404 {} (remote API disabled). Strong CSP/security headers.",
+    "www.nlplatform.com returns 301 to apex https://nlplatform.com/ (nginx). The apex is a hostname variant absent from the brief allowlist, so it was recorded and NOT requested (scope decision deferred to supervisor).",
+    "www.nederlandveilig.nl and www.oprijk.nl are Platform Rijksoverheid Online Next.js App Router sites (oprijk uses Turbopack). Light fingerprint only per brief. oprijk /zoeken direct GET is 404 (client routing) and the marker appears only unicode-escaped in the RSC __next_f payload. No secrets in sampled chunks."
+  ],
+  "exploit_foothold": {
+    "attempted": false,
+    "result": "None. No POST/PUT/DELETE, authentication attempt, brute force, enumeration, WAF bypass, data copy, or pivot."
+  },
+  "failed_attempts_constraints": [
+    "netherlandsandyou.nl search marker blocked by Azure Application Gateway WAF (403); not bypassed per brief stop condition.",
+    "netherlandsandyou.nl Liferay JSON WS remote API disabled (/api/jsonws 404 {}), closing a common Liferay IDOR/info-leak surface.",
+    "globio.info /wp/v2/users 401 (no anonymous user enumeration); reflected marker fully HTML-encoded (no XSS).",
+    "rijksvaccinatieprogramma.nl and oprijk.nl search reflections are encoded/JSON-escaped (no raw HTML reflection).",
+    "vananaarbeter.nl exposes only public geo-lookup APIs; no secret in JS. POST/registration/SSO not permitted in this wave."
+  ],
+  "unexplored_surface": [
+    "nlplatform.com apex (canonical redirect target, off the allowlist) needs explicit scope confirmation before any request.",
+    "api.rwsverkeersinfo.nl (RWS traffic widget base-url on vananaarbeter.nl) is a separate/third-party host requiring separate authorization.",
+    "vananaarbeter.nl /api/autocomplete 302 http downgrade is a minor mixed-content/proxy observation, low impact alone.",
+    "Liferay authenticated portlets, Drupal JSON:API resource collections, and WordPress authenticated paths remain deliberately untested; POST-capable/authenticated waves would be required."
+  ],
+  "considerations_for_next_agent": "Read workspace/wave19-core2/notes.md and fingerprint.tsv. Do not repeat these 25 GETs. All seven brief assets are anonymous-GET NEGATIVE (nlplatform is INCONCLUSIVE only because its canonical host is off-allowlist). netherlandsandyou.nl is the most interesting stack (Liferay DXP) but is WAF-fronted with JSONWS disabled; a finding there would need supervisor-approved WAF/auth scope. Treat encoded reflections, version disclosure, and header gaps as NCSC-ineligible without demonstrable impact.",
+  "compliance": {
+    "methods": "GET only",
+    "rate": "<= 1 req/sec enforced by probe.py (minimum 1.05s between request starts)",
+    "redirects": "not followed automatically; off-allowlist redirect targets recorded, not requested",
+    "response_capture": "body capped at 1048576 bytes; JS processed with grep/parser only",
+    "budgets": "25/55 global; per-host max 7 (globio). PRO targets used the brief's 2-3 GET light-fingerprint exception; other hosts stopped at the minimum needed when blocked by scope, WAF, or negative evidence.",
+    "scope": "only the 7 brief-allowlisted hosts requested; nlplatform apex and api.rwsverkeersinfo.nl recorded not requested",
+    "prohibited_activity": "No DoS, brute force, social engineering, malware, write, POST/PUT/PATCH/DELETE, credential submission, authentication bypass, WAF bypass, or out-of-scope request"
+  },
+  "completion_alert": {
+    "executed": true,
+    "command_shape": "python3 scripts/state.py alert --host wave19-core2 --type done --detail <summary>"
+  }
+}

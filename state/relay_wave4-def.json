@@ -1,0 +1,33 @@
+{
+  "agent_id": "wave4-def",
+  "created_at": "2026-08-17T01:09:25Z",
+  "protocol": "Relay Protocol 1",
+  "current_state": {
+    "host": "DEF assets: faculteitmilitairewetenschappen.nl, www.globalentry-rtp.nl",
+    "target": "Light GET-only surface mapping per approved DEF policy (4-6 req/host)",
+    "workspace": "workspace/wave4-def/ (notes.md, raw headers/bodies, fmw_web.js, fmw_sitemap.xml)",
+    "result": "FMW = standard public Pleio v2 shell, no anomalies, no relay trigger. globalentry-rtp.nl = HTTPS unreachable under strict TLS validation (server sends leaf-only chain); content unobserved; no bypass attempted."
+  },
+  "recon_enumeration": [
+    "faculteitmilitairewetenschappen.nl: 6 GETs total. Pleio v2 confirmed (x-pod backend2-api, shared /static/frontend/web-*.js, sessionid cookie, CSP *.pleio.nl). Same shared platform as the Pleio-37 set leak-2 baselined.",
+    "FMW /login = 302 to /oidc/authenticate/?provider=pleio (OIDC via account.pleio.nl; external host NOT requested). robots.txt Pleio-standard (Disallow /user /search /tags).",
+    "FMW sitemap.xml: 617 URLs, all same-host public content (page 319 / news 279 / events 17 / groups 1); no private/draft-looking structure anonymously visible.",
+    "FMW /graphql returns anonymous 200 GraphQL Playground HTML — consistent with wave3-gql's platform-wide anonymous Playground finding; not probed further per brief.",
+    "FMW CSP frame-src lists military-adjacent embeds (korpscommandotroepen.nl, magazines.defensie.nl, nlda.mediamission.nl) — recorded only, not requested.",
+    "www.globalentry-rtp.nl: cert observed at handshake = CN=www.globalentry-rtp.nl, O=Ministerie van Justitie en Veiligheid (Government Entity, NTRNL-27380834), DigiCert QuoVadis G3 Qualified TLS CA, valid to 2026-10-02. Server sends NO intermediate (openssl verify code 21); local store has QuoVadis roots, so failure is server-side incomplete chain (browsers cope via AIA, strict clients fail).",
+    "www.globalentry-rtp.nl plain http:// = 302 to https://www.globalentry-rtp.nl/ (only completed HTTP response)."
+  ],
+  "exploit_foothold": [
+    "None. No login attempts, no POST, no directory brute force, no GraphQL queries, no -k TLS bypass, no AIA intermediate fetch (third-party domain), no pivoting to CSP/JS-observed external hosts."
+  ],
+  "failed_attempts_constraints": [
+    "www.globalentry-rtp.nl HTTPS: curl exit 60 twice and openssl verify 21 — leaf-only chain. Per leak-2 precedent and common_rules, no -k bypass and no third-party AIA fetch without supervisor authorization.",
+    "FMW JS API-endpoint grep yielded no relative /api patterns beyond known Pleio endpoints; bundle is the same shared Pleio frontend leak-2 already analyzed (not re-analyzed)."
+  ],
+  "unexplored_surface": [
+    "globalentry-rtp.nl content surface entirely unobserved. If supervisor authorizes a safe transport approach (e.g., locally installing the public DigiCert intermediate from a trusted source, or explicit -k acknowledgment), the standard 4-6 GET map could be run; note KMar/Global Entry jurisdiction sensitivity before doing so.",
+    "Program.csv lists globalentry-rtp.nl as DEF row but cert O= is Ministerie van Justitie en Veiligheid (Justice & Security) — jurisdiction cross-check recommended (KMar/Defensie operates border programs; possible shared operation).",
+    "FMW: nothing further recommended anonymously; any deeper check would duplicate wave3-gql (GraphQL) or leak-2 (Pleio platform) negative results."
+  ],
+  "considerations_for_next_agent": "Read workspace/wave4-def/notes.md first. Do not re-fetch FMW root/robots/sitemap/JS or /graphql Playground (already captured on disk). globalentry-rtp.nl needs an explicit supervisor decision on transport before any content request; incomplete-chain observation alone is NCSC-ineligible. FMW sessionid cookie in raw headers was not recorded in state."
+}

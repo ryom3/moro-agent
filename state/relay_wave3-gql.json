@@ -1,0 +1,35 @@
+{
+ "agent_id": "wave3-gql",
+ "created_at": "2026-08-17T00:55:00Z",
+ "protocol": "Relay Protocol 1",
+ "current_state": {
+  "host": "aienalgoritmes.pleio.nl (Pleio v2 shared platform, Rijksoverheid CSV row)",
+  "target": "POST https://aienalgoritmes.pleio.nl/graphql — anonymous GraphQL authorization boundary (leak-2 lead closure)",
+  "workspace": "workspace/wave3-gql/ (gql-analysis.md, http/ with all 10 request bodies+headers, p*_q.json exact query bodies)",
+  "result": "No anonymous authorization gap. users/bookmarks/revisions return not_logged_in, chats/notifications empty, viewer.user.email null, event attendee edges (name/email/state) null with only aggregate total visible. Zero PII retrieved anonymously. Introspection disabled server-side."
+ },
+ "recon_enumeration": [
+  "GET /graphql?query=... returns Playground HTML even with Accept: application/json; query execution is POST-only (GraphQL-over-GET not supported).",
+  "POST /graphql executes queries anonymously; response header x-pod leaks Kubernetes pod name (backend2-api-697697d64f-*, technical info only).",
+  "Introspection disabled: {__schema} -> 400 'introspection is disabled'. Validation errors still leak type names via did-you-mean suggestions (Entity/FileFolder/Blog/Comment/Discussion/Episode).",
+  "Query inventory built offline from the public source map (web-Y7RXyUTb.js.map, 218 sources, 77 operations) instead of introspection: root fields site, siteSettings, viewer, users, entity, entities, bookmarks, chats, notifications, revisions, trending, recommended, activities, filters.",
+  "site: guid=1, usersOnline=0; site settings defaultReadAccessId=2 (public), isClosed=false, subgroups=false.",
+  "entities(subtype:) works for blog(7)/event(94)/file(2764) but 'group' subtype is silently ignored, returning the unfiltered entity list (total 3255 = site-wide entity count). Groups are not enumerable via GraphQL from the web bundle's queries."
+ ],
+ "exploit_foothold": [
+  "None. Read-only queries, 8 POSTs total (brief cap 10), zero mutation/subscription bodies, sleep 1 between requests, one selection-corrected resend after a 400 validation error, no GUID brute-force, no data exfiltration beyond bounded structural samples (3 events, 5 file GUIDs, 1 avatar HEAD)."
+ ],
+ "failed_attempts_constraints": [
+  "users(q:\"\") anonymous -> not_logged_in (email enumeration hypothesis closed, negative).",
+  "entity(guid).attendees on public event e15e6d19-... -> edges null for anonymous; only total=8 aggregate (trivial, not elevated).",
+  "Closed-group content authorization UNTESTABLE anonymously: no closed-group GUID obtainable (groups not in entities listing; /groups page is the same client-rendered SPA shell without data).",
+  "www.shiraka.nl redirect target is a WordPress-style site, not Pleio v2 -> out of task; algoritmes.pleio.nl redirects to the same app -> skipped per brief."
+ ],
+ "unexplored_surface": [
+  "Authenticated/closed-group file and subgroup authorization: needs a sanctioned research account (registration/OTP policy still undefined) or a supervisor-supplied closed-group GUID.",
+  "Negative-control on second Pleio v2 tenant (e.g. manifestgroep.nl users query = not_logged_in): not sent because the brief's horizontal-expansion trigger (observed authz gap) never fired; 1 POST each if supervisor wants the control.",
+  "Legacy Elgg surface: frontend sends X-CSRF-Token (cookie CSRF_TOKEN) and X-Elgg (cookie Elgg) headers; non-GraphQL legacy endpoints not probed in this task.",
+  "entities(subtype:'group') filter bypass is a functional bug; if a future lead makes non-public entity metadata enumerable, re-examine with supervisor approval."
+ ],
+ "considerations_for_next_agent": "Read workspace/wave3-gql/gql-analysis.md. Do NOT repeat: introspection, GET-with-query attempts, users/attendees/bookmarks/revisions/chats anonymous gating, file GUID structure, blog/event/file subtype listing on this tenant. Exact reproducible query bodies are in workspace/wave3-gql/http/p*_q.json. POST cap is per-host 10 and 8 were used on aienalgoritmes.pleio.nl. Everything PII-shaped came back null — the anonymous boundary held; do not expect an email-enumeration finding on Pleio v2 without authentication."
+}

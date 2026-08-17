@@ -1,0 +1,71 @@
+{
+  "relay_protocol": 1,
+  "agent_id": "wave15-subs",
+  "created_at": "2026-08-17T02:35:00Z",
+  "status": "complete",
+  "current_state": {
+    "target": "Brief-listed Rijksoverheid subdomains, sitearchief surfaces, and PRO Next.js data layer",
+    "workspace": "workspace/wave15-subs",
+    "request_count": 35,
+    "per_host": {
+      "zoeken.bigregister.nl": 5,
+      "mijn.bigregister.nl": 5,
+      "toezichtdocumenten.igj.nl": 6,
+      "rijksoverheid.sitearchief.nl": 3,
+      "www.sitearchief.nl": 2,
+      "www.rijksoverheid.nl": 5,
+      "www.bigregister.nl": 6,
+      "english.igj.nl": 1,
+      "english.ilent.nl": 1,
+      "english.bigregister.nl": 1
+    },
+    "reportable_findings": 0,
+    "emergency_stop": null,
+    "outputs": [
+      "workspace/wave15-subs/notes.md",
+      "workspace/wave15-subs/fingerprint.tsv",
+      "workspace/wave15-subs/requests.jsonl",
+      "workspace/wave15-subs/http/",
+      "workspace/wave15-subs/probe_wave15.py"
+    ]
+  },
+  "recon_enumeration": [
+    "zoeken.bigregister.nl is an Angular SPA. Its public bundle exposes same-origin public-search/reference-data routes. One public professional-groups GET returned intended register metadata; one invalid zero registration number returned 400 bigNumberInvalid. No valid-number lookup or enumeration was performed.",
+    "mijn.bigregister.nl is an Angular authentication portal with DigiD/eIDAS/BIG-login boundaries. Anonymous GET /api/userinfo and /api/session both returned 401 with only redirectUrl; no authentication submission or SSO traversal was performed.",
+    "toezichtdocumenten.igj.nl is Mendix/Dojo. The root and harmless query returned the bootstrap shell. login.html and login.js showed a username/password POST to xas/; stopped without submitting credentials.",
+    "rijksoverheid.sitearchief.nl uses Archiefweb PHP/JS. The real archive search calls POST search.php, so the GET-only task could not submit it. A harmless root query was not reflected.",
+    "www.sitearchief.nl serves an archive/service index with old WordPress snapshot paths and many Archiefweb/other sitearchief links. These unbriefed or third-party hosts were recorded and not requested.",
+    "www.rijksoverheid.nl and www.bigregister.nl are Next.js 16.2.12 App Router/Turbopack sites. HTML uses RSC self.__next_f, not legacy __NEXT_DATA__; no buildId, valid /_next/data path, or first-party /api path was found in the selected HTML/chunks. Search markers returned 404 and were unicode-escaped in RSC data.",
+    "english.igj.nl, english.ilent.nl, and english.bigregister.nl matched the shared PRO Next.js build in one GET each."
+  ],
+  "exploit_foothold": {
+    "attempted": false,
+    "result": "None. No write, authentication attempt, brute force, SSO completion, valid register-record lookup, sequential ID access, POST search, exploitation, or pivot."
+  },
+  "failed_attempts_constraints": [
+    "Three large public JS responses reached the 1 MiB capture cap (curl exit 63); their saved prefixes were grepped locally and no further copies were fetched.",
+    "Archive search and Mendix login are POST-driven, prohibited by the brief, and therefore remain unsubmitted.",
+    "The PRO implementation has no legacy buildId in HTML, so a valid /_next/data/<buildId>/... JSON request could not be constructed.",
+    "www.sitearchief.nl contains broad links to other archive tenants and Archiefweb; scope inheritance was not assumed."
+  ],
+  "unexplored_surface": [
+    "Valid BIG-number public record responses were deliberately not queried; sequential IDs were not enumerated.",
+    "Authenticated portal APIs, registration, OTP/email validation, DigiD/eIDAS/eHerkenning, and all POST/write flows remain deliberately untested.",
+    "advieswijzer.bigregister.nl, other *.sitearchief.nl tenants, archiefweb.eu, and big-app-webservice.dev.local were discovered but not requested because they were absent from the brief or third-party/development references."
+  ],
+  "considerations_for_next_agent": "Do not repeat these 35 GETs. A future explicitly authorized POST-capable wave would be required to assess Archiveweb search reflection or Mendix authentication behavior. Any valid BIG register lookup should remain a single known-public record, never enumeration.",
+  "compliance": {
+    "methods": "GET only",
+    "rate": "minimum observed request-start interval 1.050245 seconds",
+    "redirects": "not followed automatically",
+    "response_capture": "body capped at 1048576 bytes",
+    "budgets": "35/60 global; per-host={'zoeken.bigregister.nl': 5, 'mijn.bigregister.nl': 5, 'toezichtdocumenten.igj.nl': 6, 'rijksoverheid.sitearchief.nl': 3, 'www.sitearchief.nl': 2, 'www.rijksoverheid.nl': 5, 'www.bigregister.nl': 6, 'english.igj.nl': 1, 'english.ilent.nl': 1, 'english.bigregister.nl': 1}",
+    "scope": "Only the ten brief-allowlisted hosts were requested. oefenexamensnt2.nl and www.werkenbijdji.nl received zero requests.",
+    "prohibited_activity": "No DoS, brute force, social engineering, malware, write, POST/PUT/PATCH/DELETE, credential submission, authentication bypass, or out-of-scope request."
+  },
+  "completion_alert": {
+    "executed": true,
+    "command_shape": "python3 scripts/state.py alert --host wave15-subs --type done --detail <summary>",
+    "result": "ALERT: [done] wave15-subs"
+  }
+}

@@ -1,0 +1,572 @@
+{
+  "agent_id": "wave4-app",
+  "created_at": "2026-08-17T01:15:55.825383+00:00",
+  "session_summary": "wave4-app: authorized VDP recon (GET-only, sleep>=1, no writes/brute/DoS) across 4 assigned Rijksoverheid hosts. No reportable finding on GET-only surfaces; all four hosts closed with done alerts. Two out-of-scope related hosts identified for supervisor.",
+  "dead_ends": [
+    "werkenvoornederland /mijn,/profiel = 404 (no account area on host); /api/vacancy/count no-param = 502 (not retried)",
+    "schadedoormijnbouw claim access is DigiD/eHerkenning on out-of-scope mijndossier.schadedoormijnbouw.nl (Pega) — IDOR untestable in scope; public content APIs validate params (400) with no PII",
+    "ncsc /api/media traversal fully mitigated (400/404/308 //-collapse); /_next/data 404; .js.map 404; backend is out-of-scope www.cms.ncsc.nl",
+    "douane WP REST fully locked: /wp-json/ and wp/v2/users = 401 rest_cannot_access; no public login/customs endpoint"
+  ],
+  "next_steps": [
+    "If authorized, request scope extension for mijndossier.schadedoormijnbouw.nl to test claim-dossier IDOR post-DigiD (needs research-account policy — currently undefined, must relay)",
+    "If authorized, review www.cms.ncsc.nl Drupal /en/jsonapi/* for anonymous data exposure",
+    "werkenvoornederland: observe vacancy application (POST) flow only if write-testing is explicitly approved by supervisor"
+  ],
+  "hosts": {
+    "digitaalloket.cjib.nl": {
+      "state": "in-progress",
+      "tried": [
+        "A-Select cookie injection test (aselectserverurl override)",
+        "H1 cookie override clean retest: aselectserverurl=https://example.org/... -> redirect stays federatieveservice.nl (server-side fixed). NEGATIVE",
+        "H3 rid structure: 3 samples all R+40hex random, no sequence -> 160bit not guessable. NEGATIVE for rid-hijack",
+        "H2 param override: ?aselectserverurl=&a-select-server=&aselectserver=example.org -> redirect fixed. NEGATIVE"
+      ]
+    },
+    "mijn.examenblad.nl": {
+      "state": "in-progress",
+      "tried": [
+        "Drupal surface GET probes (jsonapi/api/user/1/admin) - all 307 to login"
+      ]
+    },
+    "caorijk.nl": {
+      "state": "in-progress",
+      "tried": [
+        "homepage + /inloggen enum - no auth surface found (content site)"
+      ]
+    },
+    "www.eherkenning.nl": {
+      "state": "in-progress",
+      "tried": [
+        "targeted artifacts (.git/.env/backup.zip/api) + drupal jsonapi"
+      ]
+    },
+    "www.digid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "targeted artifacts (.git/.env/backup.zip/api)"
+      ]
+    },
+    "www.logius.nl": {
+      "state": "in-progress",
+      "tried": [
+        "jsonapi anonymous access check"
+      ]
+    },
+    "www.forensischinstituut.nl": {
+      "state": "in-progress",
+      "tried": [
+        "targeted artifacts"
+      ]
+    },
+    "www.forumstandaardisatie.nl": {
+      "state": "in-progress",
+      "tried": [
+        "jsonapi anonymous access check"
+      ]
+    },
+    "dictu-platform": {
+      "state": "in-progress",
+      "tried": [
+        "jsonapi+artifacts sweep across 16 DICTU hosts (negative)"
+      ]
+    },
+    "federatieveservice.nl": {
+      "state": "in-progress",
+      "tried": [
+        "H4 mapping: no-params -> /apps//redirect.html; request=login1 w/o rid -> err 0030; invalid rid -> err 0102; clean generic errors, Server: N.A., unsubstituted [requestor_rid] placeholder + X-Header-FS: bok-teun (info only)",
+        "DOM XSS candidate siamerror.html: error_code -> getUrlArgument (10-char cap, pre-decode) -> innerHTML. 10-char budget cannot build exec payload; CSP script-src self. NOT exploitable - hardening note only"
+      ]
+    },
+    "learningnetwork.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline, no redirect follow; saved body locally for bounded grep",
+        "HEAD targeted artifacts/admin, no bodies: env=401 backup=401 admin=401"
+      ]
+    },
+    "leerplatform.it-academieoverheid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=403 backup=404 admin=301"
+      ]
+    },
+    "tradeandinnovate.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "offshorewind.rvo.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "europeanpartnership-responsibleminerals.eu": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "kamervoordebinnenvisserij.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "visserijinnovatienetwerk.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "integraleaanpakonlinefraude.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "pgdi.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "stelseltoegang.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "edi.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "blsp.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "aienalgoritmes.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "GET /static/frontend/web-Y7RXyUTb.js shared frontend bundle; local grep only",
+        "GET /groups anonymous group-directory check; one representative tenant",
+        "GET /static/frontend/SiteStore-BpqVrERV.js imported client store bundle; local endpoint grep only",
+        "GET /static/frontend/vendor-wXiUwn-5.js shared vendor bundle; local GraphQL transport grep only",
+        "GET /graphql minimal viewer.loggedIn + site identity query; representative tenant",
+        "GET /static/frontend/web-Y7RXyUTb.js.map referenced source map; local secret/endpoint indicator grep only",
+        "GET /graphql UsersOnline known public query; representative tenant",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200",
+        "GET /.env representative false-positive check after HEAD; bounded body",
+        "GET /backup.zip representative false-positive check after HEAD; bounded body",
+        "gql-anon-introspection",
+        "gql GET /graphql?query with Accept:application/json -> Playground HTML only; query execution is POST-only",
+        "gql POST introspection -> 400 'introspection is disabled' (hardened); type names partially leak via did-you-mean suggestions",
+        "gql POST users/bookmarks/revisions/chats/notifications anonymous -> not_logged_in or empty; viewer.user.email null. No email enumeration",
+        "gql POST entity(guid).attendees on public event -> edges (name/email/state) all null anonymously; only aggregate total visible",
+        "gql POST file structure: GUIDs are UUIDv4, entity() returns title+download path; HEAD download URL 200 image/jpeg (avatar). No brute-force. Closed-group file authz untestable (no GUID)",
+        "gql POST entities(subtype:group) filter silently ignored -> returns all 3255 entities; blog/event/file filters work. Groups not enumerable via GraphQL"
+      ]
+    },
+    "opensourcewerken.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "mijnpgb.nl": {
+      "state": "in-progress",
+      "tried": [
+        "auth map via idor-1 body grep: content CMS, no login form; real PGB portal = portal.entreepgb.svb.nl (SVB/Entree) - OUT OF BRIEF SCOPE, not requested, relayed"
+      ]
+    },
+    "vogcheck.justis.nl": {
+      "state": "in-progress",
+      "tried": [
+        "Vue SPA quiz (VOG-check), zero backend API (no fetch/axios/baseURL in app.js/vendors.js), routes only /nl/* static. No auth boundary. DEAD-END for IDOR"
+      ]
+    },
+    "iplo.nl": {
+      "state": "in-progress",
+      "tried": [
+        "iplo/tl/chw all content sites (Technische Leidraden, Crisis- en herstelwet), no login surface on homepages. Permit portal is external (OLO/DSO). DEAD-END"
+      ]
+    },
+    "www.shiraka.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 302, redirect recorded only",
+        "GET single in-scope redirect target www.shiraka.nl; HTTP 200; no further follow"
+      ]
+    },
+    "algoritmes.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only",
+        "GET single in-scope redirect target aienalgoritmes.pleio.nl; HTTP 200; no further follow"
+      ]
+    },
+    "jenvbredewerkagenda.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "socialeveiligheidrijk.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 000"
+      ]
+    },
+    "www.voorbereidopagressieengeweld.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "samenwerkingsplatform-dienstengww.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "bankdataretrievalportal.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "faculteitmilitairewetenschappen.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "GET surface map: / robots.txt /graphql /login sitemap.xml frontend JS bundle (Pleio v2 shell confirm)"
+      ]
+    },
+    "digitaaltoegankelijk.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "jenvklussenbank.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "bom.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "manifestgroep.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only",
+        "GET single in-scope redirect target manifestgroep.nl; HTTP 200; no further follow"
+      ]
+    },
+    "manifestgroep.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "demijnraad.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "verwijzingsportaalbankgegevens.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "commissiebbv.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "www.boa-expertisecentrum.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "regelbeheer.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 404",
+        "HEAD targeted artifacts/admin, no bodies: env=404 backup=404 admin=404"
+      ]
+    },
+    "eurlplanthealth.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 301, redirect recorded only"
+      ]
+    },
+    "noracommunity.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "fiscaletaxonomie.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "bdcommunicatie.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "sdg.pleio.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / baseline (no redirect follow; bounded local body; cookie values redacted) -> HTTP 200",
+        "HEAD targeted artifacts/admin, no bodies: env=200 backup=200 admin=200"
+      ]
+    },
+    "justis.nl": {
+      "state": "in-progress",
+      "tried": [
+        "Drupal JSON:API: index OPEN anonymously (144 resource types incl webform_submission--contact/klacht/belafspraak, oauth2_token--*) but ALL collections 401 (no WWW-Authenticate). Data properly gated. Index=architecture disclosure only (NCSC-ineligible). Files: idor-1/http/www.justis.nl_jsonapi.body"
+      ]
+    },
+    "verbeterjehuis.nl": {
+      "state": "in-progress",
+      "tried": [
+        "auth map: anonymous tool, /api/v1/ base, only smarttwin/address-additions exposed (204 on unknown address); wizard = BAG public building data, no PII, no user IDs. No auth boundary by design. DEAD-END"
+      ]
+    },
+    "examenblad.nl": {
+      "state": "in-progress",
+      "tried": [
+        "www.examenblad.nl/jsonapi -> 404 (not enabled); mijn. 307 login (idor-1). No anonymous API. DEAD-END"
+      ]
+    },
+    "www.ncsc.nl": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog",
+        "Quiet single GET of /en to enumerate current media/_next handlers and buildId (operator asset — minimal footprint)",
+        "/api/media baseline: single GET of known-good sites/default/files/Home.jpg to establish normal behavior",
+        "/api/media path traversal probe #1: literal ../ to /etc/passwd (single GET)",
+        "/api/media traversal probes (encoded %2f, %2e%2e, and ....// bypass) — all safely rejected 400/404",
+        "Next.js surface: /_next/data/index.json (404) and one source-map probe (.js.map) for exposed internal paths/secrets"
+      ]
+    },
+    "www.digitaleoverheid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog",
+        "wp-json namespace authz sweep (redirection/yoast/aiarc/wpra/newsletter anonymous GET)",
+        "newsletter/manager secret-key k probe (403 invalid_key, no frontend leak) + xmlrpc.php GET/POST blocked 403 server-level"
+      ]
+    },
+    "www.vzinfo.nl": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog",
+        "jsonapi collection authz (file/file 200 public-only, user/user 404) + admin/update.php 403 + settings remnants 403 + login->F5 APM /my.policy (anonymous bounce)"
+      ]
+    },
+    "www.nl-alert.nl": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog"
+      ]
+    },
+    "www.nix18.nl": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog"
+      ]
+    },
+    "www.cbi.eu": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog",
+        "jsonapi 404 (disabled), user/login std form+antibot, admin/update.php 403, settings remnants 404"
+      ]
+    },
+    "www.nctv.nl": {
+      "state": "in-progress",
+      "tried": [
+        "surface_catalog"
+      ]
+    },
+    "www.werkenvoornederland.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200",
+        "JS/config API extraction: root HTML + vacanciesSearchbar bundle (GET-only, files inspected with bounded grep)",
+        "Vacancy detail/application structure: public vacancy listing inspected for detail links and form actions; no submission",
+        "Account endpoint /mijn existence/protection check (single anonymous GET, redirects not followed)",
+        "Account endpoint /profiel existence/protection check (single anonymous GET, redirects not followed)",
+        "Discovered public API /api/vacancy/count anonymous protection/data-exposure check (one GET, no identifiers)"
+      ]
+    },
+    "www.werkenbijdeoverheid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200"
+      ]
+    },
+    "newsroom.minienw.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 302"
+      ]
+    },
+    "www.rijksictdashboard.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200",
+        "GET /assets/index.78636b1e.js public JS bundle; local endpoint/secret indicator grep only",
+        "GET /api/content one documented/public API structure check"
+      ]
+    },
+    "wooincijfers.open-overheid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200"
+      ]
+    },
+    "open.overheid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200",
+        "GET /static/js/main.a6e0a6ba.js public JS bundle; local endpoint/secret indicator grep only",
+        "GET /api/ one documented/public API structure check",
+        "GET public document-search metadata, 10-result cap; local title/URL screening only"
+      ]
+    },
+    "www.digitaletoegang.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 000"
+      ]
+    },
+    "www.functiegebouwrijksoverheid.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200"
+      ]
+    },
+    "www.mobiliteitsbank.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 301"
+      ]
+    },
+    "jobs.werkenvoornederland.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200"
+      ]
+    },
+    "www.geluidgegevens.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 200"
+      ]
+    },
+    "nas-adaptatietool.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET / secondary shared-platform baseline, no redirect follow; HTTP 000"
+      ]
+    },
+    "www.globalentry-rtp.nl": {
+      "state": "in-progress",
+      "tried": [
+        "DEF asset skipped without requests per common_rules",
+        "GET / + robots via https (TLS incomplete chain, verify fail), plain http 302->https; openssl handshake diag only"
+      ]
+    },
+    "www.knmi.nl": {
+      "state": "in-progress",
+      "tried": [
+        "GET /api/ (302→/404), GET /mijn,/inloggen (200 但し soft-404 catch-all: title 'page doesn't exist'), app.js endpoint 抽出 (API 参照なし) — recon の auth 200 は false positive"
+      ]
+    },
+    "www.rwsverkeersinfo.nl": {
+      "state": "in-progress",
+      "tried": [
+        "JS解析: 実APIは config.json の apiUrl=https://api.rwsverkeersinfo.nl (別ホスト・brief外→relay)。/login,/api/,/api/v2/pages/ は全て同一 1337B SPA シェル (catch-all false positive)。config.json に hereApiKey 露出 (フロント用・制限不明→relay)"
+      ]
+    },
+    "api.rwsverkeersinfo.nl": {
+      "state": "in-progress",
+      "tried": [
+        "recon-js-analysis: axios baseURL=window.eov.API, no auth headers, endpoints /api/{traffic,roads,roadworks}/,/api/v2/{pages,categories}/",
+        "anon-GET: /api/roads/ 200 public road list (no auth). /api/v2/pages/ Wagtail 1247 pages, fields=* returns only id/meta/title -> field whitelist enforced. JS has zero auth headers (axios baseURL=window.eov.API). Public traffic data, no PII. Asset DONE - no vuln"
+      ]
+    },
+    "waterinfo.rws.nl": {
+      "state": "in-progress",
+      "tried": [
+        "recon+anon-GET: /assets/config.json apiBaseUrl='' (same-origin), JS has ZERO auth/login code (fully public SPA). /api/status/get + /api/configuration/getfrontendconfiguration 200 anon public data (fe_cfg = only astronomicalTideStartYear). www. subdomain does NOT resolve. No auth boundary -> no authz vuln. Out-of-scope hosts seen in CSP/link (NOT requested): iam.wm.rws.nl, geo.rijkswaterstaat.nl, waterberichtgeving.rws.nl, v14.rws.nl. Asset DONE"
+      ]
+    },
+    "www.schadedoormijnbouw.nl": {
+      "state": "in-progress",
+      "tried": [
+        "Claim portal /mijn-dossier existence/protection check (single anonymous GET, redirects not followed)",
+        "JS API extraction from personalinformationform Vue bundle (GET-only, bounded grep)",
+        "Anonymous GET of public content API /api/supportlocations/get to confirm it serves only public data (one request, no PII params)"
+      ]
+    },
+    "www.douane.nl": {
+      "state": "in-progress",
+      "tried": [
+        "Root GET: enumerate auth form/SSO, JS bundles, and any data endpoints",
+        "WordPress REST discovery: GET /wp-json/ index to enumerate exposed routes (namespaces only, no user enumeration)",
+        "Confirm wp/v2/users protection (single GET) — verifying enumeration is blocked, not enumerating"
+      ]
+    },
+    "nederlandwereldwijd.nl": {
+      "state": "in-progress",
+      "tried": [
+        "wave5-pro GET-only sample completed; final=200 https://www.nederlandwereldwijd.nl/; endpoints=/admin:404,/user/login:404,/jsonapi:404,/api:404,/robots.txt:200,/sitemap.xml:200; js=yes; errors=0"
+      ]
+    }
+  },
+  "cred_count": 0,
+  "finding_count": 0
+}

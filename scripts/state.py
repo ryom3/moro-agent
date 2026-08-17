@@ -381,7 +381,11 @@ def main():
 
     p = sub.add_parser("alert")
     p.add_argument("--host", required=True)
-    p.add_argument("--type", required=True, choices=["root", "cred", "pivot", "flag", "dead-end", "done"])
+    p.add_argument(
+        "--type",
+        required=True,
+        choices=["root", "cred", "pivot", "flag", "sensitive", "dead-end", "done"],
+    )
     p.add_argument("--detail", required=True)
 
     p = sub.add_parser("reset")

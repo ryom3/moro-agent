@@ -1,0 +1,67 @@
+{
+  "relay_protocol": 1,
+  "agent_id": "wave14-geodata",
+  "created_at": "2026-08-17T02:27:00Z",
+  "status": "complete",
+  "current_state": {
+    "target": "Six brief-listed Rijksoverheid geodata/register/content hosts",
+    "workspace": "workspace/wave14-geodata",
+    "request_count": 55,
+    "per_host": {
+      "www.atlasleefomgeving.nl": 13,
+      "monumentenregister.cultureelerfgoed.nl": 10,
+      "jenvconnect.nl": 8,
+      "www.rivm.nl": 8,
+      "lci.rivm.nl": 8,
+      "www.rvig.nl": 8
+    },
+    "reportable_findings": 0,
+    "emergency_stop": null,
+    "outputs": [
+      "workspace/wave14-geodata/notes.md",
+      "workspace/wave14-geodata/fingerprint.tsv",
+      "workspace/wave14-geodata/requests.jsonl",
+      "workspace/wave14-geodata/run_summary.json",
+      "workspace/wave14-geodata/http/"
+    ]
+  },
+  "recon_enumeration": [
+    "Atlas is Drupal. Same-origin /geoserver/web/, WMS/WFS capabilities, ArcGIS services/admin/manager, and /api probes returned 404; no GeoServer version was exposed, so no CVE-2024-36401 version comparison was applicable.",
+    "Atlas /kaarten embeds https://atlas.apps.geodan.nl/map/. It is a third-party/off-scope host and was recorded without being requested.",
+    "Monumentenregister is Drupal. GET search is a Drupal Views (register-of-monuments) HTML search at /monumentenregister?tekst=/?query=; the harmless marker was encoded/partial (not raw) and a benign real-term search returned HTML result cards, not a JSON API. The public record identifier is Monumentnummer (a public number, ineligible as IDOR on its own); result detail cards render below the 1 MiB capture cap so the exact detail-URL path was not retained. /api, /api/v1, and /jsonapi returned 404.",
+    "jenvconnect.nl exposed Ruby on Rails CSRF metadata/TinyMCE Rails integration; sitemap, login, and search-marker checks returned 403.",
+    "www.rivm.nl and lci.rivm.nl are Drupal; anonymous /jsonapi returned resource-type indexes only. No resource collection was queried. www.rivm.nl HTTP root 301-redirected to HTTPS (CSV https=nee was an Internet.nl quirk, not a missing-HTTPS finding).",
+    "www.rvig.nl is Drupal; /api and /jsonapi returned 404. Search-marker output was encoded/partial."
+  ],
+  "exploit_foothold": {
+    "attempted": false,
+    "result": "None. No GeoServer CVE payload, layer/filter/bbox mutation, ArcGIS object enumeration, authentication, POST/write, or ID enumeration was performed."
+  },
+  "failed_attempts_constraints": [
+    "The actual Atlas map application is on off-scope atlas.apps.geodan.nl, preventing authorized inspection of its backend in this wave.",
+    "The Monumentenregister primary landing form is Drupal POST and was not submitted; the separate GET filter form was used for the marker check and one benign real-term search only.",
+    "Status-only 403/404 observations do not establish absence of authenticated or third-party-backed vulnerabilities.",
+    "Three response bodies (monument root, monument real-term search, two jenvconnect JS bundles) hit the 1 MiB capture cap; content beyond the cap was intentionally not retained."
+  ],
+  "unexplored_surface": [
+    "atlas.apps.geodan.nl and any related tiles/CDN/API hosts require separate scope authorization.",
+    "Authenticated flows, registration, POST forms, record-ID enumeration, non-public fields, and writes remain deliberately untested.",
+    "RIVM/LCI JSON:API resource collections were not queried because the index did not provide a concrete non-public-data hypothesis.",
+    "cultureelerfgoed.nl sibling subdomains (beeldbank/catalogus) are out of this wave's scope and were only recorded."
+  ],
+  "considerations_for_next_agent": "Do not repeat these 55 GETs. If atlas.apps.geodan.nl is separately authorized, start from the saved /kaarten embed and preserve the same GET-only, one-second, 1 MiB, and immediate vulnerable-GeoServer stop rules. Treat encoded marker reflection and public Monumentnummer identifiers as non-findings absent executable/non-public-data impact.",
+  "compliance": {
+    "methods": "GET only",
+    "rate": "minimum observed request-start interval 1.050075 seconds",
+    "redirects": "not followed automatically; only exact same-host redirect targets were manually requested",
+    "response_capture": "decompressed body capped at 1048576 bytes",
+    "javascript": "saved and processed with grep only",
+    "budgets": "55/70 global; Atlas 13/20; Monumentenregister 10/10; each other host 8/10",
+    "prohibited_activity": "No exploit, DoS, brute force, social engineering, malware, write, authentication attempt, map enumeration, or out-of-scope request"
+  },
+  "completion_alert": {
+    "executed": true,
+    "command_shape": "python3 scripts/state.py alert --host wave14-geodata --type done --detail <summary>",
+    "result": "ALERT: [done] wave14-geodata"
+  }
+}

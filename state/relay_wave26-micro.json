@@ -1,0 +1,90 @@
+{
+  "relay_protocol": 1,
+  "agent_id": "wave26-micro",
+  "created_at": "2026-08-17T03:50:00+00:00",
+  "status": "complete",
+  "current_state": {
+    "target": "wave24 残件 5 対象 (climexp.knmi.nl / acc.federatieveservice.nl / informatieservice.nederlandwereldwijd.nl / www.stopheling.nl / www.rekenhulptransitievergoeding.nl)",
+    "workspace": "workspace/wave26-micro/",
+    "request_count": 12,
+    "request_budget": 12,
+    "per_host": {
+      "climexp.knmi.nl": 1,
+      "acc.federatieveservice.nl": 1,
+      "informatieservice.nederlandwereldwijd.nl": 4,
+      "www.stopheling.nl": 3,
+      "www.rekenhulptransitievergoeding.nl": 3
+    },
+    "http_statuses": {
+      "200": 10,
+      "500": 2
+    }
+  },
+  "recon_enumeration": [
+    {
+      "host": "informatieservice.nederlandwereldwijd.nl",
+      "finding": "Angular JS から BuZa API 8 エンドポイントを特定 (Ze.Api.EndPoints)。読み取り系 /api/countries/getadvisorycountries (37.7KB) と /api/countries/getcountrycodes (19.5KB) は匿名 GET 200 で公開マスタデータを返す (PII なし)。account/registration/verification 系 6 個は未試行",
+      "lead": "GetSubscription (/api/account/getsubscription) は magic-link 認証後のサブスク取得 = IDOR 候補だが検証には登録メールが必要 (未定義 #1)"
+    },
+    {
+      "host": "www.stopheling.nl",
+      "finding": "Angular SPA。全ルートが同一 63723B 空 シェルを返しサーバ側反射面なし。API ベースは別ドメイン shapi.stopheling.nl/stopheling (serialNumber 照会系テンプレートあり)",
+      "lead": "shapi.stopheling.nl は brief 許可リスト外のため未リクエスト。appconfig.production.json も未取得"
+    },
+    {
+      "host": "www.rekenhulptransitievergoeding.nl",
+      "finding": "root と /index.php が同一 107B の Composer platform_check 500 (PHP>=8.2 要求 mismatch)。robots.txt は 200 → Apache 健在・PHP アプリ全体ダウン。波 24 の 500 は恒常障害と確定",
+      "lead": "NCSC 不適格 (技術情報開示単体+可用性のみ) につき finding 化せず。復旧後に再訪必要"
+    }
+  ],
+  "failed_attempts_constraints": [
+    {
+      "what": "climexp.knmi.nl 二重 URL エンコード反射 (plot_atlas_form.py?id=%253Czx9q%253E)",
+      "result": "Neutralized — hidden value に '_3Czx9q_3E' が反射。サニタイザは % 文字自体も _ 置換。二段階デコードなし。wave10 リードは全変奏で閉鎖"
+    },
+    {
+      "what": "stopheling マーカー反射試行",
+      "result": "実施せず — GET パラメータ形検索フォームがサーバ側に存在しない (SPA シェルのみ) ため brief の前提が不成立。GET を JS 解析に転用"
+    }
+  ],
+  "unexplored_surface": [
+    "shapi.stopheling.nl (stopheling API 本体) — スコープ判定待ち",
+    "informatieservice account/registration/verification 系 6 エンドポイント — メール方針待ち",
+    "rekenhulptransitievergoeding 計算ツール本体 — 復旧待ち (現在アプリ全体 500)",
+    "acc.federatieveservice.nl login1 等 — brief により深掘り禁止 (休眠プレースホルダのみ確認済み)"
+  ],
+  "brief_conflict": {
+    "resolved": true,
+    "note": "冲突なし。wave24 の許可リスト表現衝突 2 項目は本波で消化完了"
+  },
+  "compliance": {
+    "methods": "GET のみ (POST/PUT/DELETE なし)",
+    "rate": "全リクエスト間 sleep 1",
+    "global_budget": "12/12 GET (上限厳守)",
+    "per_host_budget": "brief 記載の per-host 上限内",
+    "allowlist": "5 対象のみ。shapi.stopheling.nl は検出したがリクエストせず",
+    "redirects": "追従最大 3・全て同一ホスト内",
+    "response_storage": "PII なし。JSON 応答は国マスタデータのみ"
+  },
+  "outputs": [
+    "workspace/wave26-micro/notes.md",
+    "workspace/wave26-micro/climexp_atlas_doubleenc.html",
+    "workspace/wave26-micro/informatieservice_main.js",
+    "workspace/wave26-micro/stopheling_main.js",
+    "workspace/wave26-micro/stopheling_zoekresultaat.html",
+    "workspace/wave26-micro/rekenhulp_root.html"
+  ],
+  "residual_tasks": [
+    "shapi.stopheling.nl の program.csv スコープ判定 (監督者) — 判定後は serialNumber 照会 API の認証・レート設計が主調査面",
+    "informatieservice magic-link フローの研究メール方針 (未定義 #1) — GetSubscription IDOR 検証の前提",
+    "stopheling appconfig.production.json 1 GET + SPA 内 API 呼び出し解析",
+    "rekenhulptransitievergoeding 復旧後再訪",
+    "acc.federatieveservice 深掘り可否の指示待ち"
+  ],
+  "completion_alert": {
+    "executed": true,
+    "host": "multi (wave26 5 対象)",
+    "type": "done",
+    "detail": "12/12 GET。climexp 二重エンコード Neutralized (リード閉鎖)・acc 休眠 200・informatieservice API 8 件特定 (読み取り 2 件匿名 200・PII なし)・stopheling SPA シェルのみ + shapi.stopheling.nl 発見 (未リクエスト)・rekenhulp は Composer PHP 8.2 mismatch のアプリ全体ダウン再現 (不適格・finding 化せず)"
+  }
+}

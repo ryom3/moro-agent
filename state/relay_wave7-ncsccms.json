@@ -1,0 +1,32 @@
+{
+  "agent_id": "wave7-ncsccms",
+  "timestamp": "2026-08-16",
+  "brief": "cms.ncsc.nl Drupal jsonapi 匿名認可検証",
+  "status": "blocked - requires escalation",
+  "findings": [],
+  "tried": [
+    "GET /en/jsonapi - 403 Forbidden (nginx)",
+    "GET /en/jsonapi/node/article - 403 Forbidden (nginx)",
+    "GET /en/jsonapi/file/file - 403 Forbidden (nginx)",
+    "GET /en/jsonapi/user/user - 403 Forbidden (nginx)",
+    "GET /jsonapi - 403 Forbidden (nginx)",
+    "GET /robots.txt - 403 Forbidden (nginx)",
+    "GET /user/login - 403 Forbidden (nginx)",
+    "GET / - 403 Forbidden (nginx)"
+  ],
+  "blocking_issue": {
+    "type": "geo_block_or_ip_filter",
+    "description": "全エンドポイントが nginx レベルで 403 Forbidden を返す。Drupal に到達する前段階で拒否されている。",
+    "evidence": "ルートパス (/) から jsonapi 全パスまで、全て同一の nginx 403 応答。",
+    "common_rules_reference": "未定義事項 #2: geo ブロック (オランダ国外 IP を弾く等) → 迂回せず記録して relay"
+  },
+  "impact": "jsonapi 匿名認可の検証が物理的に不可能。Drupal レイヤーの設定を確認できない。",
+  "recommendation": "監督者の判断が必要: (1) オランダ国内 IP/別ロケーションからの再検証、(2) スコープ外判定、(3) www.ncsc.nl 本体の挙動との比較",
+  "requests_made": 8,
+  "compliance": {
+    "rate_limit": "各リクエスト間に sleep 1 挿入済み",
+    "no_dos": "DoS テスト実施せず",
+    "no_data_exfil": "PII/機密データなし（全リクエスト403）",
+    "no_write": "GET のみ実施"
+  }
+}

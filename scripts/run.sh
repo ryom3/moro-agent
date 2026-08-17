@@ -58,6 +58,9 @@ if runtime == 'claude-code':
         parts.append(f'{k}={v}')
     model_name = cfg.get('model_override', '$MODEL')
     effort = os.environ.get('EFFORT', 'high')
+    # OOM 対策 (2026-08-16): バンドル解析で node heap が 5-6GB に肥大化し oom-killer が
+    # 無差別 kill (ユーザーの VS Code も被害)。エージェント毎にヒープ上限を課す。
+    parts.append('NODE_OPTIONS=--max-old-space-size=2560')
     parts.append(f'claude --dangerously-skip-permissions --model {model_name} --effort {effort}')
 
 elif runtime == 'codex':

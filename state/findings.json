@@ -1,1 +1,112 @@
-{"findings": []}
+{
+  "findings": [
+    {
+      "id": 1,
+      "host": "climexp.knmi.nl",
+      "step": 4,
+      "heading": "DOM-XSS sink review of first-party JS: negative",
+      "narrative": "Reviewed all 3 first-party JS (hidden_info_switch.js, pop_page.js, menu_collapser.js). None read location.search/hash/href or user-controlled URL input into innerHTML/document.write/.html()/eval. pop_page() opens window with args from static HTML onclick, not URL. No client-side DOM-XSS flow in first-party JS. (Hypothesis 4 partial: JS-file review done; reflected/stored still pending.)",
+      "commands": [
+        "grep -aoniE 'location\\.(search|hash|href)|innerHTML|document\\.write|\\.html\\(|eval\\(' http/js_*.body"
+      ],
+      "output_summary": "",
+      "screenshot": "",
+      "added_by": "wave10-climexp",
+      "added_at": "2026-08-17T01:33:11.618674+00:00"
+    },
+    {
+      "id": 2,
+      "host": "climexp.knmi.nl",
+      "step": 1,
+      "heading": "Hyp1 reflected input on plot_atlas_form.py: reflected but sanitized (chars -> underscore)",
+      "narrative": "GET plot_atlas_form.py?id=xsstest123<>:'\" reflects the value into a hidden input attribute: <input type=hidden name=id value=\"xsstest123_____\">. Each of the 5 special chars <>:'\" was replaced by underscore. No raw or entity-escaped angle brackets/quotes emitted; attribute breakout not achieved with this payload. Reflection confirmed, but current filter neutralizes the tested XSS vector. about.cgi did NOT reflect the id value at all.",
+      "commands": [
+        "curl -G --data-urlencode id=... plot_atlas_form.py ; grep marker"
+      ],
+      "output_summary": "",
+      "screenshot": "",
+      "added_by": "wave10-climexp",
+      "added_at": "2026-08-17T01:34:20.744094+00:00"
+    },
+    {
+      "id": 3,
+      "host": "werkenbij.rijkswaterstaat.nl",
+      "step": 1,
+      "heading": "Exposed pro6pp API key (unrestricted address-data API access)",
+      "narrative": "werkenbij.rijkswaterstaat.nl (RWS careers site) embeds a pro6pp.nl API key 'EavhpYcFiMep6Pmq' in production JS (head.v1.63.0.js: RWS={pro6ppApiEndpoint:...}). The key is used client-side for postal-code/city autocomplete. Verified: the key works anonymously with no Origin/Referer restriction (Access-Control-Allow-Origin: *) and returns Dutch address/location data (postal code -> city, municipality, province, lat/lng). Impact pending severity assessment: abuse of a paid third-party address-data API quota; unrestricted geolocation data retrieval. Note: may be an intended public client-side key.",
+      "commands": [],
+      "output_summary": "",
+      "screenshot": "",
+      "added_by": "unknown",
+      "added_at": "2026-08-17T03:02:24.664061+00:00"
+    },
+    {
+      "id": 4,
+      "host": "zoeken.zorgaanbiedersportaal.nl",
+      "step": 1,
+      "heading": "Unauthenticated provider detail API exposes shielded (address-protected) care providers' physical addresses",
+      "narrative": "The public Zorgaanbiedersportaal search API (POST /api/v1/Zoeken and GET /api/v1/Organisatie/{kvkNummer}, /api/v1/Vestiging/...) is unauthenticated. It returns provider name, KvK number, all establishment addresses, and AGB codes. The 'adres.isafgeschermd' (address-shielded) flag is present in the API/UI but returned FALSE for every sampled provider, including highly sensitive shelters (women's shelters for domestic-violence victims, youth-care/foster-care, sheltered-housing providers) whose physical addresses (street+postcode) were returned. 0/55 random samples had isafgeschermd=true, suggesting address shielding is either not honored or not applied. This risks victim/target safety for sheltered individuals. NOTE: LRZa may legally require public disclosure of addresses; shielding is provider-requested. Data not stored beyond finding metadata.",
+      "commands": [],
+      "output_summary": "",
+      "screenshot": "",
+      "added_by": "unknown",
+      "added_at": "2026-08-17T03:56:05.106680+00:00"
+    },
+    {
+      "id": 5,
+      "host": "data.overheid.nl",
+      "step": 1,
+      "heading": "CKAN draft/deleted 匿名漏洩なし (陰性) + 公開 Action API ベースライン",
+      "narrative": "data.overheid.nl は Drupal フロント + CKAN バックエンド。ルート直下 /api/3/action/site_read は 404。公開 Action API は /data/api/3/action/ 配下に存在。package_search?q=water は count=1954・全 state=active/private=false。Solr 直接句 q=+state:draft と q=+state:deleted はいずれも success:true・count=0・rows=0 で、匿名では draft/deleted dataset は一切返らない (漏洩なし=陰性)。package_show(公開 id) も active/public のみ。判定: 報告候補なし。",
+      "commands": [
+        "GET /api/3/action/site_read; GET /data/api/3/action/package_search?q=water&rows=1; GET /data/api/3/action/package_search?q=+state:draft; GET /data/api/3/action/package_search?q=+state:deleted; GET /data/api/3/action/package_show?id=<public>"
+      ],
+      "output_summary": "workspace/wave29-opendata/observations.jsonl",
+      "screenshot": "",
+      "added_by": "wave29-opendata",
+      "added_at": "2026-08-17T04:04:29.414672+00:00"
+    },
+    {
+      "id": 6,
+      "host": "linkeddata.overheid.nl",
+      "step": 2,
+      "heading": "LiDO SPARQL endpoint 匿名開放 (記録・設計どおりの可能性大)",
+      "narrative": "linkeddata.overheid.nl は / から /front/portal/ へ 302。LiDO (Linked Data Overheid) ポータル。UI ルート: /front/portal/{lido,lido-lx,bron,services,help,feedback,proclaimer}。/service/* に juriconnect 解決系の公開 REST サービス群。SPARQL エンドポイントは /sparql に存在し、匿名で GET ?query=ASK{}&output=json が status 200・application/sparql-results+json・{\"boolean\":true} を返す=匿名開放を確認。ただしこれは公開 Linked Data 基盤の設計どおりの公開エンドポイントであり、判定基準に照らし匿名開放のみでは単体不適格=記録のみ。SPARQL 注入 (SELECT/更新系) の投入・実証は brief 指示により未実施 (監督者判断待ち)。",
+      "commands": [
+        "GET /; GET /front/portal/services; GET /front/portal/help; GET /front/portal/lido; GET /sparql?query=ASK{}&output=json"
+      ],
+      "output_summary": "workspace/wave29-opendata/observations.jsonl",
+      "screenshot": "",
+      "added_by": "wave29-opendata",
+      "added_at": "2026-08-17T04:04:29.417058+00:00"
+    },
+    {
+      "id": 7,
+      "host": "opendata.stelselcatalogus.nl",
+      "step": 3,
+      "heading": "Angular SPA + swagger-ui パス存在 (陰性・要フォロー)",
+      "narrative": "opendata.stelselcatalogus.nl は Angular SPA (main-*.js / chunk-*.js / styles-*.css, index title 'Opendata')。SPA バンドル中に angular/react/sparql マーカー文字列。/swagger-ui/index.html は 200 だが同一 SPA シェル (index.html フォールバック) を返すだけで実 Swagger UI ではない=API 仕様の露出は未確認。?q= 検索も SPA シェルを返すのみ (クライアント側ルーティング)。GET 予算温存のため実バックエンド API パスの列挙は未実施。判定: 単体で報告候補なし=陰性。バックエンド REST/GraphQL の base path 特定は次波の untried。",
+      "commands": [
+        "GET /; GET /main-EVMT4J2A.js; GET /swagger-ui/index.html; GET /?q=water"
+      ],
+      "output_summary": "workspace/wave29-opendata/observations.jsonl",
+      "screenshot": "",
+      "added_by": "wave29-opendata",
+      "added_at": "2026-08-17T04:04:47.968889+00:00"
+    },
+    {
+      "id": 8,
+      "host": "mlzopendata.cbs.nl",
+      "step": 4,
+      "heading": "CBS StatLine (Angular SPA + OData) 指紋確定・PII なし (陰性)",
+      "narrative": "mlzopendata.cbs.nl は CBS StatLine 実装 (title 'CBS Statline'、Angular 1.4.7 + React バンドル、d3 グラフ、CatalogConfig.js/Cbs.Settings.js)。CKAN/Socrata ではない。ルートは集計統計カタログ UI。/ODataCatalog/Tables と /ODataApi/odata/ は 301→SPA シェルにフォールバック (クライアントルーティング) で、匿名 GET で機微データは返らず。医療 (Wlz/Wmo) 系テーマだが観測応答は集計統計メタのみで PII らしき個票は皆無=sensitive alert 不要。判定: 報告候補なし=陰性。実 OData v3 データ API base path の直接確認は GET 予算温存で未実施 (次波 untried)。",
+      "commands": [
+        "GET /; GET /Scripts/CatalogConfig.js; GET /Scripts/Cbs.Settings.js; GET /ODataCatalog/Tables; GET /ODataApi/odata/"
+      ],
+      "output_summary": "workspace/wave29-opendata/observations.jsonl",
+      "screenshot": "",
+      "added_by": "wave29-opendata",
+      "added_at": "2026-08-17T04:04:47.975923+00:00"
+    }
+  ]
+}

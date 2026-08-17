@@ -1,0 +1,40 @@
+{
+  "protocol": 1,
+  "agent_id": "wave22-statistiek",
+  "created_at": "2026-08-17T03:25:00Z",
+  "status": "complete",
+  "current_state": {
+    "target": "statistiek.rijksoverheid.nl (self-hosted Piwik PRO Suite) — anonymous admin-surface probe",
+    "workspace": "workspace/wave22-statistiek",
+    "request_count": 10,
+    "per_host": {"statistiek.rijksoverheid.nl": 10},
+    "reportable_findings": 0,
+    "emergency_stop": null,
+    "outputs": ["workspace/wave22-statistiek/notes.md", "workspace/wave22-statistiek/*_headers.txt + bodies"]
+  },
+  "recon_enumeration": [
+    "GET /saml/metadata -> 404 genuine Piwik PRO error page (10591B). SAML metadata NOT anonymously readable - hypothesis negative, no entityId/ACS/IdP leak.",
+    "GET /api/auth/v1 -> 404 JSON {\"detail\":\"Url not found.\"} (FastAPI-style).",
+    "GET /api/traffic-monitor -> 401 {\"message\":\"Unauthorized\"}. Healthy auth gate.",
+    "GET /static/checksum -> 200 28B base64 SHA1-like build checksum 'DCnxG9s7OyfuLyP2wKGSxatUrEc=' - benign build artifact, no version string.",
+    "GET /api/oauth/v1/client -> 401. Healthy.",
+    "GET /administration/account/domains and /administration/account/subscription -> 200 text/html BUT body is 2320B <title>Loading...</title> React SPA shell (client-side routing fallback), distinct from the 10.5KB 404 page (MD5-compared). NO account/domain/subscription data returned anonymously.",
+    "GET /containers/e960e0c5-7d94-41d1-a4f6-21ca7299d864/sync.js and /tag.js -> 404 53B 'Resource not found'. Container exists (noscript.html 200/0B in wave17b) but sync/tag JS not published at unversioned paths. No internal endpoint/domain/token injection observable.",
+    "kb query 'Piwik PRO vulnerability CVE' -> no Piwik PRO entries in KB. Version undetermined (no version string anywhere; content-hashed bundle filenames) -> CVE matching not possible, recorded as version-unknown."
+  ],
+  "exploit_foothold": {
+    "attempted": false,
+    "result": "None. GET-only per brief; zero login attempts, zero POSTs (incl. ppms.php telemetry), no credential testing."
+  },
+  "failed_attempts_constraints": [
+    "sync.js/tag.js 404: container JS unavailable at unversioned paths; versioned path (<uuid>/<hash>/tag.js) unprobed - low value since tag containers are served to all visitors by design.",
+    "Piwik PRO version could not be fingerprinted anonymously -> no CVE cross-check.",
+    "GET budget 10/15 used; remaining budget not needed - all hypotheses resolved negative."
+  ],
+  "unexplored_surface": [
+    "/administration/register-cmp, /settings/organization/saml, /settings/organization/auto-provisioning (outside brief Tasks; presumed same SPA shell)",
+    "Versioned tag-manager path /containers/<uuid>/<hash>/tag.js",
+    "Version identification requires authenticated UI or meta API - blocked on undefined account/login policy (do not attempt without supervisor decision)"
+  ],
+  "considerations_for_next_agent": "Admin surface is cleanly gated: real APIs answer 401/404, SPA shell (2320B 'Loading...') vs genuine 404 page (10.5KB 'Piwik Pro' title) is the discriminator for any future path test. statiskiek asset is a dead end for anonymous-surface bugs; recommend no further waves on this host without a new hypothesis class (e.g. tracker-side XSS via ppms.php referrer requires POST = prohibited)."
+}

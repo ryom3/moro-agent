@@ -1,9 +1,30 @@
 {
-    "project": "HackTheBox - Ghostlink",
-    "start": "",
-    "end": "",
-    "networks": [""],
-    "targets": ["10.129.27.15"],
-    "out_of_scope": [],
-    "rules_of_engagement": "HTB lab machine"
+  "project": "NCSC-NL CVD — Dutch Central Government",
+  "platform": "NCSC-NL Coordinated Vulnerability Disclosure (program.html)",
+  "_company": "Nationaal Cyber Security Centre (NCSC-NL), Ministry of Justice and Security。オランダ中央政府 (Rijksoverheid) のシステムを対象とする CVD。報酬は T シャツ〜ギフト券 (額面小) + 年次 Wall of Fame。NCSC は CNA でもあり多システム影響の脆弱性には CVE 付与あり",
+  "scope_source": "program.html (NCSC CVD guideline ページ全文) + program.csv (Internet.nl 準拠テスト結果 1655 行 — オランダ政府 web 資産リスト。2026-07-20/23 テスト)",
+  "in_scope": "Organisatietype == 'Rijksoverheid' の 1169 資産 (12 省庁)。CSV の URL 列が http:// 表記でも大半は https へリダイレクトする (Internet.nl 表記の癖)",
+  "out_of_scope": [
+    "Organisatietype == 'Overheid' の 486 資産 (自治体・州・水管理団体等 — 中央政府ではない。NCSC ではなく各自治体の disclosure 先)",
+    "第三者ホスト上の資産の、第三者プラットフォーム自体の脆弱性 (例: minbzk.github.io は GitHub Pages、nederlandsesoorten.nl 系は第三者機関サーバ)。資産側の設定起因のみ NCSC 報告対象",
+    "NCSC 自身が明記した不適格: 可用性しか損なわない欠陥 / wp-cron.php・wp-json users・xmlrpc.php の pingback 系 / 静的サイト・機密データなしサイトの XSS / バージョン・IP・ユーザー名等の技術情報の開示 (直接・実証的に悪用可能な場合を除く) / セキュリティヘッダ欠落単体 (CORS 含む。実害の実証が必要) / phishing や多大なユーザー操作に依存する現実性なき悪用シナリオ・低影響"
+  ],
+  "rules_of_engagement": "報告は CVD フォーム (PGP 可)。発見後できるだけ速やかに報告。解決の連絡があるまで情報を共有しない (90 日ルールより厳格 — 解決まで非公開)。脆弱性を実証するために必要最小限のアクションのみ許可",
+  "prohibited": "マルウェア混入 / データのコピー・編集・削除 / システムへの変更 / システムへの繰り返しアクセス・アクセス権の共有 / brute-force / DoS / ソーシャルエンジニアリング / NCSC への YouTube 動画送付 (明文禁止)",
+  "rate_limit": "数値規定なし → フレームワーク規則 1 req/sec + sleep 1。エージェント並列時は同一ドメインへの同時リクエスト禁止 (監督者がドメイン分割)",
+  "user_agent": "プログラム側の UA 指定なし。通常のブラウザ類似 UA を使用",
+  "qualifying": "ログインフォームのバイパス、個人情報を含む DB への不正アクセス等、AIC (可用性・完全性・機密性) へのリスクとなる脆弱性。深刻度とレポート品質で報酬判定。NCSC 既知の脆弱性は報酬対象外",
+  "test_account": "公式テストアカウントなし (blackbox)。登録・メール確認が必要なフローで研究用メールアドレスの使用可否は未定義 → 必要になったら実行せず監督者に relay (ギャップ #3)",
+  "response_sla": "受領確認 1 営業日以内、判定 3 営業日以内",
+  "credits": "クレジット制なし (Getmomo と違い報告数制限なし)。ただし低品質・繰り返しの催促は報酬・Wall of Fame 不適格の恐れ → 厳選報告",
+  "_gaps_to_relay": [
+    "スコープ境界: program.csv は全政府 web 資産 1655 行を含むが NCSC CVD は中央政府 (Rijksoverheid) のみ。Organisatietype=='Overheid' の 486 行はスコープ外。サブエージェントは必ず Rijksoverheid 行のみテスト",
+    "第三者ホスト資産 (minbzk.github.io = GitHub Pages、nederlandsesoorten.nl 系、1ratio.nl 等): プラットフォーム自体の脆弱性は不適格の可能性大。資産側設定起因のみ追求し、判断が分かれるものは報告前に監督者に relay",
+    "登録・OTP・メール確認が必要なフローでの研究用メールアドレスの方針が program.html に未定義 (報告時の連絡先メールは必須だが研究用アカウントの規定なし)。該当局面で実行を止め relay せよ",
+    "数値レート制限の規定なし → 1 req/sec を適用",
+    "VPN 要件の規定なし (オランダ国外 IP からのテスト可否は不明)。geo ブロックに遭遇したら迂回せず記録して relay",
+    "国防省 (DEF) 資産は法的感度が高い可能性 — 通常ルールどおり静かに検証し、疑わしいものは即 relay",
+    "1655 資産の全数走査は不可能 (1 req/sec)。トラフィック上位 + 個人データポータル + 共有プラットフォーム (Pleio 37 / DICTU 18 / Logius 8 / Platform Rijksoverheid Online 357) に集中。共有プラットフォームの欠陥は横展開影響大 + CVE 候補"
+  ],
+  "previous_engagement": "Getmomo (YesWeHack) は 2026-08-16 に終了・アーカイブ済み。state は 19:22 にリセット済み"
 }

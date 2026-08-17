@@ -2,6 +2,8 @@
 # ./start.sh
 # ./start.sh --model glm-5.2
 # ./start.sh --resume <session-id>
+# ./start.sh --bb                          # バグバウンティモード (CLAUDE-bb.md を使用)
+# ./start.sh --bb --model glm-5.2
 
 set -eo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,6 +11,18 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 [ -f "$DIR/config" ] && source "$DIR/config"
 [ -f "$DIR/.env" ] && { set -a; source "$DIR/.env"; set +a; }
 TMUX_SESSION="${TMUX_SESSION:-pentest}"
+
+# バグバウンティモード: CLAUDE.md → CLAUDE-bb.md に切替
+if echo "$*" | grep -q -- '--bb'; then
+    if [ -f "$DIR/CLAUDE-bb.md" ]; then
+        # 一時的に CLAUDE.md を退避して CLAUDE-bb.md を使用
+        cp "$DIR/CLAUDE.md" "$DIR/CLAUDE.md.bak"
+        cp "$DIR/CLAUDE-bb.md" "$DIR/CLAUDE.md"
+        trap "mv $DIR/CLAUDE.md.bak $DIR/CLAUDE.md 2>/dev/null" EXIT
+    fi
+    # --bb を引数から除去
+    set -- $(echo "$*" | sed 's/--bb//')
+fi
 
 # モデル名を引数から取得
 MODEL_NAME=""

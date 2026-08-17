@@ -1,0 +1,120 @@
+{
+  "relay_id": "recon-2",
+  "from_agent": "recon-2",
+  "timestamp": "2026-08-16T00:22:00Z",
+  "current_state": {
+    "phase": "Wave 1 Reconnaissance Complete",
+    "catalog_status": "60/60 assets catalogued",
+    "completing_action": "Added final 7 assets: ncsc.nl, digitaleoverheid.nl, vzinfo.nl, nl-alert.nl, nix18.nl, cbi.eu, nctv.nl"
+  },
+  "unexplored_surface": {
+    "top_10_opportunities": [
+      {
+        "rank": 1,
+        "domain": "digitaleoverheid.nl",
+        "vulnerability_class": "WordPress API Misconfiguration",
+        "rationale": "WordPress REST API /wp-json/ exposes multiple namespaces (wp/v2, yoast/v1, akismet/v1, etc.) + xmlrpc.php enabled. High-value target for authentication bypass, data exposure, or plugin vulnerabilities.",
+        "traffic": "N/A (professional portal)",
+        "platform": "WordPress PHP/8.3.33"
+      },
+      {
+        "rank": 2,
+        "domain": "knmi.nl",
+        "vulnerability_class": "Authentication Bypass / IDOR",
+        "rationale": "High-traffic site (3.7M visits/month) with full auth surface (/login, /inloggen, /mijn, /account, /auth). User accounts likely contain weather alerts, subscription data.",
+        "traffic": "3,785,425 visits/month",
+        "platform": "Unknown"
+      },
+      {
+        "rank": 3,
+        "domain": "vzinfo.nl",
+        "vulnerability_class": "Drupal Authentication / IDOR",
+        "rationale": "Drupal platform with auth endpoints (/user/login, /user/password, /admin/). RIVM health data ecosystem — potential PII exposure if authentication bypass exists.",
+        "traffic": "N/A (health info portal)",
+        "platform": "Drupal"
+      },
+      {
+        "rank": 4,
+        "domain": "cbi.eu",
+        "vulnerability_class": "Drupal Authentication / IDOR",
+        "rationale": "Drupal 10 with auth endpoints. International trade portal — user accounts may contain business data, export documentation.",
+        "traffic": "N/A (SME support portal)",
+        "platform": "Drupal 10"
+      },
+      {
+        "rank": 5,
+        "domain": "rwsverkeersinfo.nl",
+        "vulnerability_class": "Authentication Bypass / IDOR",
+        "rationale": "High-traffic traffic info site (993K visits/month) with auth endpoints. User accounts may contain route preferences, location data.",
+        "traffic": "993,180 visits/month",
+        "platform": "Unknown"
+      },
+      {
+        "rank": 6,
+        "domain": "werkenvoornederland.nl",
+        "vulnerability_class": "Authentication Bypass / IDOR",
+        "rationale": "Job portal (637K visits/month) with auth surface. User accounts contain PII: CV data, job applications, personal info.",
+        "traffic": "637,552 visits/month",
+        "platform": "Unknown"
+      },
+      {
+        "rank": 7,
+        "domain": "waterinfo.rws.nl",
+        "vulnerability_class": "Authentication Bypass / IDOR",
+        "rationale": "Water data platform (507K visits/month) with auth. User accounts may contain water level alerts, location-based subscriptions.",
+        "traffic": "507,374 visits/month",
+        "platform": "Unknown"
+      },
+      {
+        "rank": 8,
+        "domain": "ncsc.nl",
+        "vulnerability_class": "Information Disclosure / API Bypass",
+        "rationale": "CVD program operator's own site. /api/media/* endpoint for media files. Strict CSP but may have SSRF or path traversal in image API.",
+        "traffic": "N/A (government cybersecurity info)",
+        "platform": "Next.js"
+      },
+      {
+        "rank": 9,
+        "domain": "schadedoormijnbouw.nl",
+        "vulnerability_class": "Authentication Bypass / IDOR",
+        "rationale": "Construction damage reporting (129K visits/month) with /login endpoint. Claims data, construction site details, witness PII at risk.",
+        "traffic": "129,862 visits/month",
+        "platform": "Unknown"
+      },
+      {
+        "rank": 10,
+        "domain": "douane.nl",
+        "vulnerability_class": "Authentication Bypass / IDOR",
+        "rationale": "Customs (Douane) portal with auth endpoints. High sensitivity: import/export data, customs declarations, business PII.",
+        "traffic": "Unknown",
+        "platform": "Unknown"
+      }
+    ]
+  },
+  "platform_distribution": {
+    "wordpress": 1,
+    "drupal": 3,
+    "next_js": 5,
+    "unknown": 51
+  },
+  "next_actions": {
+    "wave_2_priorities": [
+      "WordPress API exploitation on digitaleoverheid.nl (highest impact for information disclosure)",
+      "Authentication testing on top 4 high-traffic auth sites (knmi.nl, rwsverkeersinfo.nl, werkenvoornederland.nl, waterinfo.rws.nl)",
+      "Drupal auth bypass on vzinfo.nl and cbi.eu (health + trade data sensitivity)",
+      "SSRF/path traversal on ncsc.nl /api/media/ (CVD operator asset)",
+      "IDOR testing on schadedoormijnbouw.nl and douane.nl (claims + customs data)"
+    ],
+    "excluded_from_wave_2": [
+      "Next.js sites with strict CSP (nl-alert.nl, nix18.nl, nctv.nl) — low attack surface",
+      "Information-only sites without authentication or PII processing"
+    ]
+  },
+  "handoff_metadata": {
+    "catalog_path": "workspace/recon-1/catalog.md",
+    "assets_catalogued": 60,
+    "assets_with_auth": 7,
+    "assets_with_api_exposure": 3,
+    "high_traffic_assets_auth": 4
+  }
+}

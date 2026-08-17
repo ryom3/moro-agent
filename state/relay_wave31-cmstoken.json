@@ -1,0 +1,59 @@
+{
+  "relay": "wave31-cmstoken",
+  "date": "2026-08-17",
+  "program": "NCSC-NL CVD (Rijksoverheid)",
+  "budget": {
+    "get_used": 4,
+    "get_max": 4,
+    "post_used": 2,
+    "post_max": 2,
+    "per_host": {
+      "opendata.stelselcatalogus.nl": 4,
+      "mlzopendata.cbs.nl": 2
+    },
+    "five_xx": 0,
+    "pii_observed": 0,
+    "note": "brief タスク列表記は GET 計 5 を要求するが上限 GET 4 を厳守。CBS 一覧系 1 GET を未実施として relay"
+  },
+  "current_state": {
+    "workspace": "workspace/wave31-cmstoken/ (notes.md, safe_wave31.py, observations.jsonl, request_state.json, token_material.json[0600])",
+    "verdict": "cmsToken は公開読み取り用と判定 (陰性)。mlzopendata OData base 特定完了・一覧 GET は次波"
+  },
+  "recon": [
+    {
+      "host": "opendata.stelselcatalogus.nl",
+      "finding": "wave30 リードの決着: POST /cms/graphql を Bearer cmsToken (len 256, mask 5a3d…09 — 値は workspace token_material.json 0600 のみ) で検証。① 浅い introspection → 400 INTROSPECTION_DISABLED (Apollo production 設定・型列挙不可能 = 健全)。② アプリ自身の公開クエリ OpenData(status:PUBLISHED){predicateOrder} → 200・SKOS/RDFS 述語 IRI 一覧のみ。user/role/未公開エントリの観測なし。",
+      "severity": "none (negative — token は公開読み取り用の設計)"
+    },
+    {
+      "host": "opendata.stelselcatalogus.nl",
+      "finding": "GET /sparql?query=ASK{}&output=json → 200 boolean:true。匿名 SPARQL 実行可 (公開オープンデータポータルの設計通り・単体では不適格)。",
+      "severity": "info"
+    },
+    {
+      "host": "opendata.stelselcatalogus.nl",
+      "finding": "未検証リード (要・追加 POST 承認): bundle 解析で status はクライアント側から渡る enum (PublicationStatus)。サーバ側で PUBLISHED 強制の有未検証。検証は variables {\"status\":\"DRAFT\"} の 1 POST で判定可。token 無しでクエリが通るか (トークン必須性) も未検証。",
+      "severity": "lead (監督者判断待ち)"
+    },
+    {
+      "host": "mlzopendata.cbs.nl",
+      "finding": "/Scripts/Cbs.Settings.js (200) + /Scripts/CatalogConfig.js (200, 55KB) 取得・ローカル grep 済み。OData base は同一オリジン相対プレフィックス: API_PREFIX='ODataApi/odata/' / BULK_PREFIX='ODataFeed/odata/' / CATALOG_PREFIX='ODataCatalog/'・DEFAULT_CATALOG='MLZ'。データは CC-BY-4.0 明記。",
+      "severity": "info"
+    },
+    {
+      "host": "mlzopendata.cbs.nl",
+      "finding": "次波の正確な一覧系 GET (予算切れで未実施): https://mlzopendata.cbs.nl/ODataApi/odata/ (サービスルート・エンティティセット一覧の集計メタ想定)。",
+      "severity": "info (untried)"
+    }
+  ],
+  "constraints_and_scope": [
+    "リクエストは brief 記載 2 ホストのみ (コード allow-list 強制)。sleep 1 徹底。",
+    "cmsToken の値は stdout・notes・relay に一切出力せず (len+mask のみ)。token_material.json は 0600・workspace 内。",
+    "第三者ホスト (dataderden.cbs.nl, opendata.cbs.nl, geoservices.cbs.nl, service.pdok.nl, www.cbs.nl, cdn.cbs.nl, monitorlangdurigezorg.nl, staatvanhetmkb.nl) は設定ファイル内の文字列観測のみ・リクエスト実績なし。",
+    "mutation は code-level で拒否するガードを実装し実行ゼロ。POST は承認済み読み取り専用クエリ 2 本のみ。"
+  ],
+  "next_actions_for_supervisor": [
+    "status:DRAFT 1 POST の承認判断 (未公開コンテンツ漏洩の有無。陰性なら stelselcatalogus 表面は完全決着)",
+    "mlzopendata OData サービスルート GET 1 本 (集計メタ確認のみ) の承認判断"
+  ]
+}

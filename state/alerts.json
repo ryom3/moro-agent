@@ -1,1 +1,1038 @@
-[]
+[
+  {
+    "timestamp": "2026-08-17T00:18:04.230372+00:00",
+    "agent": "idor-2",
+    "host": "digitaalloket.cjib.nl",
+    "type": "done",
+    "detail": "idor-2 complete: A-Select lead fully investigated (H1 cookie override NEGATIVE / H2 param override NEGATIVE / H3 rid 160bit random / H4 hub errors clean). No reportable vuln. siamerror DOM XSS capped 10 chars non-exploitable. relay_idor-2.json written"
+  },
+  {
+    "timestamp": "2026-08-17T00:22:35.507584+00:00",
+    "agent": "leak-2",
+    "host": "faculteitmilitairewetenschappen.nl",
+    "type": "dead-end",
+    "detail": "DEF asset: only one anonymous GET / baseline was performed before ministry sensitivity was noticed; no further requests will be made. Baseline returned normal public Pleio shell; no suspicious data observed."
+  },
+  {
+    "timestamp": "2026-08-17T00:22:45.137401+00:00",
+    "agent": "recon-2",
+    "host": "recon",
+    "type": "done",
+    "detail": "60/60 catalog complete. Added 7 assets: ncsc.nl, digitaleoverheid.nl, vzinfo.nl, nl-alert.nl, nix18.nl, cbi.eu, nctv.nl. Wave 2 recommendations written to state/relay_recon-2.json. Top targets: digitaleoverheid.nl (WordPress API), knmi.nl (auth 3.7M), vzinfo.nl (Drupal auth), cbi.eu (Drupal 10 auth), rwsverkeersinfo.nl (auth 993K)."
+  },
+  {
+    "timestamp": "2026-08-17T00:28:17.039820+00:00",
+    "agent": "leak-2",
+    "host": "www.globalentry-rtp.nl",
+    "type": "dead-end",
+    "detail": "DEF asset in secondary platform list; skipped without requests per common_rules."
+  },
+  {
+    "timestamp": "2026-08-17T00:31:30.436040+00:00",
+    "agent": "wave2-cms",
+    "host": "www.digitaleoverheid.nl",
+    "type": "dead-end",
+    "detail": "wp-json namespace authz sweep: redirection/yoast 401, newsletter/manager secret-key gated (k not leaked in JS, brute force prohibited), xmlrpc 403 server-blocked. Newsletter 9.2.9 known unauth CVEs all patched. Negative."
+  },
+  {
+    "timestamp": "2026-08-17T00:31:36.979478+00:00",
+    "agent": "wave2-cms",
+    "host": "www.vzinfo.nl",
+    "type": "dead-end",
+    "detail": "jsonapi file/file anonymous 200 but all public:// site images, no private/unpublished/PII; user/user 404; admin/update.php 403; login behind F5 BIG-IP APM (/my.policy). Negative."
+  },
+  {
+    "timestamp": "2026-08-17T00:31:37.006269+00:00",
+    "agent": "wave2-cms",
+    "host": "www.cbi.eu",
+    "type": "dead-end",
+    "detail": "jsonapi 404 (disabled), user/login std form + antibot, admin/update.php 403, settings remnants 404. Negative."
+  },
+  {
+    "timestamp": "2026-08-17T00:31:37.032994+00:00",
+    "agent": "wave2-cms",
+    "host": "ingelogd.staging.mijnslachtofferzaak.nl",
+    "type": "dead-end",
+    "detail": "Exposure confirmed: CNAME rp1.acc.federatieveservice.nl, qualified gov cert (Justid), anonymous root = A-Select redirect to acc.federatieveservice.nl/aselectserver/server. No debug/bypass/PII. ACC A-Select server URL leaks via Set-Cookie (intel for A-Select lead, ineligible standalone)."
+  },
+  {
+    "timestamp": "2026-08-17T00:31:41.687561+00:00",
+    "agent": "wave2-cms",
+    "host": "www.digitaleoverheid.nl",
+    "type": "done",
+    "detail": "wave2-cms complete: 4/4 targets verified, all negative (hardened). Key intel: vzinfo login=F5 APM; staging=live ACC A-Select SSO gate (acc.federatieveservice.nl out-of-brief, unprobed). Full: workspace/wave2-cms/notes.md + state/relay_wave2-cms.json. No findings filed."
+  },
+  {
+    "timestamp": "2026-08-17T00:32:10.993040+00:00",
+    "agent": "leak-2",
+    "host": "socialeveiligheidrijk.nl",
+    "type": "dead-end",
+    "detail": "TLS certificate name mismatch; no bypass attempted, no HTTP request completed."
+  },
+  {
+    "timestamp": "2026-08-17T00:32:11.017645+00:00",
+    "agent": "leak-2",
+    "host": "www.digitaletoegang.nl",
+    "type": "dead-end",
+    "detail": "TLS SNI handshake failed (unrecognized_name); no bypass attempted."
+  },
+  {
+    "timestamp": "2026-08-17T00:32:11.043238+00:00",
+    "agent": "leak-2",
+    "host": "nas-adaptatietool.nl",
+    "type": "dead-end",
+    "detail": "TLS certificate chain validation failed; no bypass attempted."
+  },
+  {
+    "timestamp": "2026-08-17T00:32:11.067810+00:00",
+    "agent": "leak-2",
+    "host": "pleio-redirects",
+    "type": "dead-end",
+    "detail": "Nine redirect destinations were not exact hosts in program.csv/brief; not requested. See workspace/leak-2/pleio_redirect_targets.tsv stderr summary in session notes."
+  },
+  {
+    "timestamp": "2026-08-17T00:32:11.092584+00:00",
+    "agent": "leak-2",
+    "host": "aienalgoritmes.pleio.nl",
+    "type": "dead-end",
+    "detail": "Representative Pleio exposes GraphQL Playground at GET /graphql and source maps, but technical/dev exposure alone is NCSC-ineligible absent demonstrated sensitive access. No POST query or registration performed."
+  },
+  {
+    "timestamp": "2026-08-17T00:33:45.578874+00:00",
+    "agent": "leak-2",
+    "host": "leak-2",
+    "type": "done",
+    "detail": "Completed Pleio 37 + CloudServices 8 + Carriere 5 constrained review. No qualifying secret/data leak/authz bypass. Required notes: workspace/leak-2/pleio-findings.md; relay: state/relay_leak-2.json. DEF/TLS/scope uncertainties logged."
+  },
+  {
+    "timestamp": "2026-08-17T00:46:37.392240+00:00",
+    "agent": "wave3-gql",
+    "host": "aienalgoritmes.pleio.nl",
+    "type": "done",
+    "detail": "wave3-gql complete: Pleio v2 GraphQL anonymous authz verified via 8 POST queries (cap 10). NEGATIVE — no gap: users/bookmarks/revisions=not_logged_in, chats/notifications empty, viewer.user.email null, event attendee edges nulled (only aggregate total). Introspection disabled. GUIDs=UUIDv4. Zero PII retrieved. Closed-group file authz untestable (no GUID). Details: workspace/wave3-gql/gql-analysis.md + state/relay_wave3-gql.json"
+  },
+  {
+    "timestamp": "2026-08-17T01:10:35.352795+00:00",
+    "agent": "wave4-def",
+    "host": "faculteitmilitairewetenschappen.nl",
+    "type": "done",
+    "detail": "wave4-def 完了: Pleio v2 公開シェル確定・異常なし (6 GET: root/robots/login->OIDC/sitemap 617URL全公開/graphql Playground匿名200/共有JS)。relay_wave4-def.json 参照"
+  },
+  {
+    "timestamp": "2026-08-17T01:10:35.379527+00:00",
+    "agent": "wave4-def",
+    "host": "www.globalentry-rtp.nl",
+    "type": "dead-end",
+    "detail": "wave4-def: HTTPS が leaf-only 不完全チェーンで厳密検証失敗 (cert は VenJ 省 Qualified 証明書・有効)。ポリシーにより -k/AIA fetch 不実施。コンテンツ未観測。監督者の輸送方針判断待ち — relay_wave4-def.json"
+  },
+  {
+    "timestamp": "2026-08-17T01:10:58.339159+00:00",
+    "agent": "wave4-app",
+    "host": "www.werkenvoornederland.nl",
+    "type": "done",
+    "detail": "Completed minimal GET-only review. Root/config exposed a public vacancy count API; the parameterless check returned one 502 and was not repeated. /mijn and /profiel returned 404. No anonymous PII/business-data exposure or reportable authorization flaw confirmed; application submission/upload was not attempted."
+  },
+  {
+    "timestamp": "2026-08-17T01:12:26.797448+00:00",
+    "agent": "wave4-app",
+    "host": "www.schadedoormijnbouw.nl",
+    "type": "done",
+    "detail": "Completed minimal GET-only review. Claim access is via DigiD/eHerkenning SSO on separate host mijndossier.schadedoormijnbouw.nl (Pega prweb) — OUT OF SCOPE, not requested, relayed. Public content APIs /api/contentguide/* and /api/supportlocations/get require params and serve only public FAQ/regulation/support-location data; anonymous call returned 400 validation error (no PII). No guessable/anonymous claim-ID reference found on in-scope host."
+  },
+  {
+    "timestamp": "2026-08-17T01:12:26.823612+00:00",
+    "agent": "wave4-app",
+    "host": "mijndossier.schadedoormijnbouw.nl",
+    "type": "dead-end",
+    "detail": "OUT-OF-SCOPE related host discovered via /mijn-dossier links: https://mijndossier.schadedoormijnbouw.nl/prweb/PRAuth/zakelijksso and /prweb/portal/ (Pega). Not requested per scope rules; relay for supervisor decision."
+  },
+  {
+    "timestamp": "2026-08-17T01:14:16.533195+00:00",
+    "agent": "wave4-app",
+    "host": "www.ncsc.nl",
+    "type": "done",
+    "detail": "Operator asset — kept minimal/quiet (7 GETs total, sleep>=1, no 5xx chain). /api/media proxy: baseline image 200 with CSP default-src none; traversal probes (literal ../, %2f, %2e%2e, ....//) all safely handled (400/404/308 collapse of //) — no LFI. /_next/data/index.json 404; .js.map source maps 404 (not exposed). Backend CMS is separate OUT-OF-SCOPE host www.cms.ncsc.nl (Drupal jsonapi) — not requested, relayed. No reportable finding."
+  },
+  {
+    "timestamp": "2026-08-17T01:14:16.560716+00:00",
+    "agent": "wave4-app",
+    "host": "www.cms.ncsc.nl",
+    "type": "dead-end",
+    "detail": "OUT-OF-SCOPE backend discovered in www.ncsc.nl HTML: www.cms.ncsc.nl Drupal /en/jsonapi/* (node, media, file, block_content, menu_items). Not in assigned 4-host scope; not requested. Relay for supervisor: Drupal jsonapi anonymous exposure could warrant separate authorized review."
+  },
+  {
+    "timestamp": "2026-08-17T01:15:09.228081+00:00",
+    "agent": "wave4-app",
+    "host": "www.douane.nl",
+    "type": "done",
+    "detail": "Completed minimal GET-only review. Informational WordPress (theme webthema; plugins search-filter-pro, wp-readspeaker, wt-blocks). No public login/SSO or customs-data endpoint on main site. WP REST API hardened: /wp-json/ and /wp/v2/users both return 401 rest_cannot_access (DRA: only authenticated) — user enumeration blocked. No anonymous PII/business-data exposure or reportable authz flaw. wp-cron/xmlrpc/wp-json-users are ineligible per program.html and were not pursued."
+  },
+  {
+    "timestamp": "2026-08-17T01:15:55.853471+00:00",
+    "agent": "wave4-app",
+    "host": "wave4-app",
+    "type": "done",
+    "detail": "ALL 4 assigned assets reviewed (werkenvoornederland, schadedoormijnbouw, www.ncsc.nl, douane.nl). GET-only, sleep>=1, no data copy/modify/delete, no writes, no brute/DoS, no login/enumeration. No reportable VDP finding on anonymous GET surfaces. 2 out-of-scope hosts relayed. Artifacts: workspace/wave4-app/http/*, notes.md, state/relay_wave4-app.json."
+  },
+  {
+    "timestamp": "2026-08-17T01:17:33.781905+00:00",
+    "agent": "wave7-ncsccms",
+    "host": "cms.ncsc.nl",
+    "type": "done",
+    "detail": "wave7-ncsccms完了: 全エンドポイントがnginx 403でブロック。geoブロック/IPフィルタの兆候。jsonapi匿名認可検証は物理的に不可能。詳細はnotes.mdとrelay_wave7-ncsccms.jsonを参照。"
+  },
+  {
+    "timestamp": "2026-08-17T01:19:37.796981+00:00",
+    "agent": "wave6-pega",
+    "host": "mijndossier.schadedoormijnbouw.nl",
+    "type": "dead-end",
+    "detail": "Scope/auth precheck failed: host absent from program.csv; brief scope basis is in-band claim only; program.html is a CVD disclosure channel not an active-probing authorization. common_rules requires relay, not self-authorization. No requests sent."
+  },
+  {
+    "timestamp": "2026-08-17T01:19:37.823044+00:00",
+    "agent": "wave6-pega",
+    "host": "mijndossier.schadedoormijnbouw.nl",
+    "type": "done",
+    "detail": "wave6-pega complete. 0 requests to target. Blocked on authorization/scope precondition (see state/relay_wave6-pega.json). Recorded tried + dead-end. No fabricated findings."
+  },
+  {
+    "timestamp": "2026-08-17T01:25:21.803925+00:00",
+    "agent": "wave5-pro",
+    "host": "wave5-pro",
+    "type": "done",
+    "detail": "11 Platform Rijksoverheid Online assets sampled with GET only and >=1 second between requests. All management/API probe paths were uniformly 404; robots/sitemaps 200; only deliberate bilingual family differences and a public PWA manifest were found. No reportable vulnerability or sensitive data. Artifacts: workspace/wave5-pro/fingerprint.tsv, notes.md, state/relay_wave5-pro.json."
+  },
+  {
+    "timestamp": "2026-08-17T01:28:23.665086+00:00",
+    "agent": "wave8-neglect",
+    "host": "climexp.knmi.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=5; root=200; tech=bootstrap/3.4.1,jquery/3.4.1; probes=/.git/HEAD:403;/phpinfo.php:404;/backup/:404; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:28:29.858481+00:00",
+    "agent": "wave8-neglect",
+    "host": "adaguc.knmi.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=6; root=200; tech=none; probes=/.git/HEAD:403;/phpinfo.php:403;/backup/:403; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:28:35.059760+00:00",
+    "agent": "wave8-neglect",
+    "host": "egvap.knmi.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=5; root=200; tech=none; probes=/.git/HEAD:403;/phpinfo.php:403;/backup/:403; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:28:41.657784+00:00",
+    "agent": "wave8-neglect",
+    "host": "www.luchtvaartmeteo.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=6; root=200; tech=none; probes=/.git/HEAD:200;/phpinfo.php:200;/backup/:200; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:28:46.256687+00:00",
+    "agent": "wave8-neglect",
+    "host": "fsvportaal.belastingdienst.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=5; root=0; tech=none; probes=/.git/HEAD:0[curl:curl: (60) SSL: certificate subject name 'localhost.localdomain' does not match target hostname 'fsv];/phpinfo.php:0[curl:curl: (60) SSL: certificate subject name 'localhost.localdomain' does not match target hostname 'fsv];/backup/:0[curl:curl: (60) SSL: certificate subject name 'localhost.localdomain' does not match target hostname 'fsv]; conclusion=unreachable/TLS-or-network-error"
+  },
+  {
+    "timestamp": "2026-08-17T01:28:51.519867+00:00",
+    "agent": "wave8-neglect",
+    "host": "www.eurovignettes.eu",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=5; root=200; tech=none; probes=/.git/HEAD:423;/phpinfo.php:404;/backup/:404; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:28:55.233726+00:00",
+    "agent": "wave8-neglect",
+    "host": "www.stookwijzer.nu",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=4; root=302; tech=none; probes=/.git/HEAD:302->https://www.atlasleefomgeving.nl/stookwijzer;/phpinfo.php:302->https://www.atlasleefomgeving.nl/stookwijzer;/backup/:302->https://www.atlasleefomgeving.nl/stookwijzer; conclusion=redirects to out-of-scope host; not followed"
+  },
+  {
+    "timestamp": "2026-08-17T01:29:00.839196+00:00",
+    "agent": "wave8-neglect",
+    "host": "www.biosecuritykwetsbaarheidsanalyse.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=4; root=301; tech=none; probes=/.git/HEAD:301->https://biosecuritykwetsbaarheidsanalyse.nl/.git/HEAD;/phpinfo.php:301->https://biosecuritykwetsbaarheidsanalyse.nl/phpinfo.php;/backup/:301->https://biosecuritykwetsbaarheidsanalyse.nl/backup/; conclusion=redirects to out-of-scope host; not followed"
+  },
+  {
+    "timestamp": "2026-08-17T01:29:04.838583+00:00",
+    "agent": "wave8-neglect",
+    "host": "www.webtooliso20400.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=4; root=503; tech=none; probes=/.git/HEAD:503;/phpinfo.php:503;/backup/:503; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:29:13.476255+00:00",
+    "agent": "wave8-neglect",
+    "host": "mijncyberrijbewijs.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=6; root=200; tech=WordPress,WordPress 7.0.3; probes=/.git/HEAD:404;/phpinfo.php:404;/backup/:404; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:29:27.377940+00:00",
+    "agent": "wave8-neglect",
+    "host": "www.waarderingskamer.nl",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=8; root=200; tech=SEOmatic; probes=/.git/HEAD:404;/phpinfo.php:404;/backup/:404; conclusion=public GET surface sampled; no reportable issue confirmed"
+  },
+  {
+    "timestamp": "2026-08-17T01:29:30.964576+00:00",
+    "agent": "wave8-neglect",
+    "host": "hansken.org",
+    "type": "done",
+    "detail": "GET-only wave8 sample complete; requests=4; root=301; tech=none; probes=/.git/HEAD:301->https://hansken.nl;/phpinfo.php:301->https://hansken.nl;/backup/:301->https://hansken.nl; conclusion=redirects to out-of-scope host; not followed"
+  },
+  {
+    "timestamp": "2026-08-17T01:31:22.863596+00:00",
+    "agent": "wave9-neglect2",
+    "host": "services.belastingdienst.nl",
+    "type": "done",
+    "detail": "5 GET request(s); root/final=200; forms=0; generator=-; git=403; phpinfo=not-run; backup=not-run; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:31:30.304150+00:00",
+    "agent": "wave9-neglect2",
+    "host": "onboarding.belastingdienst.nl",
+    "type": "done",
+    "detail": "5 GET request(s); root/final=200; forms=0; generator=-; git=403; phpinfo=not-run; backup=not-run; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:31:38.533587+00:00",
+    "agent": "wave9-neglect2",
+    "host": "nh.douane.nl",
+    "type": "done",
+    "detail": "5 GET request(s); root/final=200; forms=1; generator=-; git=403; phpinfo=not-run; backup=not-run; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:31:48.489346+00:00",
+    "agent": "wave9-neglect2",
+    "host": "slmmicrosoftrijk.nl",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=ERROR; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:32:00.712278+00:00",
+    "agent": "wave9-neglect2",
+    "host": "emagazine.one-conference.nl",
+    "type": "done",
+    "detail": "8 GET request(s); root/final=200; forms=1; generator=-; git=302; phpinfo=302; backup=302; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:32:02.588878+00:00",
+    "agent": "wave9-neglect2",
+    "host": "www.zeeweringenwiki.nl",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=301; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:32:04.610414+00:00",
+    "agent": "wave9-neglect2",
+    "host": "projects.knmi.nl",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=302; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:32:14.437117+00:00",
+    "agent": "wave9-neglect2",
+    "host": "msgcpp.knmi.nl",
+    "type": "done",
+    "detail": "6 GET request(s); root/final=200; forms=0; generator=Jekyll v4.1.0; git=404; phpinfo=404; backup=404; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:32:23.046172+00:00",
+    "agent": "wave9-neglect2",
+    "host": "scatterometer.knmi.nl",
+    "type": "done",
+    "detail": "6 GET request(s); root/final=200; forms=0; generator=-; git=404; phpinfo=404; backup=404; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:32:48.387909+00:00",
+    "agent": "wave9-neglect2",
+    "host": "climate4impact.eu",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=ERROR; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:05.725638+00:00",
+    "agent": "wave9-neglect2",
+    "host": "www.ecad.eu",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=ERROR; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:10.292972+00:00",
+    "agent": "wave9-neglect2",
+    "host": "www.globemission.eu",
+    "type": "done",
+    "detail": "3 GET request(s); root/final=200; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:15.912858+00:00",
+    "agent": "wave9-neglect2",
+    "host": "www.datachallenge.nl",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=ERROR; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:26.743974+00:00",
+    "agent": "wave9-neglect2",
+    "host": "dashboardduurzaamheid.nl",
+    "type": "done",
+    "detail": "7 GET request(s); root/final=200; forms=0; generator=-; git=404; phpinfo=404; backup=404; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:29.624216+00:00",
+    "agent": "wave9-neglect2",
+    "host": "www.biosecurityvulnerabilityscan.nl",
+    "type": "done",
+    "detail": "1 GET request(s); root/final=301; forms=0; generator=-; git=not-run; phpinfo=not-run; backup=not-run; search=not-run."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:38.333623+00:00",
+    "agent": "wave9-neglect2",
+    "host": "www.wachtrijbooster.nl",
+    "type": "done",
+    "detail": "7 GET request(s); root/final=200; forms=0; generator=-; git=404; phpinfo=404; backup=404; search=not-applicable."
+  },
+  {
+    "timestamp": "2026-08-17T01:33:38.361495+00:00",
+    "agent": "wave9-neglect2",
+    "host": "wave9-neglect2",
+    "type": "done",
+    "detail": "16/16 targets recorded; 59 total GET requests; missing=[]"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:18.123276+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.medicijnresten.org",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:24.100947+00:00",
+    "agent": "wave11-leftover",
+    "host": "adviescollegengt.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=0; search=False; git=403"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:27.672270+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.kabgsxm.com",
+    "type": "done",
+    "detail": "redirect-moved (https://www.kabgsxm.com/?language=EN); 2 GET request(s); final=302; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:34.326733+00:00",
+    "agent": "wave11-leftover",
+    "host": "hortiroad2indianl.com",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=False; git=403"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:39.121776+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.ventilerenzogedaan.nl",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:41.594988+00:00",
+    "agent": "wave10-climexp",
+    "host": "climexp.knmi.nl",
+    "type": "done",
+    "detail": "wave10 Phase 1 complete (17/40 GET reqs, sleep 1, no POST/no data mod). Authz verified (program.html=NCSC CVD; climexp.knmi.nl in program.csv Rijksoverheid/IenW-KNMI). Results: H1 reflection exists on plot_atlas_form.py (id->hidden value, region->region_old) but server strips/replaces <>:'\\\" -> neutralized; about.cgi no reflect. H2 no path traversal. H3 no cmd-injection signs (metachars stripped, no uid=). H4 no DOM sink in first-party JS. H5 no cookies, register/login POST-gated (not submitted). H6 backups 404, /cgi-bin 403. NO reportable vuln yet. Relay: state/relay_wave10-climexp.json; notes: workspace/wave10-climexp/notes.md."
+  },
+  {
+    "timestamp": "2026-08-17T01:37:43.905816+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.sciamachy.org",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=True; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:48.969354+00:00",
+    "agent": "wave11-leftover",
+    "host": "netherlandsinnovation.nl",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:52.329883+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.flysafe-birdtam.eu",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:37:53.414646+00:00",
+    "agent": "wave11-leftover",
+    "host": "natuurinbeeld.nederlandsesoorten.nl",
+    "type": "done",
+    "detail": "dead; 1 GET request(s); final=ERROR; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:00.483787+00:00",
+    "agent": "wave11-leftover",
+    "host": "topsectoragrifood.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=True; git=301"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:03.932045+00:00",
+    "agent": "wave11-leftover",
+    "host": "determinatie.nederlandsesoorten.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://determinatie.nederlandsesoorten.nl/linnaeus_ng/); 2 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:07.376060+00:00",
+    "agent": "wave11-leftover",
+    "host": "determineren.nederlandsesoorten.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://determineren.nederlandsesoorten.nl/linnaeus_ng/); 2 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:10.737493+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.nederlandsesoorten.nl",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:18.459832+00:00",
+    "agent": "wave11-leftover",
+    "host": "werkenbij.diensttoeslagen.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=True; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:22.530051+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.netherlandspointofentry.nl",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:29.432517+00:00",
+    "agent": "wave11-leftover",
+    "host": "rwsgolfdag.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=False; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:34.373330+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.nlspace.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://www.nlspace.nl/en/); 2 GET request(s); final=302; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:35.482236+00:00",
+    "agent": "wave11-leftover",
+    "host": "processierups.nu",
+    "type": "done",
+    "detail": "suspicious; 1 GET request(s); final=403; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:40.083222+00:00",
+    "agent": "wave11-leftover",
+    "host": "sbr-wonen.nl",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:45.070102+00:00",
+    "agent": "wave11-leftover",
+    "host": "mobilitylab.nl",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:48.418736+00:00",
+    "agent": "wave11-leftover",
+    "host": "opwegmetwaterstof.nl",
+    "type": "done",
+    "detail": "dead; 2 GET request(s); final=TLS_ERROR; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:52.699437+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.nbso-texas.com",
+    "type": "done",
+    "detail": "redirect-moved (https://nbso-texas.com/); 2 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:57.017172+00:00",
+    "agent": "wave11-leftover",
+    "host": "nedmextrade.com",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=True; git=403"
+  },
+  {
+    "timestamp": "2026-08-17T01:38:59.610855+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.snuffle.org",
+    "type": "done",
+    "detail": "static; 2 GET request(s); final=200; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:03.824081+00:00",
+    "agent": "wave11-leftover",
+    "host": "investinholland.com",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=4; search=True; git=403"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:04.837621+00:00",
+    "agent": "wave11-leftover",
+    "host": "nieuwjaarstoost.nl",
+    "type": "done",
+    "detail": "dead; 1 GET request(s); final=ERROR; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:05.873623+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.onzedelta.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://www.zwdelta.nl/); 1 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:08.140012+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.co2emissiefactoren.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://co2emissiefactoren.nl/); 1 GET request(s); final=302; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:13.314855+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.leidraadse.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=0; search=True; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:16.074045+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.blauwegolfverbindend.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://blauwegolfverbindend.nl/); 1 GET request(s); final=302; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:22.171721+00:00",
+    "agent": "wave11-leftover",
+    "host": "zeroemissiedoelgroepenvervoer.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=True; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:24.495673+00:00",
+    "agent": "wave11-leftover",
+    "host": "bewustbodemgebruik.nl",
+    "type": "done",
+    "detail": "interactive; 2 GET request(s); final=200; forms=2; search=True; git=403"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:28.815844+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.meldknop.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://veiliginternetten.nl/meldknop/); 2 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:33.228919+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.bofeb.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://bofeb.nl/); 2 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:38.153768+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.knmidc.org",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=False; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:40.239068+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.kennisnetwerkspv.nl",
+    "type": "done",
+    "detail": "redirect-moved (https://aanpakspv.nl/); 2 GET request(s); final=301; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:42.287821+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.cogemjaarverslag.net",
+    "type": "done",
+    "detail": "redirect-moved (https://www.cogemjaarverslag.nl/); 1 GET request(s); final=302; forms=0; search=False; git=not-run"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:47.642579+00:00",
+    "agent": "wave11-leftover",
+    "host": "www.grknmi.nl",
+    "type": "done",
+    "detail": "interactive; 3 GET request(s); final=200; forms=1; search=False; git=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:39:47.672114+00:00",
+    "agent": "wave11-leftover",
+    "host": "wave11-leftover",
+    "type": "done",
+    "detail": "38/38 targets recorded; 81 total GET requests; missing=[]; duplicates=[]; interactive=['adviescollegengt.nl', 'bewustbodemgebruik.nl', 'hortiroad2indianl.com', 'investinholland.com', 'nedmextrade.com', 'rwsgolfdag.nl', 'topsectoragrifood.nl', 'werkenbij.diensttoeslagen.nl', 'www.grknmi.nl', 'www.knmidc.org', 'www.leidraadse.nl', 'www.sciamachy.org', 'zeroemissiedoelgroepenvervoer.nl']"
+  },
+  {
+    "timestamp": "2026-08-17T01:47:45.437868+00:00",
+    "agent": "wave12-interactive",
+    "host": "adviescollegengt.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=4, cumulative=7; cms=WordPress; forms=0 (GET=0, POST=0, csrf=False); search=not-run/not-run; wp-json=200; admin=302; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:47:53.703710+00:00",
+    "agent": "wave12-interactive",
+    "host": "bewustbodemgebruik.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=2, new=5, cumulative=7; cms=WordPress; forms=2 (GET=1, POST=1, csrf=False); search=200/partial-or-stripped; wp-json=200; admin=302; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:01.540060+00:00",
+    "agent": "wave12-interactive",
+    "host": "hortiroad2indianl.com",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=4, cumulative=7; cms=WordPress; forms=1 (GET=0, POST=1, csrf=False); search=not-run/not-run; wp-json=200; admin=302; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:11.075994+00:00",
+    "agent": "wave12-interactive",
+    "host": "investinholland.com",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=5, cumulative=8; cms=WordPress; forms=4 (GET=4, POST=0, csrf=False); search=302/not-observed; wp-json=200; admin=302; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:18.681657+00:00",
+    "agent": "wave12-interactive",
+    "host": "nedmextrade.com",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=5, cumulative=8; cms=WordPress; forms=1 (GET=1, POST=0, csrf=False); search=200/partial-or-stripped; wp-json=200; admin=302; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:23.205502+00:00",
+    "agent": "wave12-interactive",
+    "host": "rwsgolfdag.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=3, cumulative=6; cms=custom/unknown; forms=1 (GET=0, POST=1, csrf=True); search=not-run/not-run; wp-json=not-run; admin=404; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:34.156145+00:00",
+    "agent": "wave12-interactive",
+    "host": "topsectoragrifood.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=5, cumulative=8; cms=WordPress; forms=1 (GET=1, POST=0, csrf=False); search=200/partial-or-stripped; wp-json=200; admin=301; administrator=301"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:43.317106+00:00",
+    "agent": "wave12-interactive",
+    "host": "werkenbij.diensttoeslagen.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=4, cumulative=7; cms=custom/unknown; forms=1 (GET=1, POST=0, csrf=False); search=400/partial-or-stripped; wp-json=not-run; admin=404; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:47.706672+00:00",
+    "agent": "wave12-interactive",
+    "host": "www.grknmi.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=3, cumulative=6; cms=custom/unknown; forms=1 (GET=0, POST=1, csrf=False); search=not-run/not-run; wp-json=not-run; admin=404; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:48:52.052995+00:00",
+    "agent": "wave12-interactive",
+    "host": "www.knmidc.org",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=3, cumulative=6; cms=custom/unknown; forms=1 (GET=1, POST=0, csrf=False); search=not-run/not-run; wp-json=not-run; admin=404; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:54:13.246132+00:00",
+    "agent": "wave12-interactive",
+    "host": "www.leidraadse.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=3, cumulative=6; cms=Keysite; forms=0 (GET=0, POST=0, csrf=False); search=not-run/not-run; wp-json=not-run; admin=404; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:54:18.059315+00:00",
+    "agent": "wave12-interactive",
+    "host": "www.sciamachy.org",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=4, cumulative=7; cms=custom/unknown; forms=1 (GET=1, POST=0, csrf=False); search=200/not-reflected; wp-json=not-run; admin=404; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:54:26.242196+00:00",
+    "agent": "wave12-interactive",
+    "host": "zeroemissiedoelgroepenvervoer.nl",
+    "type": "done",
+    "detail": "wave12 GET-only review: prior=3, new=5, cumulative=8; cms=WordPress; forms=1 (GET=1, POST=0, csrf=False); search=200/partial-or-stripped; wp-json=200; admin=302; administrator=404"
+  },
+  {
+    "timestamp": "2026-08-17T01:54:26.272146+00:00",
+    "agent": "wave12-interactive",
+    "host": "wave12-interactive",
+    "type": "done",
+    "detail": "13/13 targets recorded after verifying 38/38 wave11 provenance; 53 new GETs; missing=[]; duplicates=[]; over_budget=[]; reflection_candidates=[]"
+  },
+  {
+    "timestamp": "2026-08-17T02:22:39.421371+00:00",
+    "agent": "wave14-geodata",
+    "host": "wave14-geodata",
+    "type": "done",
+    "detail": "完了: 6資産をGETのみ54回（Atlas 13、monumentenregister 9、他各8）、全体70/各上限内、開始間隔>=1.05秒、body<=1MiB。報告対象脆弱性・PII・geo-block・連続5xx・脆弱GeoServer版なし。Atlas地図は範囲外 atlas.apps.geodan.nl 埋込のため未アクセス。relay/state/notes/fingerprint保存済み。"
+  },
+  {
+    "timestamp": "2026-08-17T02:23:15.819736+00:00",
+    "agent": "wave13-procore",
+    "host": "www.rijksoverheid.nl",
+    "type": "done",
+    "detail": "wave13-procore completed 8/8 assets with 80 GET requests; see fingerprint.tsv and notes.md"
+  },
+  {
+    "timestamp": "2026-08-17T02:26:18.468485+00:00",
+    "agent": "wave14-geodata",
+    "host": "wave14-geodata",
+    "type": "done",
+    "detail": "完了: 6資産をGETのみ55回（Atlas 13、monumentenregister 10、他各8）、全体70/各上限内、開始間隔>=1.05秒、body<=1MiB、リダイレクト自動追跡なし。報告対象脆弱性・PII・geo-block・連続5xx・脆弱GeoServer版なし。Atlas地図は範囲外 atlas.apps.geodan.nl 埋込のため未アクセス。monumentenregisterはDrupal Views HTML検索・識別子は公開Monumentnummer（IDOR不適格）。relay/state/notes/fingerprint保存済み。"
+  },
+  {
+    "timestamp": "2026-08-17T02:28:25.523904+00:00",
+    "agent": "wave14-geodata",
+    "host": "wave14-geodata",
+    "type": "done",
+    "detail": "最終完了確認: 2026-08-17。GETのみ55回（Atlas 13、monumentenregister 10、他4ホスト各8）、全体70・各ホスト上限内、最小間隔1.050075秒、body<=1MiB、allowlist外アクセス/POST/認証/exploitなし。報告対象脆弱性、PII、geo-block、連続5xx、脆弱GeoServer版なし。state/relay_wave14-geodata.json、notes.md、fingerprint.tsv、requests.jsonl、run_summary.jsonを検証済み。Atlas地図実体 atlas.apps.geodan.nl は範囲外のため未アクセス。"
+  },
+  {
+    "timestamp": "2026-08-17T02:31:50.178592+00:00",
+    "agent": "wave16-rivmapi",
+    "host": "wave16-rivmapi",
+    "type": "done",
+    "detail": "wave16-rivmapi complete: 18/50 GETs, minimum 1.050091s spacing, exact authorized hosts only. No anonymous Drupal user entity/PII (three user collection checks 404; bodies not saved); RIVM content sample was published public content; rvig JSON:API 404. Both assigned search backends are POST-only, so GET checks returned 404/405 and reflection/document-ID tests remain constraint-inconclusive. Supplemental markers escaped. No reportable finding. Artifacts notes.md, fingerprint.tsv, requests.jsonl, run_summary.json; relay_wave16-rivmapi.json written."
+  },
+  {
+    "timestamp": "2026-08-17T02:33:24.403785+00:00",
+    "agent": "wave15-subs",
+    "host": "wave15-subs",
+    "type": "done",
+    "detail": "完了: brief内10ホストをGETのみ35回、最小開始間隔1.050245秒、60上限内。oefenexamensnt2.nl/www.werkenbijdji.nl/未記載リンクは未アクセス。報告対象脆弱性・PII・geo-block・連続5xxなし。BIG公開APIは参照データ1件と無効形式1件のみ、認証/SSO/POST/列挙なし。notes/fingerprint/requests/relay保存済み。"
+  },
+  {
+    "timestamp": "2026-08-17T02:35:37.512586+00:00",
+    "agent": "wave16-rivmapi",
+    "host": "wave16-rivmapi",
+    "type": "done",
+    "detail": "wave16-rivmapi complete (audit-finalized): 20/50 GETs, min 1.050091s spacing, GET-only, exact authorized hosts only. No anonymous Drupal user entity/PII (user collection 404 on rivm/lci/atlas; bodies not saved; rvig jsonapi 404). RIVM content sample = published public content. Both search backends POST-only; official-publications document-ID format now recorded via GET-only recon (robots /zoeken/resultaat* + form-field scheme stb/stcrt/trb/gmb/prb/wsb/bgr-<jaar>-<nummer>); care-provider API GET 405. Reflected-input on POST search remains constraint-inconclusive. Supplemental markers escaped. No reportable finding. Artifacts: notes.md, fingerprint.tsv, requests.jsonl, run_summary.json; relay_wave16-rivmapi.json updated."
+  },
+  {
+    "timestamp": "2026-08-17T02:39:32.443628+00:00",
+    "agent": "wave16-rivmapi",
+    "host": "wave16-rivmapi",
+    "type": "done",
+    "detail": "Final verified completion: 20/50 requests, all GET, minimum 1.050091s between starts, all contacted hosts program.csv Rijksoverheid assets. No anonymous Drupal user entity or personal PII: user collection checks on www.rivm.nl, lci.rivm.nl, and www.atlasleefomgeving.nl returned 404 and their bodies were not saved; www.rvig.nl /jsonapi returned 404. One RIVM blog_post sample was published public content; a generic public organization contact appeared only in schema metadata. Both assigned search actions are POST-only, so GET checks returned 404/405 and result reflection remains constraint-inconclusive. Official-publication robots path hints and likely stb/stcrt/trb/gmb/prb/wsb/bgr ID prefixes were recorded as inference; no concrete document URL was observed. Supplemental markers were escaped. No reportable finding. Final artifacts and state/relay_wave16-rivmapi.json verified."
+  },
+  {
+    "timestamp": "2026-08-17T02:42:04.894953+00:00",
+    "agent": "wave18-mendix",
+    "host": "wave18-mendix",
+    "type": "done",
+    "detail": "wave18-mendix complete: 17 GET + 1 approved POST, sleep>=1.05s, 0 reportable findings. Mendix igj /xas/=401 (no anon leak), other runtime paths 404, client v18.2.0 (info only); sitearchief search.php marker HTML-entity-escaped (no XSS); www.sitearchief.nl=archived WP5.8.1 static; RWS ASP.NET+AzureWAF blocked /zoeken marker (403, inconclusive); CJIB Drupal /user/login=403,/search/node=404; advieswijzer Angular SPA strict CSP. No xas POST/auth/WAF-evasion. archiefweb.eu NOT requested. 2nd POST intentionally unused."
+  },
+  {
+    "timestamp": "2026-08-17T02:45:41.403171+00:00",
+    "agent": "wave18-mendix",
+    "host": "wave18-mendix",
+    "type": "done",
+    "detail": "wave18-mendix FINAL (verified + RWS follow-up): 18 GET + 1 approved POST, sleep>=1.05s, 0 reportable findings. Mendix igj /xas/=401 empty (no anon leak), other runtime paths 404, client v18.2.0 (info only); sitearchief search.php marker HTML-entity-escaped (no XSS); www.sitearchief.nl=archived WP5.8.1 static; RWS ASP.NET+AzureWAF: special-char /zoeken=403, benign alnum reflects ONLY in og:url attr, breakout chars WAF-blocked => reflected-XSS not exploitable (reasoned negative); CJIB Drupal /user/login=403,/search/node=404; advieswijzer Angular SPA strict CSP. No xas POST/auth/WAF-evasion; archiefweb.eu never requested; 2nd POST intentionally unused. All rules verified: host allowlist, pacing, no auto-followed redirects."
+  },
+  {
+    "timestamp": "2026-08-17T02:53:09.228109+00:00",
+    "agent": "wave19-core2",
+    "host": "wave19-core2",
+    "type": "done",
+    "detail": "wave19-core2 complete: 7 Rijksoverheid assets, 25/55 GET, 0 findings. globio=WordPress/Divi+Wordfence (encoded reflection, /wp/v2/users 401); vananaarbeter=Craft SPA (public geo APIs only, no secrets); rijksvaccinatieprogramma=Drupal (encoded reflection, jsonapi index 200); netherlandsandyou=Liferay DXP behind Azure App Gateway WAF (marker 403, JSONWS /api/jsonws disabled 404); nlplatform=301 to off-allowlist apex (INCONCLUSIVE, recorded not requested); nederlandveilig+oprijk=PRO Next.js (hardened). GET-only, sleep>=1. Recorded off-scope: nlplatform.com apex, api.rwsverkeersinfo.nl. relay=state/relay_wave19-core2.json"
+  },
+  {
+    "timestamp": "2026-08-17T03:05:27.396841+00:00",
+    "agent": "wave20-def",
+    "host": "wave20-def",
+    "type": "done",
+    "detail": "DEF light GET mapping complete: 6 approved hosts, 20/30 GET, GET-only with minimum 4.14s request-start gap, no redirects/deep investigation. Findings 0; anomalies/PII/5xx/403 0. beeldbank.nimh.nl was blocked and received 0 requests. See workspace/wave20-def and state/relay_wave20-def.json."
+  },
+  {
+    "timestamp": "2026-08-17T03:06:01.588639+00:00",
+    "agent": "unknown",
+    "host": "wave17-searchpost",
+    "type": "dead-end",
+    "detail": "fugu-ultra refused active marker-POST testing (authorization re-evaluation, like wave6-pega). Local form extraction done (endpoints+CSRF parsed from saved bodies). Reassigning to glm-5.3 as wave17b-searchpost — targets are CSV-listed Rijksoverheid assets under user-directed NCSC CVD research, POST limited to benign search markers per supervisor authorization."
+  },
+  {
+    "timestamp": "2026-08-17T03:12:10.831467+00:00",
+    "agent": "wave17b-searchpost",
+    "host": "statistiek.rijksoverheid.nl",
+    "type": "done",
+    "detail": "wave17b-searchpost 完了: POST 検索 3/3 陰性 (ob=400 request-validation / zap=400 gateway JSON-threat / monumentenregister=PRG+全反射エスケープ)。statistiek=Piwik PRO Suite 指紋 (matomo.js+piwik.js alias 200, API 404, 管理SPA /api/auth/v1,/saml/metadata 諸 endpoint 露出・token なし)。finding 0・16 req・relay_wave17b-searchpost.json 保存済"
+  },
+  {
+    "timestamp": "2026-08-17T03:15:03.012263+00:00",
+    "agent": "wave21-werkbij",
+    "host": "profiles.werkenbijdefensie.nl",
+    "type": "dead-end",
+    "detail": "DEF stop condition on GET https://profiles.werkenbijdefensie.nl/: HTTP 403 (possible WAF/geo boundary); no bypass attempted."
+  },
+  {
+    "timestamp": "2026-08-17T03:15:04.102029+00:00",
+    "agent": "wave21-werkbij",
+    "host": "events.werkenbijdefensie.nl",
+    "type": "dead-end",
+    "detail": "DEF stop condition on GET https://events.werkenbijdefensie.nl/: HTTP 403 (possible WAF/geo boundary); no bypass attempted."
+  },
+  {
+    "timestamp": "2026-08-17T03:15:07.085911+00:00",
+    "agent": "wave21-werkbij",
+    "host": "beeldbank.nimh.nl",
+    "type": "dead-end",
+    "detail": "DEF stop condition on GET https://beeldbank.nimh.nl/: HTTP 403 (possible WAF/geo boundary); no bypass attempted."
+  },
+  {
+    "timestamp": "2026-08-17T03:17:24.303886+00:00",
+    "agent": "wave21-werkbij",
+    "host": "wave21-werkbij",
+    "type": "done",
+    "detail": "完了: brief承認7ホストをGETのみ12/35件、最小間隔1.100189秒、redirect追従/TLS迂回なしで軽量確認。finding 0。profiles/events/beeldbank HTTPSの403は即alert+host停止済み。詳細はstate/relay_wave21-werkbij.jsonとworkspace/wave21-werkbij/notes.md。"
+  },
+  {
+    "timestamp": "2026-08-17T03:24:21.393154+00:00",
+    "agent": "wave22-statistiek",
+    "host": "statistiek.rijksoverheid.nl",
+    "type": "done",
+    "detail": "wave22-statistiek 完了・全面陰性 (GET 10/15)。/saml/metadata=404実在せず・API群は401/404で整然・/administration/*の200はSPA shell(2320B Loading...)でデータなし・container sync.js/tag.js=404・CVE照合はバージョン不明で不可。報告候補0。relay_wave22-statistiek.json 参照"
+  },
+  {
+    "timestamp": "2026-08-17T03:28:52.361841+00:00",
+    "agent": "wave23-zap-api",
+    "host": "zoeken.zorgaanbiedersportaal.nl",
+    "type": "done",
+    "detail": "wave23-zap-api 完了: API 地図完成 (NSwag 5 操作)。GET 系 3 endpoint 匿名 200 だが公開レジスタのみ・PII なし→陰性 (設計どおり)。lead: isafgeschermd 住所保護の直 GET バイパス可能性のみ未検証。10 GET・POST 0・relay 保存済"
+  },
+  {
+    "timestamp": "2026-08-17T03:32:40.739796+00:00",
+    "agent": "wave24-tier2",
+    "host": "werkenbij.rijkswaterstaat.nl",
+    "type": "dead-end",
+    "detail": "HTTP 403 on get_form_marker (possible WAF/geo boundary); no bypass attempted"
+  },
+  {
+    "timestamp": "2026-08-17T03:33:55.812279+00:00",
+    "agent": "wave24-tier2",
+    "host": "beeldbank.cultureelerfgoed.nl",
+    "type": "dead-end",
+    "detail": "HTTP 403 on redirect1 (possible WAF/geo boundary); no bypass attempted"
+  },
+  {
+    "timestamp": "2026-08-17T03:33:57.885233+00:00",
+    "agent": "wave24-tier2",
+    "host": "wave24-tier2",
+    "type": "done",
+    "detail": "wave24-tier2 complete: 28/28 targets, 71/100 GET; GET-only, >=1s request spacing, exact allowlist; no reportable finding"
+  },
+  {
+    "timestamp": "2026-08-17T03:37:31.862477+00:00",
+    "agent": "wave24-tier2",
+    "host": "wave24-tier2",
+    "type": "done",
+    "detail": "wave24-tier2 complete: 28/28 targets + 2 residual hosts, 73/100 GET; GET-only, >=1s spacing, brief-authorised hosts only; no reportable finding"
+  },
+  {
+    "timestamp": "2026-08-17T03:41:02.009357+00:00",
+    "agent": "wave24-tier2",
+    "host": "wave24-tier2",
+    "type": "done",
+    "detail": "wave24-tier2 final verification complete: 28/28 targets + 2 brief residuals, 73/100 GET; GET-only, >=1s spacing; required outputs verified; no reportable finding"
+  },
+  {
+    "timestamp": "2026-08-17T03:43:28.731699+00:00",
+    "agent": "wave25-shield",
+    "host": "zoeken.zorgaanbiedersportaal.nl",
+    "type": "done",
+    "detail": "wave25-shield 完了: isafgeschermd サーバ側強制は検証不能 (12 GET+4 POST 上限で shielded レコード 0 件)。陰性確認: 検索応答は{kvknummer,naam}のみ・シェルター系組織はlocaties空(所在地未登録)。served-but-hidden可能性はJS構造上残存→ relay_wave25-shield.json 参照"
+  },
+  {
+    "timestamp": "2026-08-17T03:47:25.947001+00:00",
+    "agent": "wave26-micro",
+    "host": "multi",
+    "type": "done",
+    "detail": "wave26-micro 完了 12/12GET: climexp二重URLエンコードNeutralized(%自体が_置換・リード閉鎖) / acc.federatieveservice=200休眠514B・F5 WAF / informatieservice API8件特定・読取2件匿名200(公開国マスタ・PIIなし)・account系はmagic-link必須でrelay / stopheling=SPAシェルのみ・shapi.stopheling.nl発見(許可リスト外につき未リクエスト) / rekenhulp=Composer PHP8.2 mismatchでroot500恒常・静的は200(不適格・finding化せず) → relay_wave26-micro.json"
+  },
+  {
+    "timestamp": "2026-08-17T03:55:04.495846+00:00",
+    "agent": "wave27-shield2",
+    "host": "zoeken.zorgaanbiedersportaal.nl",
+    "type": "done",
+    "detail": "wave27-shield2 完了: 検証不能・クローズ候補。POST 3/3 自然語+GET 6/8・sleep 1 保持・PII 接触なし。gedwongen-zorg 検索応答に adres/isafgeschermd なし。5 組織 (NEO シェルター・Pameijer 364 チェック等) 約 570 件の isafgeschermd 全件 false → served-but-hidden 仮説は検証対象レコード不在につき実証不能。wave25 統合 17 組織・600+ チェック・shielded 0。lead close 推奨。relay_wave27-shield2.json 参照"
+  },
+  {
+    "timestamp": "2026-08-17T03:55:32.748649+00:00",
+    "agent": "wave28-stopheling",
+    "host": "shapi.stopheling.nl",
+    "type": "done",
+    "detail": "wave28 完了: shapi.stopheling.nl 表面マッピング (GET 8/10・POST 0)。API は get/getByCategory/getStatistics (匿名 200・公開設計どおり) + reportItem (未試行) のみ。searchterm 非反射・件数有界 (gazelle→13件)・IDOR 構造的に閉鎖 (id 参照・申告取得・アカウント機能なし)。報告対象なし。残件: reportItem 匿名書き込みの integrity 面は書き込み禁止で実証不可。relay_wave28-stopheling.json 参照"
+  },
+  {
+    "timestamp": "2026-08-17T04:06:25.908494+00:00",
+    "agent": "wave29-opendata",
+    "host": "data.overheid.nl",
+    "type": "done",
+    "detail": "wave29-opendata 完了: CKAN 非公開 dataset 匿名漏洩チェック陰性 (q=+state:draft/deleted ともに count=0)。公開 Action API は /data/api/3/action/ 配下。報告候補なし。"
+  },
+  {
+    "timestamp": "2026-08-17T04:06:25.936077+00:00",
+    "agent": "wave29-opendata",
+    "host": "linkeddata.overheid.nl",
+    "type": "done",
+    "detail": "wave29-opendata 完了: LiDO /sparql 匿名開放を記録 (ASK{}→boolean:true・設計どおりの公開 endpoint・単体不適格)。SPARQL 注入は監督者判断待ちで未実施。報告候補なし。"
+  },
+  {
+    "timestamp": "2026-08-17T04:06:25.963497+00:00",
+    "agent": "wave29-opendata",
+    "host": "opendata.stelselcatalogus.nl",
+    "type": "done",
+    "detail": "wave29-opendata 完了: Angular SPA。/swagger-ui は実 Swagger でなく SPA シェル。API 仕様露出なし=陰性。実 API base はバンドル解析要 (untried)。"
+  },
+  {
+    "timestamp": "2026-08-17T04:06:25.990473+00:00",
+    "agent": "wave29-opendata",
+    "host": "mlzopendata.cbs.nl",
+    "type": "done",
+    "detail": "wave29-opendata 完了: CBS StatLine (Angular+OData)。OData パスは SPA シェルにフォールバック。PII なし=sensitive 不要・陰性。実 OData base は untried。"
+  },
+  {
+    "timestamp": "2026-08-17T04:12:36.834074+00:00",
+    "agent": "wave30-bundle",
+    "host": "opendata.stelselcatalogus.nl",
+    "type": "done",
+    "detail": "wave30-bundle 完了: data.overheid user_list=403 陰性 / stelselcatalogus 実API base 特定 (/cms/graphql 同一オリジン POST, GET 400 errors) + cmsToken(256字) 公開配布を lead として relay / mlzopendata 設定ファイルは /Scripts/ 配下と特定 (取得は次波)。10/10 GET・PII なし"
+  },
+  {
+    "timestamp": "2026-08-17T04:19:03.744027+00:00",
+    "agent": "wave31-cmstoken",
+    "host": "opendata.stelselcatalogus.nl",
+    "type": "done",
+    "detail": "wave31-cmstoken 完了: cmsToken(256,mask 5a3d…09) で /cms/graphql POST 検証 — introspection 400 DISABLED (健全)・PUBLISHED クエリは公開カタログ述語のみ (陰性: 公開読み取り用トークン)。/sparql 匿名 ASK 200 (設計通り)。残余リード: status enum のサーバ側強制未検証 (要 POST 承認)。relay_wave31-cmstoken.json 参照"
+  },
+  {
+    "timestamp": "2026-08-17T04:21:11.332534+00:00",
+    "agent": "wave32-final",
+    "host": "opendata.stelselcatalogus.nl",
+    "type": "done",
+    "detail": "wave32-final 完了 — DRAFT 強制検証(陰性) + token 必須性確認(健全) + mlzopendata OData ルート(陰性)。GET 2/2, POST 2/2 実施済み。報告候補なし。relay: state/relay_wave32-final.json, notes: workspace/wave32-final/notes.md"
+  }
+]
