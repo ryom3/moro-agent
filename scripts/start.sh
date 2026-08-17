@@ -64,7 +64,7 @@ else
         echo "既存セッション '$TMUX_SESSION' に接続します"
         tmux attach -t "$TMUX_SESSION"
     else
-        tmux new-session -d -s "$TMUX_SESSION" -c "$DIR" "source $DIR/.env 2>/dev/null; eval \"\$(python3 $DIR/scripts/env_export.py $MODEL_NAME 2>/dev/null)\"; $CLAUDE_CMD"
+        tmux new-session -d -s "$TMUX_SESSION" -c "$DIR" "set -a; source $DIR/.env 2>/dev/null; set +a; eval \"\$(python3 $DIR/scripts/env_export.py $MODEL_NAME 2>/dev/null)\"; $CLAUDE_CMD"
         tmux set-option -t "$TMUX_SESSION" mouse on
         tmux set-option -t "$TMUX_SESSION" history-limit 50000
         tmux attach -t "$TMUX_SESSION"

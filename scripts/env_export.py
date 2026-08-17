@@ -22,7 +22,15 @@ def main():
         cfg = json.load(f).get(model, {})
     for k, v in cfg.get("env", {}).items():
         # `$VAR` 形式は環境変数から解決。それ以外はリテラル値。
-        val = os.environ.get(v[1:], "") if v.startswith("$") else v
+        if v.startswith("$"):
+            val = os.environ.get(v[1:], "")
+            if not val:
+                # 空解決を静かに通さない (認証フォールバック事故の防止)
+                print(f"# WARNING: {v[1:]} が環境に無く {k} が空になりました "
+                      "(start.sh を tmux 外から実行した場合は .env の source に set -a が必要)",
+                      file=sys.stderr)
+        else:
+            val = v
         print(f"export {k}={shlex.quote(val)}")
 
 
