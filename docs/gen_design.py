@@ -66,7 +66,8 @@ class SVG:
 
     def render(self):
         body = "\n".join(self.elems)
-        return (f'<svg viewBox="0 0 {self.w} {self.h}" width="100%" '
+        return (f'<svg xmlns="http://www.w3.org/2000/svg" '
+                f'viewBox="0 0 {self.w} {self.h}" width="100%" '
                 f'style="background:{self.bg};border-radius:16px;'
                 f'font-family:ui-sans-serif,system-ui,\'Segoe UI\',sans-serif">'
                 f'{body}</svg>')
