@@ -152,7 +152,43 @@ def re_decompile(binary: str, func: str) -> str:
 これで、Claude Code / Codex / DSH のどのランタイムからも、
 **「vuln の main をデコンパイルして」「checksec して」** を自然言語で呼べる。
 
-## 6. 次のステップ
+## 6. 実行環境の構成（Kali 主体 + Windows RE 併用）
+
+**方針: フレームワーク（moro-agent）は Kali Linux 前提で運用。RE の動的解析・
+PE エクスプロイトの一部のみ、Windows ネイティブを併用する。**
+
+```
+Kali Linux (主体)
+├── moro-agent 全体 (監督AI / run.sh / state / MCP)   ← 全部ここで動く
+├── Ghidra / r2 / gdb / pwntools                        ← 静的解析 + ELF エクスプロイト
+└── PE (.exe/.dll) の静的解析 (Ghidra/r2 はクロスプラットフォーム) ← ここで完結可
+
+Windows ネイティブ (併用・RE 動的解析のみ)
+└── x64dbg / WinDbg / API フック / サンドボックス      ← PE の動的解析・デバッグ
+```
+
+### 役割分担
+
+| 作業 | 環境 | ツール |
+|---|---|---|
+| フレームワーク運用（監督・並列・状態） | **Kali** | moro-agent（bash/tmux/state/MCP） |
+| 静的解析（逆アセンブル・デコンパイル） | **Kali** | Ghidra / r2（PE も可） |
+| ELF エクスプロイト開発 | **Kali** | gdb + pwntools |
+| PE 動的解析（デバッグ・API 追跡） | **Windows** | x64dbg / WinDbg |
+| PE エクスプロイト（DLL 注入等） | **Windows** | ネイティブツール |
+
+### 連携パターン（現実的）
+
+1. **静的解析は Kali で完結** — Ghidra / r2 は PE を読めるので、まず Kali 側の
+   `re_*` ツールで関数・文字列・インポート・保護機構を把握
+2. **動的解析は人間介在の Windows 連携** — エージェントが「この関数の実行時挙動を
+   観測したい」と判断 → 人間が x64dbg でブレークポイントを張る。完全自動の
+   「Kali エージェント → Windows デバッガ」連携は、リモートデバッグ or
+   x64dbg の Python プラグインで可能だが、まず人間介在から始める
+3. **結果は state/ にフィードバック** — Windows で得た観測（レジスタ値・クラッシュ
+   アドレス）を `state.py finding` / `log` に記録し、Kali 側のエージェントが続きを読む
+
+## 7. 次のステップ
 
 1. **Ghidra 導入**（要 Java 17）→ `analyzeHeadless` を試す
 2. **GhidraScript の雛形**（`tools/re/ghidra_decompile.java`）を作り、デコンパイルを自動化
