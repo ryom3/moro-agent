@@ -345,6 +345,27 @@ def main():
             with open(path, "w") as f:
                 f.write(fig.render())
             print(f"wrote {path}")
+        # README 埋め込み用に PNG も生成する (GitHub は SVG を img で表示しないため)。
+        # chromium headless が使えれば SVG → PNG にラスタライズする。
+        import subprocess, shutil
+        chrom = shutil.which("chromium") or shutil.which("chromium-browser")
+        if chrom:
+            sizes = {"arch-flow": (960, 720), "principles": (960, 420),
+                     "components": (960, 680)}
+            for name in names:
+                w, h = sizes[name]
+                svg = os.path.join(args.svg_dir, f"{name}.svg")
+                png = os.path.join(args.svg_dir, f"{name}.png")
+                subprocess.run([chrom, "--headless", "--disable-gpu", "--no-sandbox",
+                                f"--window-size={w},{h}", "--hide-scrollbars",
+                                f"--screenshot={png}", svg],
+                               check=False, capture_output=True)
+                if os.path.exists(png):
+                    print(f"wrote {png}")
+                else:
+                    print(f"[warn] {name}.png 生成失敗 (chromium 不可?)")
+        else:
+            print("[warn] chromium が見つからないため PNG は生成しません")
     html = page(figs, "Pentest Framework — 設計思想と構成 (現状)",
                 "AI マルチエージェント VDP 基盤 · ランタイム差し替え + MCP 共通契約")
     with open(args.out, "w") as f:
