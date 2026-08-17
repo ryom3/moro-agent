@@ -78,15 +78,22 @@ if [ -z "${TMUX:-}" ]; then
     exit 1
 fi
 
+# --- モデル env を tmux サーバへ明示的に反映する (引用符を使わない確実な方法) ---
+# tmux new-window は update-environment (DISPLAY/SSH_* のみ) しか素通ししないため、
+# export 済みのモデル関連変数を tmux set-environment で tmux サーバ環境に流し、
+# 直後の new-window の子シェルへ確実に渡す。コマンド文字列に env を埋め込まない。
+for _v in ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_API_KEY \
+          CLAUDE_CODE_MAX_CONTEXT_TOKENS CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT \
+          API_TIMEOUT_MS SAKANA_API_KEY GLM_API_KEY GLM_BASE_URL; do
+    if [ -n "${!_v:-}" ]; then
+        tmux set-environment -g "$_v" "${!_v}" 2>/dev/null || true
+    fi
+done
+
 # --- ログ ---
 mkdir -p "$DIR/logs"
 LOGFILE="$DIR/logs/${AGENT_ID}_$(date +%Y%m%d_%H%M%S).log"
-# tmux new-window は環境変数を素通ししない (update-environment は DISPLAY/SSH_* のみ)。
-# よって .env source + env_export を、script -c の内側 (子シェル) で再実行する。
-# これが無いと ANTHROPIC_BASE_URL 等がサブエージェントに届かず、glm 等の
-# Claude 互換エンドポイントへルーティングされない。
-ENV_PRE="set -a; source \"$DIR/.env\" 2>/dev/null; set +a; eval \"\$(python3 \"$DIR/scripts/env_export.py\" \"$MODEL\" 2>/dev/null)\";"
-LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$ENV_PRE $LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; read\""
+LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; read\""
 
 # ライフサイクルイベントを events.jsonl に記録 (共通契約)
 python3 "$DIR/scripts/state.py" event --type agent_start --host "" --detail "$MODEL" \
