@@ -40,6 +40,36 @@ def append_log(entry):
         fcntl.flock(f, fcntl.LOCK_EX)
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         fcntl.flock(f, fcntl.LOCK_UN)
+    # 共通契約: 同一アクションを構造化イベントとしても記録する (加法的・非破壊)
+    # ts/agent は emit_event が正規に付与するので、重複する timestamp/agent は除外。
+    emit_event(entry.get("action", "log"), **{k: v for k, v in entry.items()
+                                              if k not in ("action", "timestamp", "agent")})
+
+
+def _append_jsonl(name, record):
+    """JSONL 追記 (flock で排他)。共通のイベント/ログシンク。"""
+    path = os.path.join(STATE_DIR, name)
+    with open(path, 'a') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        fcntl.flock(f, fcntl.LOCK_UN)
+
+
+def emit_event(event_type, **fields):
+    """構造化イベントを state/events.jsonl に追記。
+
+    全エージェント・全ランタイムが共通で参照するイベントストリーム。
+    {ts, agent, event, ...fields} の形。リファクタ後の観察レイヤー /
+    ハンドオフの契約になる。
+    """
+    rec = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "agent": os.environ.get("AGENT_ID", "unknown"),
+        "event": event_type,
+    }
+    rec.update(fields)
+    _append_jsonl("events.jsonl", rec)
+    return rec
 
 def cmd_host(args):
     """ホストを登録/更新"""
@@ -262,6 +292,20 @@ def cmd_alert(args):
     print(f"ALERT: [{args.type}] {args.host} — {args.detail}")
 
 
+def cmd_event(args):
+    """任意の構造化イベントを events.jsonl に記録する。
+
+    例: エージェントのライフサイクルや、ツール呼び出しの要約。
+      state.py event --type agent_start --model glm-5.3 --runtime claude-code
+      state.py event --type agent_done  --summary "..."
+    """
+    rec = emit_event(args.type,
+                     host=args.host or None,
+                     detail=args.detail or None,
+                     **dict(pair.split("=", 1) for pair in (args.field or [])))
+    print(f"EVENT: [{args.type}] → events.jsonl")
+
+
 def cmd_reset(args):
     """state と logs を初期化。前回のデータは archive/ に退避"""
     import shutil
@@ -288,7 +332,7 @@ def cmd_reset(args):
     workspace_dir = os.path.join(framework_dir, "workspace")
     if os.path.exists(workspace_dir) and os.listdir(workspace_dir):
         shutil.copytree(workspace_dir, os.path.join(archive_dir, "workspace"))
-    for f in ["hosts.json", "creds.json", "findings.json", "log.jsonl"]:
+    for f in ["hosts.json", "creds.json", "findings.json", "log.jsonl", "events.jsonl"]:
         src = os.path.join(STATE_DIR, f)
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(archive_dir, f))
@@ -308,6 +352,8 @@ def cmd_reset(args):
     with open(os.path.join(STATE_DIR, "findings.json"), 'w') as f:
         json.dump({"findings": []}, f)
     with open(os.path.join(STATE_DIR, "log.jsonl"), 'w') as f:
+        pass
+    with open(os.path.join(STATE_DIR, "events.jsonl"), 'w') as f:
         pass
     alerts_path = os.path.join(STATE_DIR, "alerts.json")
     with open(alerts_path, 'w') as f:
@@ -391,12 +437,19 @@ def main():
     p = sub.add_parser("reset")
     p.add_argument("--force", action="store_true", help="確認なしで実行")
 
+    p = sub.add_parser("event", help="任意の構造化イベントを events.jsonl に記録")
+    p.add_argument("--type", required=True, help="イベント種別 (agent_start, agent_done, tool_call ...)")
+    p.add_argument("--host", default="")
+    p.add_argument("--detail", default="")
+    p.add_argument("--field", action="append", default=[],
+                   help="追加フィールド key=value (反復可)")
+
     args = parser.parse_args()
     cmds = {
         "host": cmd_host, "tried": cmd_tried, "cred": cmd_cred,
         "finding": cmd_finding, "log": cmd_log, "show": cmd_show,
         "spray": cmd_spray, "relay": cmd_relay, "resume": cmd_resume,
-        "alert": cmd_alert, "reset": cmd_reset,
+        "alert": cmd_alert, "reset": cmd_reset, "event": cmd_event,
     }
     if args.cmd in cmds:
         cmds[args.cmd](args)

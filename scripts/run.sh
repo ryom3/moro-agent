@@ -117,7 +117,11 @@ fi
 # --- ログ ---
 mkdir -p "$DIR/logs"
 LOGFILE="$DIR/logs/${AGENT_ID}_$(date +%Y%m%d_%H%M%S).log"
-LOGGED_CMD="script -q -f $LOGFILE -c '$LAUNCH_CMD; echo \"[AGENT EXITED] Press enter to close\"; read'"
+LOGGED_CMD="script -q -f $LOGFILE -c '$LAUNCH_CMD; echo \"[AGENT EXITED] Press enter to close\"; python3 \"$DIR/scripts/state.py\" event --type agent_done --field runtime_done=1 2>/dev/null; read'"
+
+# ライフサイクルイベントを events.jsonl に記録 (共通契約)
+python3 "$DIR/scripts/state.py" event --type agent_start --host "" --detail "$MODEL" \
+        --field model="$MODEL" --field runtime="$(python3 -c "import json;print(json.load(open('$DIR/models.json'))['$MODEL']['runtime'])")" 2>/dev/null
 
 # --- ウィンドウ作成 (常に tab — フルスクリーンで UI が崩れない) ---
 tmux new-window -n "$WIN_NAME" "$LOGGED_CMD"
