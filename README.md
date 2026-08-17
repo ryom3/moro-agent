@@ -171,3 +171,27 @@ python3 -m pytest          # tools/ (CORS 分析 16 テスト)
 | **BM25** | スパースキーワード検索。"SUID" 等の具体的トークンに強い | `kb/` のハイブリッド検索（dense + sparse） |
 | **RRF** (SIGIR 2009) | Reciprocal Rank Fusion。dense と sparse の検索結果を統合 | `kb/` の検索パイプライン |
 | **bge-reranker-v2-m3** | クロスエンコーダーによるリランキング。nDCG を 10–20pt 改善 | `kb/` のリランキング層 |
+
+## セキュリティスキルライブラリ（攻撃系サブドメインを自動公開）
+
+攻撃手順・エクスプロイト技法のスキルを、外部の大規模ライブラリから**攻撃系 257 個**に
+絞って `.claude/skills/` へ公開する。Claude Code が description で自動ディスカバリし、
+状況に応じて手順を読み込む（description のみ常時・本文は発動時）。
+
+```bash
+python3 scripts/sync_skills.py            # 攻撃系 257 個を symlink で公開
+python3 scripts/sync_skills.py --all      # 全 817 個を公開
+git submodule update --init --recursive   # 初回は submodule 取得が必要
+```
+
+- **引用元**: [mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills)
+  （Apache-2.0 / 817 skills / Claude Code 互換 SKILL.md 形式）
+- **絞り込み**: red-teaming / penetration-testing / web-application / api /
+  malware-analysis（RE 含む）/ network-security / identity-access 等の
+  攻撃系サブドメインのみ（`scripts/sync_skills.py` の `ATTACK_SUBDOMAINS` で調整可）
+- **コンテキスト**: description 総量は攻撃系で約 7,093 token（200k の約 3.5%）。
+  全 817 だと約 27,893 token で、うち防御系（threat-hunting / SOC / forensics 等）が
+  用途外ノイズとなるため絞り込んでいる
+
+> ⚠️ 本ライブラリはコミュニティプロジェクト（Anthropic 非公式）。攻撃・デュアルユース
+> 技法を含むため、認可されたスコープ内でのみ使用すること。
