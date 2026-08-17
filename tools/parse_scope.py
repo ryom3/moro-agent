@@ -3,9 +3,9 @@
 バグバウンティプログラムの HTML/テキストから scope.json を自動生成。
 
 使い方:
-  python3 scripts/parse_scope.py program.html
-  python3 scripts/parse_scope.py program.html --output state/scope.json
-  python3 scripts/parse_scope.py https://url/to/program   # URL も可 (要 requests)
+  python3 tools/parse_scope.py program.html
+  python3 tools/parse_scope.py program.html --output state/scope.json
+  python3 tools/parse_scope.py https://url/to/program   # URL も可 (要 requests)
 """
 import re, json, argparse, sys
 from pathlib import Path

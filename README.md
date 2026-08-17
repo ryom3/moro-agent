@@ -1,46 +1,89 @@
-# Pentest Framework — AI マルチエージェント ペネトレーションテスト
+# Pentest Framework — AI マルチエージェント・バグバウンティ/VDP 基盤
 
-## 構造
+監督 AI（オーケストレータ）が、差し替え可能なランタイム（Claude Code / Codex / aider）
+のサブエージェントを並列起動し、共有状態を通して協調させて脆弱性を発見・報告する。
+
+## ディレクトリ構造
 
 ```
 pentest-framework/
-├── CLAUDE.md              ← 監督 AI への指示 (人間が編集)
-├── handoff_templates.md   ← ハンドオフフォーマット (CHAP 準拠)
-├── models.json            ← モデル → プロバイダのマッピング
-├── config                 ← 表示モード、サブエージェント設定
-├── scripts/
-│   ├── run.sh             ← モデル名だけで起動 (API key 自動解決)
-│   ├── state.py           ← 状態管理 CLI (host/tried/cred/finding/log/show/spray/relay/resume)
-│   └── gen_report.py      ← findings → Markdown レポート
-├── state/                 ← 共有状態 (全エージェントの接点)
-│   ├── scope.json, hosts.json, creds.json, findings.json, log.jsonl
-└── .env                   ← API キー
+├── README.md, CLAUDE.md / CLAUDE-bb.md   # 監督AIへの指示 (bb=バグバウンティモード)
+├── handoff_templates.md                  # ハンドオフ/リレープロトコル (CHAP 準拠)
+├── config                                # LAYOUT / TMUX_SESSION / MAX_AGENTS / EFFORT
+├── models.json                           # モデル → ランタイムのマッピング
+├── .env.example / .gitignore
+│
+├── scripts/                              # ★ コア (オーケストレーション)
+│   ├── run.sh / start.sh                 #   監督・サブエージェント起動 (tmux)
+│   ├── runner.py                         #   ランタイムレジストリ (モデル→起動コマンド解決)
+│   ├── state.py                          #   共有状態管理 (host/tried/cred/finding/log/
+│   │                                     #     spray/relay/resume/alert/event/reset)
+│   ├── env_export.py                     #   models.json の env ブロック解決 (秘密は環境経由)
+│   └── gen_report.py                     #   findings → Markdown レポート
+│
+├── kb/                                   #   ローカル RAG (BGE-M3 + BM25 + rerank)
+├── mcp/                                  #   MCP サーバ (state.py/kb.py をツール公開)
+├── tools/                                #   ペンテスト補助 (タスク単位のワンオフ)
+│   ├── cors/                             #     CORS 解析 (analyzer/probe/mock/test)
+│   ├── parse_scope.py                    #     program.html/csv → scope.json
+│   ├── tokens.py                         #     トークン使用量の集計
+│   └── verify_maps_key_browser.py        #     Google Maps キーの検証
+├── docs/                                 #   設計ドキュメント (AS-IS/TO-BE 可視化 + 生成器)
+├── data/                                 #   エンゲージメント入力 (program.csv/html 等)
+│
+├── state/                                #   共有状態 (全エージェントの接点) — ランタイム
+│   ├── scope.json, hosts.json, creds.json, findings.json
+│   ├── log.jsonl, events.jsonl           #   イベントストリーム (共通契約)
+│   └── relay_*.json, alerts.json
+├── logs/  workspace/  archive/           #   ランタイム (gitignore 済み)
+└── mcp/.venv/                            #   MCP SDK 用の隔離環境 (gitignore 済み)
 ```
 
 ## 使い方
 
 ```bash
-cp .env.example .env && vim .env     # API キー (サブスクなら不要)
-vim state/scope.json                  # ターゲット
-./start.sh                            # 起動 (tmux 自動)
+cp .env.example .env && vim .env        # API キー (サブスクなら不要)
+vim state/scope.json                     # ターゲット・RoE
+./scripts/start.sh                       # 監督AI 起動 (tmux 自動)
 ```
 
-最初のプロンプト:
+監督AIへの最初のプロンプト:
 ```
 CLAUDE.md, handoff_templates.md, models.json, config, state/scope.json を読んで、
 監督者として攻撃計画を立て、run.sh でサブエージェントを起動してください。
 ```
 
-操作:
+サブエージェント起動（監督AI が実行）:
+```bash
+./scripts/run.sh glm-5.3 "ドメインの API エンドポイントを調査して"        # モデル名で
+./scripts/run.sh wave1 claude-haiku-4-5 "偵察して"                          # 明示ID + モデル
 ```
-Ctrl+b o    — ペイン切替 (サブエージェントを見る)
-Ctrl+b z    — ペイン最大化/戻す
-Ctrl+b n/p  — タブ切替 (LAYOUT=tab の場合)
+
+観察（実行とは分離された「窓」）:
+```bash
+./scripts/run.sh --tail [AGENT_ID]      # エージェントのログを tail -f
+./scripts/run.sh --events               # 構造化イベントストリームを follow
+./scripts/run.sh --monitor              # state 概要を watch
 ```
 
 ## 設計思想
 
-- **CLAUDE.md が全て**: 人間 → 監督 AI → サブエージェントの指示系統
-- **state/ が唯一の接点**: エージェント間の通信は JSON 経由。tried 配列で重複排除
-- **モデル非依存**: models.json に 1 行追加 + .env にキーで新プロバイダ対応
-- **config**: LAYOUT(split/tab)、TMUX_SESSION、MAX_AGENTS、MONITOR_INTERVAL
+- **CLAUDE.md が全て** — 人間 → 監督 → サブの指示系統をプロンプトで定義
+- **state/ が唯一の接点** — エージェント間通信は JSON 経由。tried 配列で重複排除
+- **ランタイム差し替え** — `scripts/runner.py` のレジストリでモデル→ランタイムを解決。
+  Claude Code / Codex / aider を差し替え、新ランタイム (dsh 等) は 1 エントリ追加で拡張
+- **共通契約** — `events.jsonl`(構造化イベント) + MCP(`mcp/server.py`) で
+  どのランタイムからも同じツール・状態を同じ形で呼べる
+- **実行と観察の分離** — tmux は観察窓 (`--tail`/`--events`)。ログ・イベントが真実の源
+
+## セキュリティ
+
+- API キーは argv でなく**環境変数経由で継承**（`ps` への平文露出を防止）
+- 共有状態は `state.py` の `locked_json` で read-modify-write を flock（並行時の欠落・ID重複を防止）
+- RoE/VDP ルール（1 req/sec, DoS禁止, PII即停止等）は CLAUDE.md と scope.json で規定
+
+## テスト
+
+```bash
+python3 -m pytest          # tools/ (CORS 分析 16 テスト)
+```

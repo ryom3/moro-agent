@@ -16,11 +16,15 @@ try:
 except Exception:  # pragma: no cover
     yaml = None
 
+# データ置き場の既定は kb/ モジュール自身のディレクトリ基準 (CWD 非依存)。
+# これにより `python3 kb/kb.py` と `cd kb && python3 kb.py` で索引が二重化しない。
+_KB_DIR = Path(__file__).resolve().parent
+
 
 @dataclass
 class KBConfig:
     # --- storage layout -----------------------------------------------------
-    data_dir: str = "./kb_data"          # everything the pipeline writes lives here
+    data_dir: str = str(_KB_DIR / "kb_data")   # everything the pipeline writes lives here
     chunks_file: str = "chunks.jsonl"    # one chunk per line
     chroma_dir: str = "db"               # persistent Chroma dir (dense index)
     bm25_file: str = "bm25.pkl"          # pickled sparse index

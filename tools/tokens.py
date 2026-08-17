@@ -3,8 +3,8 @@
 トークン使用量の集計と可視化
 
 使い方:
-  python3 scripts/tokens.py                  # 集計表示
-  python3 scripts/tokens.py --html report    # HTML レポート生成
+  python3 tools/tokens.py                  # 集計表示
+  python3 tools/tokens.py --html report    # HTML レポート生成
 """
 import os, re, json, argparse
 from datetime import datetime

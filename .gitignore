@@ -1,21 +1,32 @@
+# --- シークレット・ローカル環境 ---
 .env
+
+# --- ランタイム生成物 ---
 results/
 logs/
 __pycache__/
+.pytest_cache/
 archive/
+workspace/
+
+# --- KB 索引・教材 (巨大・著作物) ---
 kb/db/
 kb/notion-export/
 kb/pdf/
 kb/kb_data/
-kb_data/
-workspace/
-# 生成物・取得物 (ベースラインから除外)
-lib.js
-DESIGN.html
-DESIGN.pdf
-program.csv
-program.html
-.codex-profiles/*.config.toml
+
+# --- エンゲージメント入力 (巨大・取得物) ---
+data/lib.js
+data/program.csv
+data/program.html
+
+# --- 生成物 ---
+docs/DESIGN.html
+docs/DESIGN.pdf
+
+# --- 外部エージェントのローカル状態 ---
 .codex-profiles/
-# MCP サーバ専用 venv (mcp SDK の隔離環境)
+.claude/
+
+# --- MCP サーバ専用 venv (mcp SDK の隔離環境) ---
 mcp/.venv/
