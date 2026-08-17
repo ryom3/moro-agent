@@ -1,0 +1,3 @@
+# MCP サーバ (mcp/server.py) の依存
+# 1.x 系の FastMCP API (mcp.server.fastmcp) を使う。2.0 は API が破壊的に変更されたため固定。
+mcp==1.22.0
