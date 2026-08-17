@@ -13,7 +13,7 @@ Pentest Framework — 状態管理
   python3 scripts/state.py relay   --summary "..." --dead-ends "..." --next-steps "..."
   python3 scripts/state.py resume  [--agent AGENT_ID]
 """
-import json, sys, os, argparse, fcntl
+import json, sys, os, argparse, fcntl, contextlib
 from datetime import datetime, timezone
 
 STATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "state")
@@ -27,6 +27,35 @@ def save_json(name, data):
     path = os.path.join(STATE_DIR, name)
     with open(path, 'r+') as f:
         fcntl.flock(f, fcntl.LOCK_EX)
+        f.seek(0)
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.truncate()
+        fcntl.flock(f, fcntl.LOCK_UN)
+
+
+@contextlib.contextmanager
+def locked_json(name, default):
+    """load → (yield data) → save の read-modify-write 全体を flock で排他する。
+
+    load_json と save_json を分けて呼ぶ旧来のパターンは、複数エージェントが
+    同時に追記したとき lost update (書き込み欠落) を起こす。このコンテキストで
+    読み・改変・書き込みを一括でロックし、cred/finding の id 重複も防ぐ。
+    """
+    path = os.path.join(STATE_DIR, name)
+    if not os.path.exists(path):
+        with open(path, 'w') as f:
+            json.dump(default, f)
+    with open(path, 'r+') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            f.seek(0)
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = default
+        except Exception:
+            data = default
+        yield data
         f.seek(0)
         json.dump(data, f, indent=2, ensure_ascii=False)
         f.truncate()
@@ -73,70 +102,69 @@ def emit_event(event_type, **fields):
 
 def cmd_host(args):
     """ホストを登録/更新"""
-    hosts = load_json("hosts.json")
-    h = hosts["hosts"].get(args.ip, {})
-    h["state"] = args.state or h.get("state", "untouched")
-    h["services"] = args.services.split(",") if args.services else h.get("services", [])
-    h["tried"] = h.get("tried", [])
-    h["notes"] = args.note or h.get("notes", "")
-    hosts["hosts"][args.ip] = h
-    save_json("hosts.json", hosts)
+    with locked_json("hosts.json", {"hosts": {}}) as hosts:
+        h = hosts["hosts"].get(args.ip, {})
+        h["state"] = args.state or h.get("state", "untouched")
+        h["services"] = args.services.split(",") if args.services else h.get("services", [])
+        h["tried"] = h.get("tried", [])
+        h["notes"] = args.note or h.get("notes", "")
+        hosts["hosts"][args.ip] = h
     append_log({"action": "host-register", "host": args.ip})
     print(f"HOST {args.ip} → {h['state']}")
 
 def cmd_tried(args):
     """試行済み手法を記録"""
-    hosts = load_json("hosts.json")
-    h = hosts["hosts"].get(args.host)
-    if h is None:
-        hosts["hosts"][args.host] = {"state": "in-progress", "services": [], "tried": [], "notes": ""}
-        h = hosts["hosts"][args.host]
-    if args.method not in h["tried"]:
-        h["tried"].append(args.method)
-        save_json("hosts.json", hosts)
+    with locked_json("hosts.json", {"hosts": {}}) as hosts:
+        h = hosts["hosts"].get(args.host)
+        if h is None:
+            hosts["hosts"][args.host] = {"state": "in-progress", "services": [], "tried": [], "notes": ""}
+            h = hosts["hosts"][args.host]
+        if args.method not in h["tried"]:
+            h["tried"].append(args.method)
     append_log({"action": "tried", "host": args.host, "method": args.method})
     print(f"TRIED: {args.method} on {args.host}")
 
 def cmd_cred(args):
     """クレデンシャルを追加"""
-    creds = load_json("creds.json")
-    for existing in creds["credentials"]:
-        if existing["user"] == args.user and existing["secret"] == args.secret:
-            print(f"DUPLICATE — {args.user} already exists (id={existing['id']})")
-            return
-    entry = {
-        "id": len(creds["credentials"]) + 1,
-        "user": args.user,
-        "secret": args.secret,
-        "secret_type": args.secret_type,
-        "domain": args.domain,
-        "source": args.source,
-        "sprayed": [],
-        "added_by": os.environ.get("AGENT_ID", "unknown"),
-        "added_at": datetime.now(timezone.utc).isoformat()
-    }
-    creds["credentials"].append(entry)
-    save_json("creds.json", creds)
+    with locked_json("creds.json", {"credentials": []}) as creds:
+        for existing in creds["credentials"]:
+            if existing["user"] == args.user and existing["secret"] == args.secret:
+                print(f"DUPLICATE — {args.user} already exists (id={existing['id']})")
+                return
+        # id はロック内で採番するため並行追加でも重複しない
+        new_id = max([c.get("id", 0) for c in creds["credentials"]] + [0]) + 1
+        entry = {
+            "id": new_id,
+            "user": args.user,
+            "secret": args.secret,
+            "secret_type": args.secret_type,
+            "domain": args.domain,
+            "source": args.source,
+            "sprayed": [],
+            "added_by": os.environ.get("AGENT_ID", "unknown"),
+            "added_at": datetime.now(timezone.utc).isoformat()
+        }
+        creds["credentials"].append(entry)
     append_log({"action": "cred-add", "user": args.user, "source": args.source})
     print(f"CRED #{entry['id']}: {args.user}")
 
 def cmd_finding(args):
     """レポート用の finding を追加"""
-    findings = load_json("findings.json")
-    entry = {
-        "id": len(findings["findings"]) + 1,
-        "host": args.host,
-        "step": args.step,
-        "heading": args.heading,
-        "narrative": args.narrative,
-        "commands": args.commands.split("|||") if args.commands else [],
-        "output_summary": args.output or "",
-        "screenshot": args.screenshot or "",
-        "added_by": os.environ.get("AGENT_ID", "unknown"),
-        "added_at": datetime.now(timezone.utc).isoformat()
-    }
-    findings["findings"].append(entry)
-    save_json("findings.json", findings)
+    with locked_json("findings.json", {"findings": []}) as findings:
+        new_id = max([f.get("id", 0) for f in findings["findings"]] + [0]) + 1
+        entry = {
+            "id": new_id,
+            "host": args.host,
+            "step": args.step,
+            "heading": args.heading,
+            "narrative": args.narrative,
+            "commands": args.commands.split("|||") if args.commands else [],
+            "output_summary": args.output or "",
+            "screenshot": args.screenshot or "",
+            "added_by": os.environ.get("AGENT_ID", "unknown"),
+            "added_at": datetime.now(timezone.utc).isoformat()
+        }
+        findings["findings"].append(entry)
     print(f"FINDING #{entry['id']}: {args.heading}")
 
 def cmd_log(args):
@@ -275,19 +303,8 @@ def cmd_alert(args):
         "type": args.type,
         "detail": args.detail,
     }
-
-    alerts_path = os.path.join(STATE_DIR, "alerts.json")
-    try:
-        with open(alerts_path, 'r') as f:
-            alerts = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        alerts = []
-
-    alerts.append(alert)
-
-    with open(alerts_path, 'w') as f:
-        json.dump(alerts, f, indent=2, ensure_ascii=False)
-
+    with locked_json("alerts.json", []) as alerts:
+        alerts.append(alert)
     append_log({"action": "alert", "host": args.host, "type": args.type, "detail": args.detail})
     print(f"ALERT: [{args.type}] {args.host} — {args.detail}")
 
