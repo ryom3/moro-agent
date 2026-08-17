@@ -26,6 +26,7 @@ from mcp.server.fastmcp import FastMCP
 FRAMEWORK_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE_PY = os.path.join(FRAMEWORK_DIR, "scripts", "state.py")
 KB_PY = os.path.join(FRAMEWORK_DIR, "kb", "kb.py")
+R2_RECON_PY = os.path.join(FRAMEWORK_DIR, "tools", "re", "r2_recon.py")
 
 # CLI 呼び出しに使う Python。MCP venv (mcp SDK のみ) ではなく、
 # chromadb/torch 等の KB 依存が入った通常の python3 をデフォルトにする。
@@ -182,6 +183,45 @@ def kb_query(query: str, tag: str = "", top: int = 5) -> str:
         return json.dumps(hits, ensure_ascii=False, indent=2)
     except (json.JSONDecodeError, TypeError):
         return out
+
+
+# ---------------------------------------------------------------------------
+# RE ツール (radare2 ベース。Linux/Windows 共に r2 があれば動く)
+# ---------------------------------------------------------------------------
+@mcp.tool()
+def re_checksec(binary: str) -> str:
+    """バイナリの保護機構 (NX/PIE/Canary/RELRO) を判定する。"""
+    return _run([PYTHON, R2_RECON_PY, "info", binary])
+
+
+@mcp.tool()
+def re_funcs(binary: str) -> str:
+    """バイナリの関数一覧を取得する (radare2 afl)。"""
+    return _run([PYTHON, R2_RECON_PY, "funcs", binary], timeout=180)
+
+
+@mcp.tool()
+def re_strings(binary: str) -> str:
+    """バイナリ内の文字列を列挙する (radare2 izz)。"""
+    return _run([PYTHON, R2_RECON_PY, "strings", binary], timeout=180)
+
+
+@mcp.tool()
+def re_imports(binary: str) -> str:
+    """バイナリのインポート (PLT/GOT 解決) を取得する。"""
+    return _run([PYTHON, R2_RECON_PY, "imports", binary], timeout=180)
+
+
+@mcp.tool()
+def re_disasm(binary: str, func: str) -> str:
+    """指定関数を逆アセンブルする (radare2 pdf)。"""
+    return _run([PYTHON, R2_RECON_PY, "disasm", binary, func], timeout=180)
+
+
+@mcp.tool()
+def re_xrefs(binary: str, addr: str) -> str:
+    """指定アドレスへの参照元/参照先 (xref) を取得する。"""
+    return _run([PYTHON, R2_RECON_PY, "xrefs", binary, addr], timeout=180)
 
 
 if __name__ == "__main__":
