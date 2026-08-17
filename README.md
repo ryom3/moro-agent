@@ -1,4 +1,4 @@
-# Pentest Framework — AI マルチエージェント・バグバウンティ/VDP 基盤
+# moro-agent — AI マルチエージェント・バグバウンティ/VDP 基盤
 
 監督 AI（オーケストレータ）が、差し替え可能なランタイム（Claude Code / Codex / aider / DSH）
 のサブエージェントを並列起動し、共有状態を通して協調させて脆弱性を発見・報告する。
@@ -33,7 +33,7 @@
 ## ディレクトリ構造
 
 ```
-pentest-framework/
+moro-agent/
 ├── README.md, CLAUDE.md / CLAUDE-bb.md   # 監督AIへの指示 (bb=バグバウンティモード)
 ├── handoff_templates.md                  # ハンドオフ/リレープロトコル (CHAP 準拠)
 ├── config                                # LAYOUT / TMUX_SESSION / MAX_AGENTS / EFFORT

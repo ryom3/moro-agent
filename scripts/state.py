@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pentest Framework — 状態管理
+moro-agent — 状態管理
 
 使い方:
   python3 scripts/state.py host    --ip 172.16.50.55 --services "5985/winrm,445/smb"

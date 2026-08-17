@@ -32,7 +32,7 @@ KB_PY = os.path.join(FRAMEWORK_DIR, "kb", "kb.py")
 # 必要なら PENTEST_PYTHON=/path/to/python で上書き。
 PYTHON = os.environ.get("PENTEST_PYTHON", "python3")
 
-mcp = FastMCP("pentest-framework")
+mcp = FastMCP("moro-agent")
 
 
 def _run(cmd, timeout=60):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pentest Framework 設計ドキュメント生成器 v2
+moro-agent 設計ドキュメント生成器 v2
 ------------------------------------------
 議論を経て更新した設計思想 (ランタイム差し替え / 2層分離 / MCP共通契約) を、
 自己完結型 HTML (埋め込み SVG, ダークテーマ) として可視化する。
@@ -366,7 +366,7 @@ def main():
                     print(f"[warn] {name}.png 生成失敗 (chromium 不可?)")
         else:
             print("[warn] chromium が見つからないため PNG は生成しません")
-    html = page(figs, "Pentest Framework — 設計思想と構成 (現状)",
+    html = page(figs, "moro-agent — 設計思想と構成 (現状)",
                 "AI マルチエージェント VDP 基盤 · ランタイム差し替え + MCP 共通契約")
     with open(args.out, "w") as f:
         f.write(html)

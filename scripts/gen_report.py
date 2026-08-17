@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pentest Framework — レポート生成
+moro-agent — レポート生成
 
 findings.json → Markdown
 
