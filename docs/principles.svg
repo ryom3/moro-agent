@@ -1,0 +1,30 @@
+<svg viewBox="0 0 960 420" width="100%" style="background:#0b0f1a;border-radius:16px;font-family:ui-sans-serif,system-ui,'Segoe UI',sans-serif"><defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1b2340"/><stop offset="100%" stop-color="#141a2e"/></linearGradient>
+<linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#123b2e"/><stop offset="100%" stop-color="#0d2a21"/></linearGradient>
+<linearGradient id="gAmber" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a3410"/><stop offset="100%" stop-color="#33250b"/></linearGradient>
+<linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a1420"/><stop offset="100%" stop-color="#331018"/></linearGradient>
+<linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#12304a"/><stop offset="100%" stop-color="#0d2333"/></linearGradient>
+<filter id="gShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.45"/></filter>
+</defs>
+<text x="32" y="46.0" font-size="20" fill="#8fd0ff" text-anchor="start" font-weight="700">② 設計思想（3つの大原則）</text>
+<rect x="20" y="84" width="292" height="280" rx="18" fill="url(#gBlue)" stroke="#3f8fd0" stroke-width="1.5"   filter="url(#gShadow)"/>
+<text x="166" y="118.0" font-size="26" fill="#3f8fd0" text-anchor="middle" font-weight="800">01</text>
+<text x="166" y="148.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">ランタイム差し替え</text>
+<text x="40" y="180" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">ループ（頭脳）は「選ぶもの」。</text>
+<text x="40" y="200" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">監督もサブも DSH / Claude Code /</text>
+<text x="40" y="220" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">Codex / aider から自由に。</text>
+<text x="40" y="240" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">混在も可。</text>
+<rect x="334" y="84" width="292" height="280" rx="18" fill="url(#gBlue)" stroke="#3f8fd0" stroke-width="1.5"   filter="url(#gShadow)"/>
+<text x="480" y="118.0" font-size="26" fill="#3f8fd0" text-anchor="middle" font-weight="800">02</text>
+<text x="480" y="148.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">実行と観察の分離</text>
+<text x="354" y="180" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">tmux / Web GUI は「窓」であり</text>
+<text x="354" y="200" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">実行とは無関係。</text>
+<text x="354" y="220" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">ループが何であっても</text>
+<text x="354" y="240" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">画面とログの形は不変。</text>
+<rect x="648" y="84" width="292" height="280" rx="18" fill="url(#gBlue)" stroke="#3f8fd0" stroke-width="1.5"   filter="url(#gShadow)"/>
+<text x="794" y="118.0" font-size="26" fill="#3f8fd0" text-anchor="middle" font-weight="800">03</text>
+<text x="794" y="148.0" font-size="16" fill="#fff" text-anchor="middle" font-weight="700">ツール・状態は DSH が吸収</text>
+<text x="668" y="180" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">MCP + イベントストリームを</text>
+<text x="668" y="200" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">「共通契約」に。</text>
+<text x="668" y="220" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">全ループが同じツールを</text>
+<text x="668" y="240" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="500">同じ形で呼ぶ。</text></svg>

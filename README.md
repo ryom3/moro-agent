@@ -5,6 +5,10 @@
 
 ## アーキテクチャ
 
+<img src="docs/arch-flow.svg" alt="現在のアーキテクチャ全体フロー" width="100%">
+
+> 図の生成: `python3 docs/gen_design.py --svg-dir docs`（SVG 単体 + `DESIGN.html` を再生成）
+
 ```
 人間 ──start.sh──▶ 監督AI (Claude Code / 任意のランタイム)
                      │  run.sh でサブエージェント並列起動
@@ -17,6 +21,14 @@
         │  state/ (共有状態) + kb/ (RAG) │  ← 単一の真実源
         └──────────────────────────────┘
 ```
+
+### 設計思想
+
+<img src="docs/principles.svg" alt="設計思想（3つの大原則）" width="100%">
+
+### コンポーネント構成
+
+<img src="docs/components.svg" alt="コンポーネント構成（ランタイム層 + ツール層）" width="100%">
 
 ## ディレクトリ構造
 

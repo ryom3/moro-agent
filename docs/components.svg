@@ -1,0 +1,61 @@
+<svg viewBox="0 0 960 680" width="100%" style="background:#0b0f1a;border-radius:16px;font-family:ui-sans-serif,system-ui,'Segoe UI',sans-serif"><defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1b2340"/><stop offset="100%" stop-color="#141a2e"/></linearGradient>
+<linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#123b2e"/><stop offset="100%" stop-color="#0d2a21"/></linearGradient>
+<linearGradient id="gAmber" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a3410"/><stop offset="100%" stop-color="#33250b"/></linearGradient>
+<linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a1420"/><stop offset="100%" stop-color="#331018"/></linearGradient>
+<linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#12304a"/><stop offset="100%" stop-color="#0d2333"/></linearGradient>
+<filter id="gShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.45"/></filter>
+</defs>
+<text x="32" y="46.0" font-size="20" fill="#8fd0ff" text-anchor="start" font-weight="700">③ コンポーネント構成（ランタイム層 + ツール層）</text>
+<rect x="30" y="66" width="900" height="220" rx="18" fill="url(#g)" stroke="#3f5a8f" stroke-width="1.5"   filter="url(#gShadow)"/>
+<text x="52" y="92.0" font-size="14" fill="#8fb8ff" text-anchor="start" font-weight="700">ランタイム層 — ループ = 差し替え可能な頭脳</text>
+<text x="52" y="112.0" font-size="11" fill="#8fa0c0" text-anchor="start" font-weight="500">どのエージェントがどの頭脳を使うかは設定で決める</text>
+<text x="52" y="150.0" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="600">監督 AI (どれか1つ)</text>
+<rect x="52" y="160" width="272" height="52" rx="10" fill="url(#gGreen)" stroke="#2f8f6f" stroke-width="1.3"   filter="url(#gShadow)"/>
+<text x="188" y="180.0" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">DSH</text>
+<text x="188" y="198.0" font-size="10" fill="#9fb0cc" text-anchor="middle" font-weight="500">自前ループ + pi-ai任意モデル</text>
+<rect x="340" y="160" width="272" height="52" rx="10" fill="url(#g)" stroke="#e0a25a" stroke-width="1.3"   filter="url(#gShadow)"/>
+<text x="476" y="180.0" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">Claude Code</text>
+<text x="476" y="198.0" font-size="10" fill="#9fb0cc" text-anchor="middle" font-weight="500">Anthropic 製ループ</text>
+<rect x="628" y="160" width="272" height="52" rx="10" fill="url(#g)" stroke="#3f5a8f" stroke-width="1.3"   filter="url(#gShadow)"/>
+<text x="764" y="180.0" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">Codex</text>
+<text x="764" y="198.0" font-size="10" fill="#9fb0cc" text-anchor="middle" font-weight="500">OpenAI 製ループ</text>
+<text x="52" y="236.0" font-size="12" fill="#c9d3e8" text-anchor="start" font-weight="600">サブエージェント (自由に混在)</text>
+<rect x="52" y="246" width="196" height="34" rx="8" fill="url(#g)" stroke="#e0a25a" stroke-width="1.2"  />
+<text x="150" y="268.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">Claude Code</text>
+<rect x="264" y="246" width="196" height="34" rx="8" fill="url(#g)" stroke="#3f5a8f" stroke-width="1.2"  />
+<text x="362" y="268.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">Codex</text>
+<rect x="476" y="246" width="196" height="34" rx="8" fill="url(#g)" stroke="#2f8f6f" stroke-width="1.2"  />
+<text x="574" y="268.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">DSH native</text>
+<rect x="688" y="246" width="196" height="34" rx="8" fill="url(#g)" stroke="#8a7fd0" stroke-width="1.2"  />
+<text x="786" y="268.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">aider</text>
+<rect x="250" y="316" width="460" height="58" rx="14" fill="url(#gBlue)" stroke="#2f7fa8" stroke-width="1.5"   filter="url(#gShadow)"/>
+<text x="480" y="340.0" font-size="14" fill="#8fd0ff" text-anchor="middle" font-weight="700">ランタイムレジストリ</text>
+<text x="480" y="360.0" font-size="11" fill="#9fb0cc" text-anchor="middle" font-weight="500">spawn_subagent(runtime, model, prompt)</text>
+<line x1="480" y1="286" x2="480" y2="316" stroke="#2f7fa8" stroke-width="2" />
+<polygon points="480,316 475.0,307.33974596215563 485.0,307.33974596215563" fill="#2f7fa8"/>
+<rect x="30" y="404" width="900" height="200" rx="18" fill="url(#gBlue)" stroke="#2f7fa8" stroke-width="1.5"   filter="url(#gShadow)"/>
+<text x="52" y="430.0" font-size="14" fill="#8fd0ff" text-anchor="start" font-weight="700">ツール層 — DSH が吸収する土台 (共通契約)</text>
+<text x="52" y="450.0" font-size="11" fill="#8fa0c0" text-anchor="start" font-weight="500">共通契約 = MCP ツール + イベントストリーム。全ループが同じ形で呼ぶ</text>
+<rect x="300" y="462" width="360" height="46" rx="10" fill="url(#gAmber)" stroke="#e0a25a" stroke-width="1.3"   filter="url(#gShadow)"/>
+<text x="480" y="482.0" font-size="13.5" fill="#ffd9a0" text-anchor="middle" font-weight="700">★ MCP サーバ: state.py + kb.py</text>
+<text x="480" y="500.0" font-size="10" fill="#c9d3e8" text-anchor="middle" font-weight="500">同一ツール面を Claude Code / Codex / DSH が共用</text>
+<rect x="52" y="524" width="156" height="56" rx="9" fill="url(#g)" stroke="#2f7fa8" stroke-width="1.2"  />
+<text x="130" y="546.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">サンドボックス</text>
+<text x="130" y="564.0" font-size="9.5" fill="#8fa0c0" text-anchor="middle" font-weight="500">Landlock 実強制</text>
+<rect x="224" y="524" width="156" height="56" rx="9" fill="url(#g)" stroke="#2f7fa8" stroke-width="1.2"  />
+<text x="302" y="546.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">承認ゲート</text>
+<text x="302" y="564.0" font-size="9.5" fill="#8fa0c0" text-anchor="middle" font-weight="500">human-in-the-loop</text>
+<rect x="396" y="524" width="156" height="56" rx="9" fill="url(#g)" stroke="#2f7fa8" stroke-width="1.2"  />
+<text x="474" y="546.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">イベントストリーム</text>
+<text x="474" y="564.0" font-size="9.5" fill="#8fa0c0" text-anchor="middle" font-weight="500">生ログ + 構造化</text>
+<rect x="568" y="524" width="156" height="56" rx="9" fill="url(#g)" stroke="#2f7fa8" stroke-width="1.2"  />
+<text x="646" y="546.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">セッション</text>
+<text x="646" y="564.0" font-size="9.5" fill="#8fa0c0" text-anchor="middle" font-weight="500">イベントソーシング</text>
+<rect x="740" y="524" width="156" height="56" rx="9" fill="url(#g)" stroke="#2f7fa8" stroke-width="1.2"  />
+<text x="818" y="546.0" font-size="12" fill="#e6edf7" text-anchor="middle" font-weight="600">観察</text>
+<text x="818" y="564.0" font-size="9.5" fill="#8fa0c0" text-anchor="middle" font-weight="500">Web GUI / 履歴</text>
+<line x1="480" y1="374" x2="480" y2="404" stroke="#2f7fa8" stroke-width="2" />
+<polygon points="480,404 475.0,395.33974596215563 485.0,395.33974596215563" fill="#2f7fa8"/>
+<text x="495" y="396.0" font-size="10.5" fill="#8fa0c0" text-anchor="start" font-weight="500">共通契約で接続</text>
+<text x="738" y="640.0" font-size="10" fill="#8fa0c0" text-anchor="start" font-weight="500">観察レイヤーは実行と無関係 (tail -f / Web GUI)</text></svg>

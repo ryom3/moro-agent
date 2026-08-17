@@ -96,65 +96,50 @@ def section_title(s, text, color="#8fd0ff"):
 # ---------------------------------------------------------------------------
 # 図 1: AS-IS 現在の実態 (意図と乖離) — パイプライン + 問題チップ
 # ---------------------------------------------------------------------------
-def fig_asis():
+def fig_current():
     s = SVG(960, 720)
     define_gradients(s)
-    section_title(s, "① AS-IS — 現在の実態（意図と現実の乖離）", "#f2a7a7")
+    section_title(s, "① 現在のアーキテクチャ — 全体フロー", "#8fd0ff")
 
-    LX, LW = 30, 360
-    CX = LX + LW // 2  # 210
+    LX, LW = 30, 400
+    CX = LX + LW // 2  # 230
 
     def node(y, h, fill, stroke, title, sub, tc="#fff"):
         s.rect(LX, y, LW, h, fill=fill, stroke=stroke, sw=1.5, r=14, shadow=True)
-        s.text(CX, y + h//2 - 12, title, 15, tc, anchor="middle", weight=700)
-        s.text(CX, y + h//2 + 12, sub, 11, "#9fb0cc", anchor="middle", weight=500,
-               maxw=26)
-
-    def chip(x, y, w, h, icon, title, desc, accent):
-        s.rect(x, y, w, h, fill="url(#gRed)" if icon == "🔴" else
-               ("url(#gAmber)" if icon == "🟠" else "url(#g)"),
-               stroke=accent, sw=1.3, r=11, shadow=True)
-        s.text(x + 12, y + 22, icon + " " + title, 13.5, "#fff", weight=700, maxw=34)
-        s.text(x + 12, y + 42, desc, 10.5, "#c9d3e8", weight=500, maxw=40)
+        s.text(CX, y + h // 2 - 12, title, 15, tc, anchor="middle", weight=700)
+        s.text(CX, y + h // 2 + 12, sub, 11, "#9fb0cc", anchor="middle", weight=500,
+               maxw=30)
 
     nodes = [
-        (70, 70, "url(#g)", "#4b5878", "人間 (オペレータ)", "start.sh + CLAUDE.md"),
-        (170, 80, "url(#gGreen)", "#2f8f6f", "監督AI = Claude Code CLI", "Anthropic 製ループ"),
-        (280, 76, "url(#g)", "#3f5a8f", "run.sh (runtime 分岐)", "claude-code / codex / aider"),
-        (386, 88, "url(#g)", "#3f5a8f", "サブエージェント (複数)", "CLI を tmux で並列 spawn"),
-        (520, 80, "url(#gBlue)", "#2f7fa8", "state/ + kb/ (共有)", "JSON + flock / ローカルRAG"),
+        (70, 70, "url(#g)", "#4b5878", "人間 (オペレータ)", "start.sh + 初回プロンプト"),
+        (170, 80, "url(#gGreen)", "#2f8f6f", "監督AI", "Claude Code 等・任意ランタイム"),
+        (280, 72, "url(#g)", "#3f5a8f", "run.sh + runner.py", "モデル → ランタイム解決"),
+        (380, 96, "url(#g)", "#3f5a8f", "サブエージェント (混在・並列)",
+         "Claude Code / Codex(フグ) / DSH / aider"),
+        (510, 84, "url(#gBlue)", "#2f7fa8", "共通契約", "MCP(kb_query/state_*) + events.jsonl"),
+        (620, 92, "url(#gBlue)", "#2f7fa8", "state/ + kb/", "単一の真実源 (共有状態 + RAG)"),
     ]
     for (y, h, f, st, t, sub) in nodes:
         node(y, h, f, st, t, sub)
 
     # 縦の矢印
-    for y1, y2 in [(140, 170), (250, 280), (356, 386), (474, 520)]:
+    for y1, y2 in [(140, 170), (250, 280), (352, 380), (476, 510), (594, 620)]:
         s.line(CX, y1, CX, y2, "#4b6aa8", 2)
 
-    # 問題チップ (右カラム)
-    RX, RW = 430, 500
-    chips = [
-        (170, "🔴", "ループが Anthropic 製 CLI に固定", "ループ=Claude Code内蔵。改造不可。", "#e05a6f"),
-        (232, "🟠", "監督 = 単一障害点 + 手動ポーリング", "watch で目視。alert はファイル追記のみ。", "#e0a25a"),
-        (294, "🟠", "起動経路の分裂", "run.sh と run_codex.sh が別実装。", "#e0a25a"),
-        (350, "🔴", "シークレット漏洩", "eval 展開で APIトークンが ps に平文露出。", "#e05a6f"),
-        (412, "🟠", "tmux に二重責務", "実行コンテナ + 観察窓が同一物。", "#e0a25a"),
-        (468, "🟠", "OOM の泥縄対処", "node heap 5-6GB → NODE_OPTIONS=2560。", "#e0a25a"),
-        (524, "🔴", "JSON 並行競合", "flock 不全 + len+1 で ID 重複。", "#e05a6f"),
-        (580, "🔴", "安全はプロンプトのみ", "--dangerously-skip-permissions。", "#e05a6f"),
+    # 右カラム: 現在の主要素の注記
+    RX, RW = 460, 470
+    notes = [
+        (100, "🔗 ランタイム差し替え", "支配もサブも DSH / Claude Code / Codex / aider から選択", "#3f8fd0"),
+        (200, "🌐 共通契約 (MCP + events)", "自然言語で kb_query / state_* を呼べる。全ランタイム共通", "#3f8fd0"),
+        (300, "👁 観察は「窓」", "run.sh --tail/--events で tail -f。実行コンテナとは分離", "#3f8fd0"),
+        (400, "🔒 シークレット・並行安全", "キーは環境変数 / locked_json で read-modify-write 排他", "#2f8f6f"),
+        (500, "📦 分散状態", "hosts/creds/findings/alerts + イベントストリーム (events.jsonl)", "#2f8fa8"),
     ]
-    for (y, icon, t, d, accent) in chips:
-        chip(RX, y, RW, 48, icon, t, d, accent)
+    for (y, t, d, ac) in notes:
+        s.rect(RX, y, RW, 72, fill="url(#g)", stroke=ac, sw=1.3, r=12, shadow=True)
+        s.text(RX + 16, y + 28, t, 14, "#fff", weight=700)
+        s.text(RX + 16, y + 50, d, 11, "#9fb0cc", weight=500, maxw=40)
 
-    # 監督→run.sh は「差し替え」の起点だった、を注記
-    s.text(RX, 300, "※ run.sh の分岐は「ランタイム差し替え」の萌芽だが、", 11, "#8fa0c0", weight=500)
-    s.text(RX, 316, "   アドホックで分裂している。これをレジストリに昇格するのが TO-BE。", 11, "#8fa0c0", weight=500)
-
-    # 下段バナー: 救い
-    s.rect(30, 636, 900, 72, fill="url(#gGreen)", stroke="#2f8f6f", sw=1.5, r=14, shadow=True)
-    s.text(52, 662, "💡 救い (AS-IS の中にある TO-BE の下地)", 14, "#7fd1a8", weight=700)
-    s.text(52, 686, "script -q -f で全出力を logs/ に保存済み / state.py append_log はイベント思考 / kb.py は単一CLIに集約済み",
-           12, "#c9d3e8", weight=500)
     return s
 
 
@@ -164,7 +149,7 @@ def fig_asis():
 def fig_philosophy():
     s = SVG(960, 420)
     define_gradients(s)
-    section_title(s, "② TO-BE — 設計思想（3つの大原則）", "#8fd0ff")
+    section_title(s, "② 設計思想（3つの大原則）", "#8fd0ff")
 
     cards = [
         ("gBlue", "#3f8fd0", "ランタイム差し替え",
@@ -191,7 +176,7 @@ def fig_philosophy():
 def fig_tobe():
     s = SVG(960, 680)
     define_gradients(s)
-    section_title(s, "③ TO-BE — アーキテクチャ（ランタイム層 + ツール層）", "#8fd0ff")
+    section_title(s, "③ コンポーネント構成（ランタイム層 + ツール層）", "#8fd0ff")
 
     # --- ランタイム層 ---
     s.rect(30, 66, 900, 220, fill="url(#g)", stroke="#3f5a8f", sw=1.5, r=18, shadow=True)
@@ -342,15 +327,26 @@ def main():
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="DESIGN.html")
+    ap.add_argument("--svg-dir", default=None,
+                    help="SVG 単体ファイルをこのディレクトリへ出力 (README 埋め込み用)")
     args = ap.parse_args()
 
     figs = [
-        (fig_asis(), "現在の実態 — パイプライン上の問題点 (左) と救いとなる下地"),
-        (fig_philosophy(), "TO-BE 設計思想 — ランタイム差し替え / 実行と観察の分離 / DSH吸収"),
-        (fig_tobe(), "TO-BE アーキテクチャ — ランタイム層 + ツール層をレジストリとMCPで接続"),
+        (fig_current(), "現在のアーキテクチャ — 全体フロー"),
+        (fig_philosophy(), "設計思想 — ランタイム差し替え / 実行と観察の分離 / 共通契約"),
+        (fig_tobe(), "コンポーネント構成 — ランタイム層 + ツール層をレジストリとMCPで接続"),
     ]
-    html = page(figs, "Pentest Framework — AS-IS から TO-BE への可視化",
-                "AI マルチエージェント VDP 基盤 · ランタイム差し替え + DSH ツール吸収")
+    if args.svg_dir:
+        import os
+        os.makedirs(args.svg_dir, exist_ok=True)
+        names = ["arch-flow", "principles", "components"]
+        for (fig, _), name in zip(figs, names):
+            path = os.path.join(args.svg_dir, f"{name}.svg")
+            with open(path, "w") as f:
+                f.write(fig.render())
+            print(f"wrote {path}")
+    html = page(figs, "Pentest Framework — 設計思想と構成 (現状)",
+                "AI マルチエージェント VDP 基盤 · ランタイム差し替え + MCP 共通契約")
     with open(args.out, "w") as f:
         f.write(html)
     print(f"wrote {args.out} ({len(html)} bytes)")
