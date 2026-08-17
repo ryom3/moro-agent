@@ -1,7 +1,22 @@
 # Pentest Framework — AI マルチエージェント・バグバウンティ/VDP 基盤
 
-監督 AI（オーケストレータ）が、差し替え可能なランタイム（Claude Code / Codex / aider）
+監督 AI（オーケストレータ）が、差し替え可能なランタイム（Claude Code / Codex / aider / DSH）
 のサブエージェントを並列起動し、共有状態を通して協調させて脆弱性を発見・報告する。
+
+## アーキテクチャ
+
+```
+人間 ──start.sh──▶ 監督AI (Claude Code / 任意のランタイム)
+                     │  run.sh でサブエージェント並列起動
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+    Claude Code    Codex(Fugu)   DSH       ← ランタイムレジストリ (差し替え可)
+        └────────────┼────────────┘
+                     ▼ 共通契約 (MCP + events.jsonl)
+        ┌──────────────────────────────┐
+        │  state/ (共有状態) + kb/ (RAG) │  ← 単一の真実源
+        └──────────────────────────────┘
+```
 
 ## ディレクトリ構造
 
@@ -84,6 +99,34 @@ CLAUDE.md, handoff_templates.md, models.json, config, state/scope.json を読ん
 - API キーは argv でなく**環境変数経由で継承**（`ps` への平文露出を防止）
 - 共有状態は `state.py` の `locked_json` で read-modify-write を flock（並行時の欠落・ID重複を防止）
 - RoE/VDP ルール（1 req/sec, DoS禁止, PII即停止等）は CLAUDE.md と scope.json で規定
+
+## ランタイムレジストリ
+
+`models.json` にモデル名を追加し、`scripts/runner.py` の `RUNTIMES` にエントリを足すだけで
+新ランタイムを追加できる。
+
+| モデル例 | runtime | ループ | モデル/認証 | prompt 渡し |
+|---|---|---|---|---|
+| claude-*, glm-* | `claude-code` | Anthropic 製 | models.json + .env | tui (tmuxペースト) |
+| fugu-ultra | `codex` | OpenAI 製 | Sakana API (api.sakana.ai) | tui |
+| dsh-default | `dsh` | DSH 製 (`dsh-agent-loop`) | DSH 設定 ($DSH_HOME) | argv (コマンド埋込) |
+| (任意) | `aider` | Aider 製 | models.json | tui |
+
+## MCP ツール (共通契約)
+
+`mcp/server.py` が `state.py` / `kb.py` を MCP ツールとして公開。Claude Code と Codex の
+両方から同じツール面を自然言語で利用できる（`start.sh` が `mcp_setup.sh` で自動登録）。
+
+| 分類 | ツール |
+|---|---|
+| 検索 | `kb_query` |
+| 状態 | `state_show` / `state_host` / `state_tried` / `state_cred` / `state_finding` |
+| 記録 | `state_log` / `state_alert` / `state_event` |
+| 連携 | `state_spray` / `state_relay` / `state_resume` |
+
+**実地確認済み**: Claude Code / Codex の両方で `kb_query`（KB検索）、`state_finding`、
+`state_alert`、`state_show` が「自然言語 → ツール発火 → 副作用」を確認。残りも MCP
+プロトコルレベルで全ツール動作確認済み。
 
 ## テスト
 
