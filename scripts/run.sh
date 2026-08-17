@@ -81,8 +81,12 @@ fi
 # --- ログ ---
 mkdir -p "$DIR/logs"
 LOGFILE="$DIR/logs/${AGENT_ID}_$(date +%Y%m%d_%H%M%S).log"
-# -c は二重引用で括る (argvランタイムのプロンプトが shlex.quote によるシングルクォートを含むため)
-LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; read\""
+# tmux new-window は環境変数を素通ししない (update-environment は DISPLAY/SSH_* のみ)。
+# よって .env source + env_export を、script -c の内側 (子シェル) で再実行する。
+# これが無いと ANTHROPIC_BASE_URL 等がサブエージェントに届かず、glm 等の
+# Claude 互換エンドポイントへルーティングされない。
+ENV_PRE="set -a; source \"$DIR/.env\" 2>/dev/null; set +a; eval \"\$(python3 \"$DIR/scripts/env_export.py\" \"$MODEL\" 2>/dev/null)\";"
+LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$ENV_PRE $LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; read\""
 
 # ライフサイクルイベントを events.jsonl に記録 (共通契約)
 python3 "$DIR/scripts/state.py" event --type agent_start --host "" --detail "$MODEL" \

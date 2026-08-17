@@ -13,12 +13,16 @@ import json
 import os
 import shlex
 import sys
+from pathlib import Path
+
+# CWD/環境非依存: フレームワークルートをスクリプト自身の位置から導出。
+# (tmux / script 経由で FRAMEWORK_DIR が失われても正しく models.json を開ける)
+FRAMEWORK_DIR = Path(__file__).resolve().parent.parent
 
 
 def main():
     model = sys.argv[1] if len(sys.argv) > 1 else ""
-    fw = os.environ.get("FRAMEWORK_DIR", ".")
-    with open(os.path.join(fw, "models.json")) as f:
+    with open(FRAMEWORK_DIR / "models.json") as f:
         cfg = json.load(f).get(model, {})
     for k, v in cfg.get("env", {}).items():
         # `$VAR` 形式は環境変数から解決。それ以外はリテラル値。
