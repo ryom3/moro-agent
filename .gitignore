@@ -37,3 +37,4 @@ CLAUDE.md.pentest
 
 # MCP サーバ定義 (mcp_setup.sh が都度生成。絶対パスのためgit管理しない)
 .mcp.json
+kb/bbd-disclosures/
