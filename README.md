@@ -46,6 +46,9 @@ moro-agent/
 │   ├── state.py                          #   共有状態管理 (host/tried/cred/finding/log/
 │   │                                     #     spray/relay/resume/alert/event/reset)
 │   ├── env_export.py                     #   models.json の env ブロック解決 (秘密は環境経由)
+│   ├── wait_alert.sh                     #   監督のイベント駆動待機 (alert/イベントを約1秒で検知)
+│   ├── check_updates.sh                  #   起動時更新チェック (skills submodule 等)
+│   ├── sync_skills.py                    #   攻撃系スキルを .claude/skills/ へ公開
 │   └── gen_report.py                     #   findings → Markdown レポート
 │
 ├── kb/                                   #   ローカル RAG (BGE-M3 + BM25 + rerank)
@@ -110,6 +113,10 @@ CLAUDE.md, handoff_templates.md, models.json, config, state/scope.json を読ん
 - **共通契約** — `events.jsonl`(構造化イベント) + MCP(`mcp/server.py`) で
   どのランタイムからも同じツール・状態を同じ形で呼べる
 - **実行と観察の分離** — tmux は観察窓 (`--tail`/`--events`)。ログ・イベントが真実の源
+- **イベント駆動の監督待機** — `wait_alert.sh` が alerts/events の変化を約1秒で検知。
+  relay → 次エージェント起動までのダウンタイムを実質ゼロに (旧: 最大5分の定期確認)
+- **Context Relay は2段しきい値 (CHAP)** — ソフト 30k (チェックポイントで relay・品質優先) /
+  ハード 60k (即 relay・劣化蓄積の保険)。auto-compact の要約損失より構造化 relay を優先
 
 ## セキュリティ
 

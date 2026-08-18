@@ -98,6 +98,30 @@ Agent 3: 情報漏洩を探す (エラーメッセージ、デバッグエンド
 6. `state.py show` で状態確認
 7. サブエージェントを脆弱性クラス別に起動
 
+## サブエージェント起動後の行動 (イベント駆動)
+
+alert / イベントをイベント駆動で待ち、来たら即確認せよ。
+
+```bash
+# alert / events の変化を待つ (最大5分)。来たら即座に確認
+./scripts/wait_alert.sh 300; python3 scripts/state.py show && cat state/alerts.json && tail -5 state/events.jsonl
+```
+
+- `wait_alert.sh` は alerts.json / events.jsonl の変化を約1秒で検知して返る。
+  サブエージェントの relay や alert を 5分待たずに即ハンドリングできる
+- **待機は必ず `wait_alert.sh` 経由で** (sleep や state.py show の連打をするな)
+- 確認後: アラート対応 / relay なら resume して次を起動 / 判断したら再び待機
+
+## Context Relay (2段しきい値 — CHAP)
+
+長時間調査ではコンテキストが溢れる。relay は「次の自分がこれだけ読めば完全に再現できる」密度で。
+
+- **ソフトしきい値 (30k)**: 自然なチェックポイント (列挙完了 / 脆弱性確定 / PoC 完成) で
+  コンテキストが 30k を超えていたら relay して終了 (基本戦略・品質優先)
+- **ハードしきい値 (60k)**: 超えたら区切りを待たず即 relay (精度劣化蓄積の保険)
+- auto-compact (要約損失) や context 限界 (codex はレーン死) に任せるな。
+  構造化 relay で次セッションへ事実を正確に渡す
+
 ## サブエージェントへの指示
 
 `handoff_templates.md` のテンプレートに従え。加えて以下を必ず含める:
