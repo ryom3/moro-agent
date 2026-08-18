@@ -290,21 +290,25 @@ relay を受け取ったらテンプレート 3 で判断する。
 理解してから判断しろ。分からなければ人間に聞け。
 
 ### サブエージェント起動後の行動
-サブエージェントを起動したら、定期的に進捗を確認せよ。
+サブエージェントを起動したら、alert / イベントを**イベント駆動**で待ち、来たら即確認せよ。
 
 ```bash
-# 5分待ってから確認 (状態サマリ + アラート + イベントストリーム末尾)
-sleep 300 && python3 scripts/state.py show && cat state/alerts.json && tail -5 state/events.jsonl
+# alert / events の変化を待つ (最大5分)。来たら即座に確認 (状態サマリ + アラート + イベント末尾)
+./scripts/wait_alert.sh 300; python3 scripts/state.py show && cat state/alerts.json && tail -5 state/events.jsonl
 ```
 
-確認後の判断:
-- アラートがあれば対応 (止める / 再割当 / 追加投入)
-- 進捗があれば strategy.md を更新して次の確認を待つ
-- 進捗がなければモデル変更や方針転換を検討
-- 判断したら再び待つ
+- `wait_alert.sh` は alerts.json / events.jsonl の変化を約1秒で検知して返る。
+  サブエージェントの relay や alert を**5分待たずに即ハンドリング**できる
+  (タイムアウトしても (5分) 確認に進む — 従来の定期確認相当)
 
-**無意味なループはするな** (state.py show を連打する等)。
-確認と確認の間は必ず **5 分以上** 空けろ。
+確認後の判断:
+- アラートがあれば対応 (止める / 再割当 / 追加投入 / relay なら resume して次を起動)
+- 進捗があれば strategy.md を更新して次の待機へ
+- 進捗がなければモデル変更や方針転換を検討
+- 判断したら再び wait_alert.sh で待て
+
+**待機は必ず `wait_alert.sh` 経由で行え** (sleep や state.py show の連打をするな。
+wait_alert がブロックして待つので、無駄なループにはならない)。
 
 ### 戦略ジャーナル (workspace/strategy.md)
 **重要な判断をするたびに `workspace/strategy.md` を更新せよ。**
