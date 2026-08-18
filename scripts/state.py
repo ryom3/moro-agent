@@ -240,6 +240,7 @@ def cmd_relay(args):
         "session_summary": args.summary,
         "dead_ends": args.dead_ends.split("|||") if args.dead_ends else [],
         "next_steps": args.next_steps.split("|||") if args.next_steps else [],
+        "context_tokens": args.context_tokens if args.context_tokens else None,
         "hosts": {ip: {"state": h.get("state"), "tried": h.get("tried", [])}
                   for ip, h in hosts.get("hosts", {}).items()},
         "cred_count": len(creds.get("credentials", [])),
@@ -437,6 +438,8 @@ def main():
     p.add_argument("--summary", required=True)
     p.add_argument("--dead-ends", default="")
     p.add_argument("--next-steps", default="")
+    p.add_argument("--context-tokens", type=int, default=0,
+                   help="relay 時点の推定コンテキスト使用量 (CHAP のしきい値記録用)")
 
     p = sub.add_parser("resume")
     p.add_argument("--agent", default=os.environ.get("AGENT_ID", "unknown"))

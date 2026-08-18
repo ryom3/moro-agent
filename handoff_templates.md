@@ -34,7 +34,11 @@
   - 新ネットワーク発見 → `state.py alert --host IP --type pivot --detail "10.0.0.0/24"`
   - 確実な行き止まり → `state.py alert --host IP --type dead-end --detail "理由"`
   - **タスク完了 → `state.py alert --host IP --type done --detail "結果の要約"`**
-- 自然なチェックポイントで relay。最低 15 イテレーション空ける
+- **コンテキストが肥大したら (RELAY_CONTEXT_TOKENS=30k 目安) 即 relay して終了せよ (最優先)**:
+  - 大きなファイル・repo 全文・長い出力を読み込んだ直後は特に意識せよ
+  - auto-compact (要約損失) や context 限界 (codex ではレーン死) に**任せるな**。
+    構造化 relay で次のセッションへ事実を正確に渡してから終了する
+- 自然なチェックポイントでも relay。最低 15 イテレーション空ける (ただし**しきい値が最優先**)
 - フラグ取得時は relay せず finding + alert に記録して終了
 - **タスクが完了したら必ず alert --type done で監督に報告してから終了せよ**
 ```
