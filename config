@@ -25,8 +25,10 @@ MAX_AGENTS=4
 EFFORT=high
 
 # ─── Context Relay (CHAP) ───────────────────────────
-# サブエージェントが relay (構造化ハンドオフ) すべきコンテキスト使用量の目安。
-# これを超えたら (超えそうなら) 自然なチェックポイントを待たずに relay して終了する。
-# CHAP (NDSS 2026): ~30k 超過で精度劣化 → 構造化 relay で新鮮なコンテキストへ。
-# auto-compact (要約損失あり) より先に効かせるのが意図。
+# CHAP (NDSS 2026): ~30k 超過で精度劣化が始まる → 構造化 relay で新鮮なコンテキストへ。
+# 2段しきい値:
+#   ソフト (RELAY_CONTEXT_TOKENS):    チェックポイントのタイミングで超えていたら relay (基本)
+#   ハード (RELAY_CONTEXT_HARD_TOKENS): これを超えたら区切りを待たず即 relay (劣化蓄積の保険)
+# relay 品質は「区切りで状態が固まっている」ほど高く、ソフトしきい値を基本とする。
 RELAY_CONTEXT_TOKENS=30000
+RELAY_CONTEXT_HARD_TOKENS=60000
