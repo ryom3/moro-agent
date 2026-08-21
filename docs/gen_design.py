@@ -98,7 +98,7 @@ def section_title(s, text, color="#8fd0ff"):
 # 図 1: AS-IS 現在の実態 (意図と乖離) — パイプライン + 問題チップ
 # ---------------------------------------------------------------------------
 def fig_current():
-    s = SVG(960, 720)
+    s = SVG(960, 830)
     define_gradients(s)
     section_title(s, "① 現在のアーキテクチャ — 全体フロー", "#8fd0ff")
 
@@ -117,24 +117,28 @@ def fig_current():
         (280, 72, "url(#g)", "#3f5a8f", "run.sh + runner.py", "モデル → ランタイム解決"),
         (380, 96, "url(#g)", "#3f5a8f", "サブエージェント (混在・並列)",
          "Claude Code / Codex(フグ) / DSH / aider"),
-        (510, 84, "url(#gBlue)", "#2f7fa8", "共通契約", "MCP(kb_query/state_*) + events.jsonl"),
-        (620, 92, "url(#gBlue)", "#2f7fa8", "state/ + kb/", "単一の真実源 (共有状態 + RAG)"),
+        (510, 84, "url(#gBlue)", "#2f7fa8", "共通契約", "MCP(20ツール) + events.jsonl"),
+        (620, 84, "url(#gBlue)", "#2f7fa8", "state/ + kb/ + skills/", "単一の真実源 (状態+RAG+257スキル)"),
+        (730, 84, "url(#gAmber)", "#e0a25a", "検証層 (LLM-as-a-Verifier)",
+         "verify_negative / verify_judgment (qwen3.7-max)"),
     ]
     for (y, h, f, st, t, sub) in nodes:
         node(y, h, f, st, t, sub)
 
     # 縦の矢印
-    for y1, y2 in [(140, 170), (250, 280), (352, 380), (476, 510), (594, 620)]:
+    for y1, y2 in [(140, 170), (250, 280), (352, 380), (476, 510), (594, 620), (704, 730)]:
         s.line(CX, y1, CX, y2, "#4b6aa8", 2)
 
     # 右カラム: 現在の主要素の注記
     RX, RW = 460, 470
     notes = [
         (100, "🔗 ランタイム差し替え", "支配もサブも DSH / Claude Code / Codex / aider から選択", "#3f8fd0"),
-        (200, "🌐 共通契約 (MCP + events)", "自然言語で kb_query / state_* を呼べる。全ランタイム共通", "#3f8fd0"),
+        (200, "🌐 共通契約 (MCP + events)", "自然言語で kb_query / state_* / verify_* を呼べる", "#3f8fd0"),
         (300, "👁 観察は「窓」", "run.sh --tail/--events で tail -f。実行コンテナとは分離", "#3f8fd0"),
-        (400, "🔒 シークレット・並行安全", "キーは環境変数 / locked_json で read-modify-write 排他", "#2f8f6f"),
-        (500, "📦 分散状態", "hosts/creds/findings/alerts + イベントストリーム (events.jsonl)", "#2f8fa8"),
+        (400, "✅ 検証層 (Verifier)", "陰性結果・重要判断を logprobs 期待値で審査 (偽陰性の検出)", "#e0a25a"),
+        (500, "🔒 シークレット・並行安全", "キーは環境変数 / locked_json で read-modify-write 排他", "#2f8f6f"),
+        (600, "📦 ナレッジベース (KB)", "教材 + AD Playbook + 4,083件のBBP開示レポート (本文込み)", "#2f8fa8"),
+        (700, "⚡ イベント駆動待機", "wait_alert.sh が alert/events を約1秒で検知 (旧: 5分)", "#3f8fd0"),
     ]
     for (y, t, d, ac) in notes:
         s.rect(RX, y, RW, 72, fill="url(#g)", stroke=ac, sw=1.3, r=12, shadow=True)
