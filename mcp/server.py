@@ -224,5 +224,97 @@ def re_xrefs(binary: str, addr: str) -> str:
     return _run([PYTHON, R2_RECON_PY, "xrefs", binary, addr], timeout=180)
 
 
+# ---------------------------------------------------------------------------
+# 検証ツール (llm-as-a-verifier) — 回顧から抽出した criteria で審査
+# ---------------------------------------------------------------------------
+# バックエンド: logprobs を返す OpenAI 互換 API が必要。
+#   OPENAI_BASE_URL + OPENAI_API_KEY (または DEEPSEEK_API_KEY) で解決。
+#   opencode-go を使う場合:
+#     OPENAI_BASE_URL=https://opencode.ai/zen/go/v1
+#     OPENAI_API_KEY=$OPENCODE_GO_API_KEY
+# ---------------------------------------------------------------------------
+try:
+    import llm_verifier
+    _VERIFIER_AVAILABLE = True
+except ImportError:
+    _VERIFIER_AVAILABLE = False
+
+# 回顧 (HTB Hard 失敗) から抽出した審査基準
+_NEGATIVE_CRITERIA = {
+    "監視点到達": ("実験が対象の実際の監視点（正しいトピック/エンドポイント/入力経路）に"
+                   "届いたかを疑っているか。新規テスト用でなく対象が実際に読む既存の監視点に"
+                   "plant したか。"),
+    "挑発能力": ("検出装置が対象行動を誘発できるか。素朴なHTTPリスナーではNTLM認証等は"
+                "誘発できない。responder/ntlmrelayx等の認証挑発能力を問うているか。"),
+    "陰性の再解釈": ("陰性結果を「対象行動が存在しない」でなく「検出装置が誘発・観測できなかった」"
+                    "として再解釈しているか。"),
+}
+
+_JUDGMENT_CRITERIA = {
+    "全攻撃原理の列挙": ("隠れたfetcher/callback発見時、狭い問いでなく「取得してくる主体への"
+                        "全攻撃原理（NTLM挑発/リレー/クロスプロトコル）」を列挙しているか。"),
+    "推測より窃取・リレー": ("credを推測（スプレー）でなく窃取（実値回収）や"
+                            "リレー（ntlmrelayx/certipy）で得る判断を優先しているか。"),
+    "可逆改変の活用": ("元データ保存済み+復元手順がある場合、1レコード単位の上書きを"
+                      "宣言制で許可する柔軟性があるか。過剰な自粛で勝ち筋を封じていないか。"),
+}
+
+
+def _verify_select(context: str, candidates: list[str],
+                   criteria: dict[str, str]) -> str:
+    """llm_verifier.select を呼び、結果を整形して返す。"""
+    if not _VERIFIER_AVAILABLE:
+        return ("[error] llm-verifier がインストールされていません。"
+                "pip install llm-verifier を実行してください。")
+    result = llm_verifier.select(
+        problem=context,
+        candidates=candidates,
+        criteria=criteria,
+    )
+    lines = [f"最良: candidate #{result.index + 1}",
+             f"スコア: {[round(s, 3) for s in result.scores]}", ""]
+    for i, (cand, score) in enumerate(zip(candidates, result.scores)):
+        marker = " ★" if i == result.index else ""
+        lines.append(f"--- Candidate #{i+1} (score={score:.3f}){marker} ---")
+        lines.append(cand)
+        lines.append("")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def verify_negative(context: str, candidate_a: str, candidate_b: str = "") -> str:
+    """陰性結果（「否定された」報告）を審査する (偽陰性の検出)。
+
+    高価値仮説が否定された時、実験設計自体の欠陥を見抜いているかを
+    回顧から抽出した3基準（監視点到達/挑発能力/陰性の再解釈）で採点する。
+
+    Args:
+        context: 何がどう否定されたかの説明（実験内容と結果）
+        candidate_a: 判断案A（例: 陰性をそのまま受理する提案）
+        candidate_b: 判断案B（例: 実験設計を疑って再実験する提案）
+    """
+    candidates = [candidate_a] + ([candidate_b] if candidate_b else [])
+    return _verify_select(context, candidates, _NEGATIVE_CRITERIA)
+
+
+@mcp.tool()
+def verify_judgment(context: str, candidate_a: str, candidate_b: str = "",
+                    candidate_c: str = "") -> str:
+    """監督の重要判断を審査する (戦略的意思決定の品質評価)。
+
+    タスク割当/損切り/dead-end受理/relay判断等の意思決定を、
+    3基準（全攻撃原理の列挙/推測より窃取・リレー/可逆改変の活用）で採点する。
+
+    Args:
+        context: 判断の背景（現在の状況、何を判断しようとしているか）
+        candidate_a: 判断案A
+        candidate_b: 判断案B
+        candidate_c: 判断案C
+    """
+    candidates = ([candidate_a] + ([candidate_b] if candidate_b else [])
+                  + ([candidate_c] if candidate_c else []))
+    return _verify_select(context, candidates, _JUDGMENT_CRITERIA)
+
+
 if __name__ == "__main__":
     mcp.run(transport="stdio")
