@@ -38,3 +38,19 @@ CLAUDE.md.pentest
 # MCP サーバ定義 (mcp_setup.sh が都度生成。絶対パスのためgit管理しない)
 .mcp.json
 kb/bbd-disclosures/
+
+# エンゲージメント固有の入力データ (data/ は program 毎に変わる)
+data/lib.js
+data/program.csv
+data/program.html
+data/ws_adv.json
+data/ws_cc.json
+
+# state/ の運用データ (scope.json 以外はスケルトン。reset で再初期化)
+state/hosts.json
+state/creds.json
+state/findings.json
+state/alerts.json
+state/log.jsonl
+state/events.jsonl
+state/relay_*.json
