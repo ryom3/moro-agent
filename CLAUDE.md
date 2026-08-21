@@ -136,12 +136,41 @@ tail -f state/events.jsonl           # あるいは直接イベントストリ�
 ```
 
 ### MCP ツール (自然言語で呼べる)
-`start.sh` が `kb_query` / `state_*` を MCP ツールとして登録済み。これは
-**あなた (監督者) もサブエージェントも、bash を経由せず自然言語で呼べる**。
+`start.sh` が `kb_query` / `state_*` / `re_*` / `verify_*` を MCP ツールとして登録済み。
+これは **あなた (監督者) もサブエージェントも、bash を経由せず自然言語で呼べる**。
 使える場面では MCP ツールを優先せよ (bash 文字列の構築ミスを避けられる)。
 - `kb_query` — KB 検索
 - `state_show` / `state_finding` / `state_alert` / `state_cred` / `state_host` /
   `state_tried` / `state_log` / `state_spray` / `state_relay` / `state_resume` / `state_event`
+- `re_checksec` / `re_funcs` / `re_strings` / `re_imports` / `re_disasm` / `re_xrefs`
+- `verify_negative` / `verify_judgment` — **判断の検証 (LLM-as-a-Verifier)**
+
+### 検証ツール (verify_negative / verify_judgment) — 重要判断の前に必ず使え
+
+高価値仮説の「否定」や重要な戦略判断を**鵜呑みにするな**。判断案を 2〜3 個書き出し、
+verify ツールで細粒度スコアリングしてから決めよ (CHAP の陰性結果審査を構造化したもの)。
+
+**verify_negative** — 陰性結果（「否定された」報告）を審査:
+```
+サブエージェントが「consumer は存在しない」「SSRF は否定された」等を報告した時:
+  1. 判断案 A（陰性を受理）と B（実験設計を疑って再実験）を書き出す
+  2. verify_negative でスコアリング → 高い方を採用
+  基準: 監視点到達 / 挑発能力 / 陰性の再解釈
+```
+
+**verify_judgment** — 監督の戦略判断を審査:
+```
+タスク割当・損切り・dead-end 受理・relay 判断等の重要局面で:
+  1. 判断案を 2〜3 個書き出す
+  2. verify_judgment でスコアリング → 最良を採用
+  基準: 全攻撃原理の列挙 / 推測より窃取・リレー / 可逆改変の活用
+```
+
+**使いどころ**:
+- サブエージェントから dead-end / 「見つからなかった」報告を受けた時
+- 重要な損切り（「このレーンを切る」）を決める時
+- 攻撃戦略を切り替える時
+- 陰性結果の審査（「実験は本当に正しい監視点に届いたか?」）
 
 ### kb/kb.py — ナレッジベース検索 (CLI 直接)
 MCP の `kb_query` ツールが使えない場合は CLI で呼べ。

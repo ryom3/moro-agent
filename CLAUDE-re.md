@@ -86,10 +86,15 @@ python3 scripts/state.py event --type T --detail "..."   # 任意イベント（
 ```
 
 ### MCP ツール (自然言語で呼べる)
-`start.sh` が `kb_query` / `state_*` を登録済み。加えて RE 用ツール（導入後）も
-同じ共通契約で呼べる（`ghidra_decompile` / `r2_disasm` / `gdb_run` 等は tools/re/ 参照）。
+`start.sh` が `kb_query` / `state_*` / `re_*` / `verify_*` を登録済み。
 - `kb_query` — RE 技法・Ghidra API・エクスプロイト手法の検索
 - `state_*` — 状態管理（上記 RE 読み替え）
+- `re_checksec` / `re_funcs` / `re_strings` / `re_imports` / `re_disasm` / `re_xrefs`
+- `verify_negative` / `verify_judgment` — 判断の検証
+
+**検証ツールの使いどころ (RE)**: 「この入力ではクラッシュしない」「この関数に
+脆弱性はない」等の陰性結果を報告する前に、`verify_negative` で自查せよ。
+オフセット・ガジェット・逆アセンブル解釈に関する重要判断にも `verify_judgment` を。
 
 ### kb/kb.py — ナレッジベース検索
 RE 技法に迷ったら検索せよ。Ghidra スクリプト、ROP/ret2libc 手順、CVE パターン等。

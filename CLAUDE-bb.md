@@ -68,6 +68,14 @@ python3 scripts/state.py alert --host DOMAIN --type cred --detail "..."
 ./scripts/run.sh glm-5.2 "globe.gov の API エンドポイントを調査して"
 ```
 
+### 検証ツール (verify_negative / verify_judgment) — 重要判断の前に
+高価値仮説の「否定」や重要な戦略判断を鵜呑みにするな。
+判断案を 2〜3 個書き出し、MCP ツール `verify_negative` / `verify_judgment`
+でスコアリングしてから決めよ。特に:
+- サブエージェントから「脆弱性は見つからなかった」報告を受けた時
+- 損切り・方針転換を決める時
+- **陰性結果の報告は verify なしで受理するな**
+
 ### kb/kb.py — ナレッジベース検索
 ```bash
 python3 kb/kb.py query "SSRF bypass techniques"
