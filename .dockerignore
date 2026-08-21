@@ -1,0 +1,26 @@
+# Docker ビルド文脈から除外 (シークレット・ランタイムデータ)
+.env
+.env.*
+.git
+logs/
+state/
+workspace/
+archive/
+third_party/
+kb/kb_data/
+kb/__pycache__/
+kb/notion-export/
+kb/pdf/
+kb/db/
+mcp/.venv/
+__pycache__/
+*.pyc
+docs/
+data/
+testfile.txt
+CLAUDE.md
+CLAUDE-bb.md
+CLAUDE-re.md
+.claude/
+.codex-profiles/
+.bb-active
