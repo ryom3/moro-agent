@@ -82,6 +82,61 @@ def build_aider(model: str, cfg: dict) -> list[str]:
     return [f"aider --yes-always --model {model}"]
 
 
+def preflight_dsh(dsh_cfg: dict) -> None:
+    """DSH ランタイムの前提を検証し、問題があれば即座に分かるメッセージで落とす。
+
+    新規環境でよくある失敗 (不可解な DSH 内部エラー) を事前に防ぐ:
+      1. dsh コマンドが無い
+      2. ~/.dsh/settings.yaml が無い (DSH 初回起動未了)
+      3. models.json の dsh.provider が settings.yaml に未定義
+         → 書き換えると DSH 側の設定を壊すので、スワップ前に拒否
+      4. provider の API キーが環境にも credentials にも無い
+    """
+    def fail(msg: str):
+        print(f"[dsh-preflight] {msg}", file=sys.stderr)
+        print("[dsh-preflight] DSH ランタイムの前提:\n"
+              "  - dsh コマンドがインストール済み (npm i -g @deepseek-ai/dsh 等)\n"
+              "  - dsh web を一度起動してプロバイダ (opencode-go 等) と API キーを設定\n"
+              "    (鍵は ~/.dsh/.credentials.yaml に保存される)\n"
+              "  - models.json の dsh.provider が ~/.dsh/settings.yaml の\n"
+              "    llm-pi-ai.providers に定義済み", file=sys.stderr)
+        sys.exit(1)
+
+    import shutil as _shutil
+    if not _shutil.which("dsh"):
+        fail("dsh コマンドが見つかりません。")
+
+    settings_path = os.path.expanduser("~/.dsh/settings.yaml")
+    if not os.path.exists(settings_path):
+        fail(f"{settings_path} が存在しません。DSH を一度起動して初期設定してください。")
+
+    import yaml
+    with open(settings_path) as f:
+        settings = yaml.safe_load(f) or {}
+
+    provider = dsh_cfg.get("provider")
+    providers = (settings.get("llm-pi-ai") or {}).get("providers") or {}
+    if provider not in providers:
+        defined = ", ".join(sorted(providers)) or "(なし)"
+        fail(f"provider '{provider}' が ~/.dsh/settings.yaml に定義されていません "
+             f"(定義済み: {defined})。settings.yaml を書き換えると DSH 側を壊すため中断。")
+
+    # API キー: 環境変数 or ~/.dsh/.credentials.yaml
+    api_key_env = providers[provider].get("apiKeyEnv", "")
+    cred_path = os.path.expanduser("~/.dsh/.credentials.yaml")
+    has_key = bool(os.environ.get(api_key_env, "")) if api_key_env else False
+    if not has_key and os.path.exists(cred_path):
+        try:
+            with open(cred_path) as f:
+                creds = yaml.safe_load(f) or {}
+            has_key = bool(creds.get(api_key_env))
+        except Exception:
+            pass
+    if not has_key:
+        fail(f"provider '{provider}' の API キーが見つかりません "
+             f"(env ${api_key_env} にも ~/.dsh/.credentials.yaml にも無し)。")
+
+
 def build_dsh(model: str, cfg: dict) -> list[str]:
     """DSH (DeepSeek Harness) をヘッドレス・ワンショットのサブエージェントとして起動。
 
@@ -95,11 +150,15 @@ def build_dsh(model: str, cfg: dict) -> list[str]:
         "runtime": "dsh",
         "dsh": { "provider": "opencode-go", "model": "deepseek-v4-flash" }
       }
+
+    実行前に preflight_dsh で前提 (dsh 导入・provider 定義・API キー) を検証する。
+    新規環境ではここで即座に原因と対処が分かるメッセージが出る。
     """
     import yaml
 
     dsh_cfg = cfg.get("dsh", {})
     if dsh_cfg.get("provider") and dsh_cfg.get("model"):
+        preflight_dsh(dsh_cfg)
         settings_path = os.path.expanduser("~/.dsh/settings.yaml")
         backup_path = settings_path + ".moro-backup"
         if os.path.exists(settings_path):

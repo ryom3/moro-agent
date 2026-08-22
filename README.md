@@ -102,8 +102,22 @@ CLAUDE.md, handoff_templates.md, models.json, config, state/scope.json を読ん
 ```bash
 ./scripts/run.sh glm-5.3 "API エンドポイントを調査して"           # モデル名で
 ./scripts/run.sh wave1 claude-haiku-4-5 "偵察して"                  # 明示ID + モデル
-./scripts/run.sh dsh-default "別の視点で再検証して"                 # DSH ランタイム
+./scripts/run.sh dsh-deepseek-flash "別の視点で再検証して"          # DSH 経由 deepseek
+./scripts/run.sh dsh-ox-alpha-free "第三の意見を聞く"               # DSH 経由 Ox Alpha
 ```
+
+**DSH ランタイム (dsh-* モデル) を使う場合の前提** — DSH は moro-agent の `.env`
+ではなく自分の設定 (`~/.dsh/settings.yaml` + `~/.dsh/.credentials.yaml`) を使う:
+
+1. `npm i -g @deepseek-ai/dsh` でインストール
+2. `dsh web` を一度起動 → Models ページでプロバイダ (opencode-go 等) と API キーを設定
+3. `models.json` の `dsh.provider` と同じ名前が `~/.dsh/settings.yaml` の
+   `llm-pi-ai.providers` に定義されていること
+
+`runner.py` が起動前にこの前提を検証する。新規環境で dsh 未導入・プロバイダ未定義・
+API キー不在のいずれかがあれば、**原因と対処法を出して即座に停止**する
+(不可解な DSH 内部エラーを放置しない)。モデル指定は settings.yaml の
+一時スワップで実現し、エージェント終了時に自動復元。
 
 観察（実行と分離された「窓」）:
 ```bash
