@@ -120,7 +120,9 @@ python3 scripts/state.py event --type T --detail "..."  # 任意イベントを 
 ./scripts/run.sh fugu-ultra ".52 を別の視点で再検証して"
 ./scripts/run.sh recon-1 claude-haiku-4-5 "偵察して"     # 名前付き (AGENT_ID)
 ./scripts/run.sh attack-1 claude-sonnet-4-6 "攻撃して"   # 名前付き
-./scripts/run.sh dsh-default "172.16.50.60 を再検証して" # DSHランタイム
+./scripts/run.sh dsh-default "172.16.50.60 を再検証して"     # DSHランタイム (既定モデル)
+./scripts/run.sh dsh-deepseek-flash "認証バイパスを検証して" # DSH + DeepSeek
+./scripts/run.sh dsh-ox-alpha-free "第三の意見として分析して" # DSH + Ox Alpha (1M context)
 ./scripts/run.sh claude-opus-4-6                         # 対話モード
 # 利用可能なモデル → models.json / ランタイム解決 → scripts/runner.py
 ```
@@ -209,8 +211,9 @@ python3 kb/kb.py status                                           # KB の状態
 攻撃エージェントを複数起動する場合、同じモデルだけ使うな。同じモデルは同じ解法に収束する。
 **models.json の全モデルを活用せよ。特定の runtime に偏るな。**
 Claude Code 系 (opus, sonnet, haiku, glm)、Codex 系 (fugu-ultra)、
-**DSH 系 (dsh-default)** をまんべんなく使え。DSH はループ自体が異なる (DSH 製) ため、
-行き詰まった時の「別の頭脳」として特に有効。行き詰まったら必ず異なる runtime に切り替えろ。
+**DSH 系 (dsh-default / dsh-deepseek-flash / dsh-ox-alpha-free)** をまんべんなく使え。
+DSH はループ自体が異なる (DSH 製) ため、行き詰まった時の「別の頭脳」として特に有効。
+行き詰まったら必ず異なる runtime に切り替えろ。
 
 ## AD / Windows 攻撃ドクトリン
 
