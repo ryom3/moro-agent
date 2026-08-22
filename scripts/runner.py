@@ -86,9 +86,38 @@ def build_dsh(model: str, cfg: dict) -> list[str]:
     """DSH (DeepSeek Harness) をヘッドレス・ワンショットのサブエージェントとして起動。
 
     `dsh --profile headless "<task>"` はタスクを 1 つ解いて結果を出力して終了する。
-    プロンプトは argv で渡す (prompt_mode="argv")。モデル・認証は DSH 自身の
-    設定 ($DSH_HOME/settings.yaml) に従う (models.json の env ブロックは使わない)。
+    プロンプトは argv で渡す (prompt_mode="argv")。
+
+    models.json の dsh ブロックに provider/model がある場合、~/.dsh/settings.yaml の
+    agent-default-model を一時的に書き換えてから起動する (終了時に run.sh が戻す)。
+    例:
+      "dsh-deepseek-flash": {
+        "runtime": "dsh",
+        "dsh": { "provider": "opencode-go", "model": "deepseek-v4-flash" }
+      }
     """
+    import yaml
+
+    dsh_cfg = cfg.get("dsh", {})
+    if dsh_cfg.get("provider") and dsh_cfg.get("model"):
+        settings_path = os.path.expanduser("~/.dsh/settings.yaml")
+        backup_path = settings_path + ".moro-backup"
+        if os.path.exists(settings_path):
+            import shutil
+            shutil.copy2(settings_path, backup_path)
+            with open(settings_path) as f:
+                settings = yaml.safe_load(f) or {}
+            settings["agent-default-model"] = {
+                "provider": dsh_cfg["provider"],
+                "model": dsh_cfg["model"],
+            }
+            with open(settings_path, "w") as f:
+                yaml.dump(settings, f, default_flow_style=False)
+            # run.sh が起動後に戻すためのマーカー
+            marker = os.path.join(FRAMEWORK_DIR, ".dsh-model-swap")
+            with open(marker, "w") as f:
+                f.write(backup_path)
+
     return ["dsh", "--profile", "headless"]
 
 

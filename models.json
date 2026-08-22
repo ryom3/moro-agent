@@ -2,6 +2,7 @@
   "claude-opus-4-6":   {"runtime": "claude-code"},
   "claude-sonnet-4-6": {"runtime": "claude-code"},
   "claude-haiku-4-5":  {"runtime": "claude-code"},
+
   "fugu-ultra": {
     "runtime": "codex",
     "codex": {
@@ -12,6 +13,7 @@
       "model_slug": "fugu-ultra-v1.1"
     }
   },
+
   "glm-5.3": {
     "runtime": "claude-code",
     "env": {
@@ -32,7 +34,22 @@
       "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
     }
   },
+
   "dsh-default": {
     "runtime": "dsh"
+  },
+  "dsh-deepseek-flash": {
+    "runtime": "dsh",
+    "dsh": {
+      "provider": "opencode-go",
+      "model": "deepseek-v4-flash"
+    }
+  },
+  "dsh-ox-alpha-free": {
+    "runtime": "dsh",
+    "dsh": {
+      "provider": "ox-alpha",
+      "model": "ox-alpha-free"
+    }
   }
 }
