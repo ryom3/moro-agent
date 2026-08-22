@@ -93,7 +93,10 @@ done
 # --- ログ ---
 mkdir -p "$DIR/logs"
 LOGFILE="$DIR/logs/${AGENT_ID}_$(date +%Y%m%d_%H%M%S).log"
-LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; if [ -f '$DIR/.dsh-model-swap' ]; then cp \\\$(cat '$DIR/.dsh-model-swap') ~/.dsh/settings.yaml && rm -f '$DIR/.dsh-model-swap'; fi; read\""
+# 後片付け (DSH settings 復元) は実行時評価が必要なため別変数に組み、
+# LAUNCH_CMD と連結して script -c に渡す。$(...) はここでは展開しない。
+RESTORE_CMD="if [ -f '$DIR/.dsh-model-swap' ]; then cp \"\$(cat '$DIR/.dsh-model-swap')\" ~/.dsh/settings.yaml && rm -f '$DIR/.dsh-model-swap'; fi"
+LOGGED_CMD="script -q -f \"$LOGFILE\" -c \"$LAUNCH_CMD; echo '[AGENT EXITED] Press enter to close'; python3 '$DIR/scripts/state.py' event --type agent_done --field runtime_done=1 2>/dev/null; $RESTORE_CMD; read\""
 
 # ライフサイクルイベントを events.jsonl に記録 (共通契約)
 python3 "$DIR/scripts/state.py" event --type agent_start --host "" --detail "$MODEL" \
