@@ -143,39 +143,51 @@ def build_dsh(model: str, cfg: dict) -> list[str]:
     `dsh --profile headless "<task>"` はタスクを 1 つ解いて結果を出力して終了する。
     プロンプトは argv で渡す (prompt_mode="argv")。
 
-    models.json の dsh ブロックに provider/model がある場合、~/.dsh/settings.yaml の
-    agent-default-model を一時的に書き換えてから起動する (終了時に run.sh が戻す)。
-    例:
-      "dsh-deepseek-flash": {
-        "runtime": "dsh",
-        "dsh": { "provider": "opencode-go", "model": "deepseek-v4-flash" }
-      }
+    models.json の dsh ブロックに provider/model がある場合、**プロセス毎に独立した
+    DSH_HOME (一時ディレクトリ) を作成**し、その中の settings.yaml だけを書き換える
+    (DSH は $DSH_HOME をサポート)。旧方式 (~/.dsh/settings.yaml のスワップ&復元) は
+    同時起動時に競合し、本番で TRANSPORT: Stream ended without finish_reason の
+    集団死を引き起こした:
+      - 監督がDSHを4秒差で連続起動 → 後続のスワップ/復元が先行エージェントの
+        settings 読み込みと交錯 → プロバイダ解決が矛盾 → ストリーム異常
+    DSH_HOME 分離なら共有状態を一切触らないため並行起動が完全に安全。
+    一時ディレクトリのパスは .dsh-model-swap マーカーに記録し、run.sh の
+    終了後処理で削除する (復元は不要 — 本体の ~/.dsh は最初から無傷)。
 
-    実行前に preflight_dsh で前提 (dsh 导入・provider 定義・API キー) を検証する。
-    新規環境ではここで即座に原因と対処が分かるメッセージが出る。
+    実行前に preflight_dsh で前提 (dsh 導入・provider 定義・API キー) を検証する。
     """
-    import yaml
-
     dsh_cfg = cfg.get("dsh", {})
     if dsh_cfg.get("provider") and dsh_cfg.get("model"):
         preflight_dsh(dsh_cfg)
-        settings_path = os.path.expanduser("~/.dsh/settings.yaml")
-        backup_path = settings_path + ".moro-backup"
-        if os.path.exists(settings_path):
-            import shutil
-            shutil.copy2(settings_path, backup_path)
-            with open(settings_path) as f:
-                settings = yaml.safe_load(f) or {}
-            settings["agent-default-model"] = {
-                "provider": dsh_cfg["provider"],
-                "model": dsh_cfg["model"],
-            }
-            with open(settings_path, "w") as f:
-                yaml.dump(settings, f, default_flow_style=False)
-            # run.sh が起動後に戻すためのマーカー
-            marker = os.path.join(FRAMEWORK_DIR, ".dsh-model-swap")
-            with open(marker, "w") as f:
-                f.write(backup_path)
+        import shutil
+        import tempfile
+        import yaml
+
+        real_home = os.path.expanduser("~/.dsh")
+        tmp_home = tempfile.mkdtemp(prefix="dsh-moro-")
+        # settings + credentials をコピー (profiles は起動時に解決される)
+        for name in ("settings.yaml", ".credentials.yaml"):
+            src = os.path.join(real_home, name)
+            if os.path.exists(src):
+                shutil.copy2(src, os.path.join(tmp_home, name))
+
+        # 一時 home 内でモデルを切り替え
+        tmp_settings = os.path.join(tmp_home, "settings.yaml")
+        with open(tmp_settings) as f:
+            settings = yaml.safe_load(f) or {}
+        settings["agent-default-model"] = {
+            "provider": dsh_cfg["provider"],
+            "model": dsh_cfg["model"],
+        }
+        with open(tmp_settings, "w") as f:
+            yaml.dump(settings, f, default_flow_style=False)
+
+        # 終了後の一時 home 削除を run.sh に依頼するマーカー
+        marker = os.path.join(FRAMEWORK_DIR, ".dsh-model-swap")
+        with open(marker, "w") as f:
+            f.write(tmp_home)
+
+        return [f'DSH_HOME="{tmp_home}"', "dsh", "--profile", "headless"]
 
     return ["dsh", "--profile", "headless"]
 
