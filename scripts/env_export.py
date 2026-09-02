@@ -24,7 +24,8 @@ def main():
     model = sys.argv[1] if len(sys.argv) > 1 else ""
     with open(FRAMEWORK_DIR / "models.json") as f:
         cfg = json.load(f).get(model, {})
-    for k, v in cfg.get("env", {}).items():
+    env = cfg.get("env", {})
+    for k, v in env.items():
         # `$VAR` 形式は環境変数から解決。それ以外はリテラル値。
         if v.startswith("$"):
             val = os.environ.get(v[1:], "")
@@ -36,6 +37,21 @@ def main():
         else:
             val = v
         print(f"export {k}={shlex.quote(val)}")
+
+    # 環境汚染の除去: claude-code 系モデルが「env ブロックを持たない」場合、
+    # それは Anthropic 公式 (サブスク) 直結を意味する。しかし tmux のグローバル
+    # 環境に以前の GLM 起動の ANTHROPIC_BASE_URL/AUTH_TOKEN が残っていると、
+    # opus 等のリクエストが Z.ai に誤ルートされる (実障害: opus が一切使えなかった)。
+    # env ブロックが ANTHROPIC_* を設定しない場合 (モデル未指定の既定 claude も
+    # 含む)、明示的に unset して汚染を断つ。
+    anthropic_set = {k for k in env if k.startswith("ANTHROPIC")}
+    if cfg.get("runtime") in ("claude-code", None) and not anthropic_set:
+        ANTHROPIC_VARS = ("ANTHROPIC_BASE_URL", "ANTHROPIC_AUTH_TOKEN",
+                          "ANTHROPIC_API_KEY", "ANTHROPIC_MODEL")
+        stale = [k for k in ANTHROPIC_VARS if os.environ.get(k)]
+        if stale:
+            print(f"# clearing stale {', '.join(stale)} (以前のGLM起動等の汚染)", file=sys.stderr)
+            print("unset " + " ".join(stale))
 
 
 if __name__ == "__main__":

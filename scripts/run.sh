@@ -82,11 +82,16 @@ fi
 # tmux new-window は update-environment (DISPLAY/SSH_* のみ) しか素通ししないため、
 # export 済みのモデル関連変数を tmux set-environment で tmux サーバ環境に流し、
 # 直後の new-window の子シェルへ確実に渡す。コマンド文字列に env を埋め込まない。
+# 重要: 現在のシェルで「空」の変数は tmux 環境から「削除」する (-g u)。
+# 残しておくと以前の GLM 起動の ANTHROPIC_BASE_URL が pollution として
+# 次の opus 等の公式直結エージェントへ誤ルートさせる (実障害があった)。
 for _v in ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_API_KEY \
           CLAUDE_CODE_MAX_CONTEXT_TOKENS CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT \
           API_TIMEOUT_MS SAKANA_API_KEY GLM_API_KEY GLM_BASE_URL; do
     if [ -n "${!_v:-}" ]; then
         tmux set-environment -g "$_v" "${!_v}" 2>/dev/null || true
+    else
+        tmux set-environment -gu "$_v" 2>/dev/null || true
     fi
 done
 
