@@ -32,6 +32,14 @@ if [ "${1:-}" = "--tail" ]; then
     fi
     AGENT="${2:-$(basename "${LOG:-none}" | cut -d_ -f1)}"
     if [ -z "$LOG" ]; then echo "ログが見つかりません"; exit 1; fi
+    # DSH 系エージェント: 実行中 (marker = 一時 DSH_HOME 存在) なら
+    # セッションログ (思考/ツール呼び出し) を dsh_tail.py でライブ表示。
+    if [ -f "$DIR/.dsh-model-swap" ]; then
+        TMPH=$(cat "$DIR/.dsh-model-swap")
+        tmux new-window -n "dsh-${AGENT}" "cd $DIR && python3 scripts/dsh_tail.py '$TMPH' 2>&1"
+        echo "[view] ${AGENT} → tab:dsh-${AGENT} (DSH セッションライブ: 思考/ツール実行)"
+        exit 0
+    fi
     tmux new-window -n "view-${AGENT}" "cd $DIR && tail -n +1 -f '$LOG'"
     echo "[view] ${AGENT} → tab:view-${AGENT} (log: $LOG)"
     exit 0
