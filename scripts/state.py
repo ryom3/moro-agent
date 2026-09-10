@@ -323,43 +323,134 @@ def cmd_event(args):
     print(f"EVENT: [{args.type}] → events.jsonl")
 
 
+def _safe_copytree(src, dst):
+    """特殊ファイルを除外する copytree (session/archive 退避用)。
+
+    shutil.copytree は unix ソケット / 名前付きパイプ / 壊れた symlink /
+    symlink ループ を扱えず Error を送出して退避全体を中断させる。
+    これらは解析作業の副産物 (QEMU の monitor socket、serial pipe、
+    .deb/.dmg 由来の dangling link 等) で退避する価値が無いため、
+    黙って除外し、除外した件数を返す。
+    """
+    import shutil, stat
+
+    skipped = []
+
+    def _ignore(directory, names):
+        drop = set()
+        for n in names:
+            full = os.path.join(directory, n)
+            try:
+                st = os.lstat(full)
+            except OSError:
+                drop.add(n); continue
+            mode = st.st_mode
+            if stat.S_ISSOCK(mode) or stat.S_ISFIFO(mode) or \
+               stat.S_ISBLK(mode) or stat.S_ISCHR(mode):
+                drop.add(n); continue
+            if stat.S_ISLNK(mode):
+                # 参照先が無い / ループしている symlink は copytree が
+                # 追随できないため除外する
+                try:
+                    os.stat(full)
+                except OSError:
+                    drop.add(n)
+        for n in drop:
+            skipped.append(os.path.join(directory, n))
+        return drop
+
+    shutil.copytree(src, dst, ignore=_ignore, ignore_dangling_symlinks=True)
+    return skipped
+
+
+def _save_session(ts, note=None):
+    """reset 前に scripts/session.py でセッションを保存する。
+
+    workspace には解析対象の巨大バイナリが含まれ丸ごとコピーは現実的でないが、
+    セッションは復元に必要なテキスト成果物と gzip した lane ログだけを保存するので
+    数十 MB で済む。
+    次回は `python3 scripts/session.py restore <name>` で戻せる。
+    保存先 sessions/ は workspace の外なので reset で消えない。
+    """
+    import subprocess
+    here = os.path.dirname(os.path.abspath(__file__))
+    sess = os.path.join(here, "session.py")
+    if not os.path.isfile(sess):
+        return
+    name = f"reset_{ts}"
+    cmd = [sys.executable, sess, "save", "--name", name, "--force"]
+    if note:
+        cmd += ["--note", note]
+    else:
+        cmd += ["--note", "reset 実行前の自動保存"]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        out = (r.stdout or "").strip()
+        if out:
+            for line in out.splitlines():
+                print(f"  {line}")
+        if r.returncode != 0:
+            print(f"  [警告] セッション保存に失敗しました: {(r.stderr or '').strip()[:200]}")
+            return None
+    except Exception as e:
+        print(f"  [警告] セッション保存を実行できませんでした: {e}")
+        return None
+    return name
+
+
+def _clean_workspace(session_name):
+    """セッションに取り込み済みであることを照合した上で workspace/ を空にする。"""
+    import subprocess
+    here = os.path.dirname(os.path.abspath(__file__))
+    sess = os.path.join(here, "session.py")
+    if not os.path.isfile(sess) or not session_name:
+        return
+    cmd = [sys.executable, sess, "clean", "--session", session_name, "--yes"]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+        for line in (r.stdout or "").strip().splitlines():
+            print(f"  {line}")
+        if r.returncode != 0:
+            print("  [警告] 取りこぼしがあるため workspace/ は残しました")
+    except Exception as e:
+        print(f"  [警告] workspace のクリアに失敗しました: {e}")
+
+
+
 def cmd_reset(args):
-    """state と logs を初期化。前回のデータは archive/ に退避"""
+    """state と logs を初期化。前回のデータは sessions/ にセッションとして保存する。
+    workspace/ は削除しない (成果物はそのまま残す)。"""
     import shutil
     framework_dir = os.path.dirname(STATE_DIR)
     logs_dir = os.path.join(framework_dir, "logs")
 
     if not args.force:
-        print("以下を初期化します:")
-        print(f"  state/ (hosts, creds, findings, log)")
-        print(f"  logs/")
-        print(f"前回のデータは archive/ に退避されます")
+        print("現セッションを sessions/ に保存してから、以下を初期化します:")
+        print(f"  state/ (hosts, creds, findings, log, events, alerts, relay)")
+        print(f"  logs/  (セッションに gzip で保存済みのものをクリア)")
+        print(f"  workspace/ (セッションに取り込み済みであることを照合してから削除)")
+        print("")
+        print("巨大バイナリ (APK/ISO 等) はセッションに含めません。")
+        print("所在は MANIFEST.json に記録され、必要なら再取得します。")
         confirm = input("実行する? (y/N): ")
         if confirm.lower() != 'y':
             print("キャンセル")
             return
 
-    # archive に退避
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    archive_dir = os.path.join(framework_dir, "archive", ts)
-    os.makedirs(archive_dir, exist_ok=True)
 
-    if os.path.exists(logs_dir) and os.listdir(logs_dir):
-        shutil.copytree(logs_dir, os.path.join(archive_dir, "logs"))
-    workspace_dir = os.path.join(framework_dir, "workspace")
-    if os.path.exists(workspace_dir) and os.listdir(workspace_dir):
-        shutil.copytree(workspace_dir, os.path.join(archive_dir, "workspace"))
-    for f in ["hosts.json", "creds.json", "findings.json", "log.jsonl", "events.jsonl"]:
-        src = os.path.join(STATE_DIR, f)
-        if os.path.exists(src):
-            shutil.copy2(src, os.path.join(archive_dir, f))
-    # relay ファイルも退避
+    # セッションとして退避 (復元可能な最小構成)
+    _session_name = _save_session(ts, getattr(args, "note", None))
+
+    # archive/ への丸ごとコピーと workspace の削除は廃止した。
+    # 理由: workspace には解析対象の巨大バイナリ (数十 GB) が含まれ、
+    # 毎回コピーするのは現実的でない。復元に必要なものは上の
+    # _save_session() が sessions/ に保存済み。workspace の掃除は手動で行う。
+
+    # relay は次セッションのノイズになるので消す (session に保存済み)
     for f in os.listdir(STATE_DIR):
         if f.startswith("relay_"):
-            shutil.copy2(os.path.join(STATE_DIR, f), os.path.join(archive_dir, f))
             os.remove(os.path.join(STATE_DIR, f))
-
-    print(f"Archived → archive/{ts}/")
 
     # 初期化
     with open(os.path.join(STATE_DIR, "hosts.json"), 'w') as f:
@@ -381,13 +472,13 @@ def cmd_reset(args):
         shutil.rmtree(logs_dir)
     os.makedirs(logs_dir, exist_ok=True)
 
-    # workspace をクリア
-    workspace_dir = os.path.join(framework_dir, "workspace")
-    if os.path.exists(workspace_dir):
-        shutil.rmtree(workspace_dir)
-    os.makedirs(workspace_dir, exist_ok=True)
+    # workspace をクリア (セッションに取り込み済みであることを照合してから)
+    _clean_workspace(_session_name)
 
-    print("Reset complete. scope.json は維持されています (手動で更新してください)")
+    print("Reset complete.")
+    print("  scope.json は維持されています (手動で更新してください)")
+    if _session_name:
+        print(f"  復元: python3 scripts/session.py restore {_session_name}")
 
 
 def main():
@@ -453,7 +544,8 @@ def main():
     )
     p.add_argument("--detail", required=True)
 
-    p = sub.add_parser("reset")
+    p = p_reset = sub.add_parser("reset")
+    p_reset.add_argument("--note", help="セッションに残すメモ")
     p.add_argument("--force", action="store_true", help="確認なしで実行")
 
     p = sub.add_parser("event", help="任意の構造化イベントを events.jsonl に記録")

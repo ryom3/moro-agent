@@ -7,6 +7,7 @@ logs/
 __pycache__/
 .pytest_cache/
 archive/
+sessions/
 workspace/
 
 # --- KB 索引・教材 (巨大・著作物) ---
@@ -54,3 +55,6 @@ state/alerts.json
 state/log.jsonl
 state/events.jsonl
 state/relay_*.json
+
+
+*.js

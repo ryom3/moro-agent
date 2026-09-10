@@ -1,20 +1,27 @@
 {
-  "claude-opus-4-6":   {"runtime": "claude-code"},
-  "claude-sonnet-4-6": {"runtime": "claude-code"},
-  "claude-haiku-4-5":  {"runtime": "claude-code"},
-
-  "fugu-ultra": {
-    "runtime": "codex",
-    "codex": {
-      "provider_name": "sakana",
-      "base_url": "https://api.sakana.ai/v1",
-      "api_key_env": "SAKANA_API_KEY",
-      "wire_api": "responses",
-      "model_slug": "fugu-ultra-v1.1"
+  "claude-opus-5": {
+    "runtime": "claude-code"
+  },
+  "claude-opus-4-6": {
+    "runtime": "claude-code"
+  },
+  "claude-sonnet-4-6": {
+    "runtime": "claude-code"
+  },
+  "claude-haiku-4-5": {
+    "runtime": "claude-code"
+  },
+  "glm-5.3": {
+    "runtime": "claude-code",
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "$GLM_API_KEY",
+      "ANTHROPIC_BASE_URL": "$GLM_BASE_URL",
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "200000",
+      "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
     }
   },
-
-  "glm-5.3": {
+  "glm-5.3-flash": {
     "runtime": "claude-code",
     "env": {
       "ANTHROPIC_AUTH_TOKEN": "$GLM_API_KEY",
@@ -34,10 +41,6 @@
       "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
     }
   },
-
-  "dsh-default": {
-    "runtime": "dsh"
-  },
   "dsh-deepseek-flash": {
     "runtime": "dsh",
     "dsh": {
@@ -45,11 +48,52 @@
       "model": "deepseek-v4-flash"
     }
   },
-  "dsh-ox-alpha-free": {
+  "muse-spark-1.3-contributor-free": {
     "runtime": "dsh",
     "dsh": {
-      "provider": "ox-alpha",
-      "model": "ox-alpha-free"
+      "provider": "opencode-zen",
+      "model": "muse-spark-1.3-contributor-free"
     }
+  },
+  "gpt-5.6-sol": {
+    "runtime": "codex"
+  },
+  "glm-5.3-free": {
+    "runtime": "dsh",
+    "dsh": {
+      "provider": "tokenrouter",
+      "model": "z-ai/glm-5.3-free"
+    }
+  },
+  "kimi-k3": {
+    "runtime": "claude-code",
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "$KIOS_API_KEY",
+      "ANTHROPIC_BASE_URL": "https://kiosapi.com",
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "200000",
+      "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    }
+  },
+  "qwen3.8-flash": {
+    "runtime": "claude-code",
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "$KIOS_API_KEY",
+      "ANTHROPIC_BASE_URL": "https://kiosapi.com",
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "200000",
+      "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    }
+  },
+  "deepseek-v4-flash": {
+    "runtime": "claude-code",
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "$ORCAROUTER_API_KEY",
+      "ANTHROPIC_BASE_URL": "https://api.orcarouter.ai",
+      "API_TIMEOUT_MS": "3000000",
+      "CLAUDE_CODE_MAX_CONTEXT_TOKENS": "200000",
+      "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT": "1"
+    },
+    "model_override": "deepseek/deepseek-v4-flash-free"
   }
 }
